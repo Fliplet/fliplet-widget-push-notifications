@@ -60,6 +60,7 @@ export const filterTypes = [
   //   labelVerbose: 'is less than or equal to'
   // }
 ];
+
 export function getFilterScope(filter) {
   filter = filter || {};
 

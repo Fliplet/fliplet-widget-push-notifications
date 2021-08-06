@@ -59,6 +59,7 @@ export default {
       }
 
       this.openPage = true;
+
       return page.title;
     },
     previewPage() {
@@ -88,6 +89,7 @@ export default {
       const link = document.createElement('a');
 
       link.href = this.link.url;
+
       return link.host;
     }
   }
