@@ -903,7 +903,12 @@ export default {
             }
           });
 
-          this.notification.scope = this.scope;
+          if (!_.isEmpty(this.scope)) {
+            this.notification.scope = this.scope;
+          } else {
+            // Ensures notification scope is never empty
+            delete this.notification.scope;
+          }
 
           // Array properties are separated to ensure the arrays are overwritten with new values
           _.assign(this.notification._metadata, {
