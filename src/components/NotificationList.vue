@@ -211,6 +211,7 @@ export default {
         setAppPages(pages);
 
         this.instance = Fliplet.Notifications.init();
+
         return this.loadNotifications();
       });
     },
@@ -270,11 +271,13 @@ export default {
         _.forIn(platformErrors, (count, type) => {
           if (!_.has(summary, type)) {
             summary[type] = count;
+
             return;
           }
 
           summary[type] += count;
         });
+
         return summary;
       }, {});
 
@@ -359,6 +362,7 @@ export default {
         }
 
         this.notifications.splice(removedIndex, 1);
+
         return this.instance.remove(notification.id).then(() => {
           this.loadNotifications();
         }).catch((error) => {
@@ -379,6 +383,7 @@ export default {
         && _.findIndex(this.notifications, { id: notificationId }) === -1
         && this.pageNumber !== 1) {
         this.pageNumber = 1;
+
         return;
       }
 
@@ -393,6 +398,7 @@ export default {
         if (!response.entries.length && this.pageNumber > response.pageCount) {
           // Load last page
           this.pageNumber = response.pageCount;
+
           return;
         }
 

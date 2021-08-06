@@ -6,6 +6,7 @@ Date.prototype.timezoneOffset = new Date().getTimezoneOffset();
 
 Date.setTimezoneOffset = function (timezoneOffset) {
   this.prototype.timezoneOffset = timezoneOffset;
+
   return this;
 };
 
@@ -15,6 +16,7 @@ Date.getTimezoneOffset = function () {
 
 Date.prototype.setTimezoneOffset = function (timezoneOffset) {
   this.timezoneOffset = timezoneOffset;
+
   return this;
 };
 
@@ -28,6 +30,7 @@ Date.prototype.toString = function () {
 
   offsetTime = this.timezoneOffset * 60 * 1000;
   offsetDate = new Date(this.getTime() - offsetTime);
+
   return offsetDate.toUTCString();
 };
 
@@ -39,6 +42,7 @@ Date.prototype.toString = function () {
 
       offsetTime = this.timezoneOffset * 60 * 1000;
       offsetDate = new Date(this.getTime() - offsetTime);
+
       return offsetDate['getUTC' + key]();
     };
 
@@ -52,6 +56,7 @@ Date.prototype.toString = function () {
       offsetDate['setUTC' + key](value);
       time = offsetDate.getTime() + offsetTime;
       this.setTime(time);
+
       return time;
     };
 

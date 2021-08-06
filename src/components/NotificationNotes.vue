@@ -63,6 +63,7 @@ export default {
     },
     update() {
       _.set(this.notification, 'data._metadata.notes', this.notes);
+
       return this.instance.update(this.notification.id, _.pick(this.notification, 'data')).then(() => {
         this.cachedNotes = '';
         this.mode = 'view';

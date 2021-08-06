@@ -604,6 +604,7 @@ export default {
       sessions = _.compact(_.map(sessions, (id) => {
         return parseInt(id, 10);
       }));
+
       return sessions;
     },
     getAsset(path) {
@@ -655,6 +656,7 @@ export default {
     toggleNotificationChannel(channel, enable) {
       if (typeof enable !== 'undefined') {
         this[enable ? 'addNotificationChannel' : 'removeNotificationChannel'](channel);
+
         return;
       }
 
@@ -737,11 +739,13 @@ export default {
         Fliplet.Modal.alert({
           message: 'Please select a screen to preview'
         });
+
         return;
       }
 
       if (window.parent === window.self) {
         alert('Preview only works in Fliplet Studio'); // eslint-disable-line no-alert
+
         return;
       }
 
@@ -770,6 +774,7 @@ export default {
     send() {
       if (this.schedule === 'scheduled') {
         this.save('scheduled');
+
         return;
       }
 
@@ -877,6 +882,7 @@ export default {
           if (this.showScreenPreview) {
             this.showScreenPreview = false;
             this.openScreenPreview();
+
             return;
           }
 
@@ -903,7 +909,12 @@ export default {
             }
           });
 
-          this.notification.scope = this.scope;
+          if (!_.isEmpty(this.scope)) {
+            this.notification.scope = this.scope;
+          } else {
+            // Ensures notification scope is never empty
+            delete this.notification.scope;
+          }
 
           // Array properties are separated to ensure the arrays are overwritten with new values
           _.assign(this.notification._metadata, {
