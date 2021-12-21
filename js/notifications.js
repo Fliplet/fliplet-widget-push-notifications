@@ -135,7 +135,7 @@ Fliplet.Widget.register('PushNotifications', function () {
     if (!data || !isConfigured()) {
       return Promise.reject({
         code: 0,
-        message: 'Please configure your push notification settings first.'
+        message: T('widgets.pushNotifications.error.configureSettings')
       });
     }
 
@@ -174,7 +174,7 @@ Fliplet.Widget.register('PushNotifications', function () {
 
       return Promise.reject({
         code: 4,
-        message: 'User has disallowed push notifications'
+        message: T('widgets.pushNotifications.error.disallowed')
       });
     }).then(function (displayPopup) {
       if (!displayPopup) {
@@ -210,7 +210,7 @@ Fliplet.Widget.register('PushNotifications', function () {
           markAsSeen('disallow').then(function () {
             reject({
               code: 2,
-              message: 'The user did not allow push notifications.'
+              message: T('widgets.pushNotifications.error.disallowed')
             });
 
             askPromise = undefined;
@@ -222,7 +222,7 @@ Fliplet.Widget.register('PushNotifications', function () {
           markAsSeen('remind').then(function () {
             reject({
               code: 3,
-              message: 'The user pressed the "remind later" button.'
+              message: T('widgets.pushNotifications.error.later')
             });
 
             askPromise = undefined;
