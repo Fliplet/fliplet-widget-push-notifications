@@ -99,7 +99,7 @@
             </template>
             <div class="col-xs-12 filter-summary">
               <div class="col-xs-8">
-                <p v-if="audience !== 'sessions'"><a href="#" class="btn btn-default" @click.prevent="addFilter"><i class="fa fa-fw fa-plus"></i> Add filter</a> <a href="https://help.fliplet.com/article/177-notifications" target="_blank" class="filter-help">How to add data for filtering users</a></p>
+                <p v-if="audience !== 'sessions'"><a href="#" class="btn btn-default" @click.prevent="addFilter"><i class="fa fa-fw fa-plus"></i> Add filter</a> <a href="https://help.fliplet.com/notifications-component/" target="_blank" class="filter-help">How to add data for filtering users</a></p>
               </div>
               <div class="col-xs-4 text-right">
                 <p>
@@ -167,7 +167,7 @@
                 <span class="tab tab-checked" :class="{ 'active': notificationHasChannel('push') }" @click="toggleNotificationChannel('push')">Push notification</span>
               </div>
               <div class="alert alert-info"><strong>New!</strong> Web apps can now receive push notifications.</div>
-              <div class="alert alert-warning" v-if="!pushIsConfigured">To send push notifications to your native app, you must configure push notifications on <a href="https://help.fliplet.com/article/23-configure-push-notifications-for-ios" target="_blank">iOS</a> and <a href="https://help.fliplet.com/article/40-configure-push-notifications-for-android" target="_blank">Android</a>.</div>
+              <div class="alert alert-warning" v-if="!pushIsConfigured">To send push notifications to your native app, you must configure push notifications on <a href="https://help.fliplet.com/configure-push-notifications-for-ios/" target="_blank">iOS</a> and <a href="https://help.fliplet.com/configure-push-notifications-for-android/" target="_blank">Android</a>.</div>
               <p class="text-center text-danger" v-if="errors.channels">{{ errors.channels }}</p>
             </div>
           </div>
