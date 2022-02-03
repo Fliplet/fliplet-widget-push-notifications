@@ -3698,7 +3698,7 @@ var render = function() {
                                       staticClass: "filter-help",
                                       attrs: {
                                         href:
-                                          "https://help.fliplet.com/article/177-notifications",
+                                          "https://help.fliplet.com/notifications-component/",
                                         target: "_blank"
                                       }
                                     },
@@ -3988,7 +3988,7 @@ var render = function() {
                                 {
                                   attrs: {
                                     href:
-                                      "https://help.fliplet.com/article/23-configure-push-notifications-for-ios",
+                                      "https://help.fliplet.com/configure-push-notifications-for-ios/",
                                     target: "_blank"
                                   }
                                 },
@@ -4000,7 +4000,7 @@ var render = function() {
                                 {
                                   attrs: {
                                     href:
-                                      "https://help.fliplet.com/article/40-configure-push-notifications-for-android",
+                                      "https://help.fliplet.com/configure-push-notifications-for-android/",
                                     target: "_blank"
                                   }
                                 },
