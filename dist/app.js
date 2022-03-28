@@ -4085,6 +4085,7 @@ var render = function() {
                       expression: "steps[step].name === 'review'"
                     }
                   ],
+                  ref: "review",
                   staticClass: "row notification-review"
                 },
                 [
@@ -4970,6 +4971,7 @@ var defaultSendLabel = 'Send notification';
     },
     step: function step() {
       this.autosize();
+      document.documentElement.scrollTop = 0;
     },
     schedule: function schedule() {
       this.autosize();
