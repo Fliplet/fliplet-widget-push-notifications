@@ -181,7 +181,7 @@
             </div>
           </div>
         </template>
-        <div class="row notification-review" v-show="steps[step].name === 'review'" ref="review">
+        <div class="row notification-review" v-show="steps[step].name === 'review'">
           <div class="col-md-10 col-md-offset-1">
             <h3>Your notification</h3>
             <template v-if="notificationHasChannel('in-app')">

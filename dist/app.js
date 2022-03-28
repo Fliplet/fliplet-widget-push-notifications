@@ -4085,7 +4085,6 @@ var render = function() {
                       expression: "steps[step].name === 'review'"
                     }
                   ],
-                  ref: "review",
                   staticClass: "row notification-review"
                 },
                 [
