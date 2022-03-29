@@ -500,7 +500,7 @@ export default {
     },
     step() {
       this.autosize();
-      document.documentElement.scrollTop = 0;
+      Fliplet.Studio.emit('overlay-scroll-top', { name: 'notifications' });
     },
     schedule() {
       this.autosize();
