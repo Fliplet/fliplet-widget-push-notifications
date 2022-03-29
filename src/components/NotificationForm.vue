@@ -500,6 +500,7 @@ export default {
     },
     step() {
       this.autosize();
+      Fliplet.Studio.emit('overlay-scroll-top', { name: 'notifications' });
     },
     schedule() {
       this.autosize();
