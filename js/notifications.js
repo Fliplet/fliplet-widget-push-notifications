@@ -238,7 +238,7 @@ Fliplet.Widget.register('PushNotifications', function () {
 
   /**
    * Once this widget loads, given it is has been configured in the settings
-   * initialise the component. If it's marked for showing the popup automatically
+   * initialize the component. If it's marked for showing the popup automatically
    * then also ask for push permission straight away .
    */
   if (isConfigured()) {
@@ -264,4 +264,8 @@ Fliplet.Widget.register('PushNotifications', function () {
     },
     isConfigured: isConfigured
   };
+});
+
+Fliplet.Widget.instance('push-notification', function() {
+  $(this).translate();
 });
