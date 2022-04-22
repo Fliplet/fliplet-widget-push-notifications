@@ -3988,7 +3988,7 @@ var render = function() {
                                 {
                                   attrs: {
                                     href:
-                                      "https://help.fliplet.com/configure-push-notifications-for-ios/",
+                                      "https://help.fliplet.com/push-notifications/#1",
                                     target: "_blank"
                                   }
                                 },
@@ -4000,7 +4000,7 @@ var render = function() {
                                 {
                                   attrs: {
                                     href:
-                                      "https://help.fliplet.com/configure-push-notifications-for-android/",
+                                      "https://help.fliplet.com/push-notifications/#2",
                                     target: "_blank"
                                   }
                                 },
