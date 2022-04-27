@@ -158,7 +158,7 @@ __webpack_require__.r(__webpack_exports__);
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "render", function() { return render; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return staticRenderFns; });
-var render = function() {
+var render = function () {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
@@ -172,12 +172,12 @@ var render = function() {
             name: "show",
             rawName: "v-show",
             value: _vm.view === "list",
-            expression: "view === 'list'"
-          }
-        ]
+            expression: "view === 'list'",
+          },
+        ],
       }),
       _vm._v(" "),
-      _vm.view === "form" ? _c("Notification-Form") : _vm._e()
+      _vm.view === "form" ? _c("Notification-Form") : _vm._e(),
     ],
     1
   )
@@ -303,7 +303,7 @@ __webpack_require__.r(__webpack_exports__);
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "render", function() { return render; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return staticRenderFns; });
-var render = function() {
+var render = function () {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
@@ -317,21 +317,21 @@ var render = function() {
               staticClass: "btn btn-primary",
               attrs: { href: "#" },
               on: {
-                click: function($event) {
+                click: function ($event) {
                   $event.preventDefault()
                   return _vm.createNotification.apply(null, arguments)
-                }
-              }
+                },
+              },
             },
             [
               _c("i", { staticClass: "fa fa-fw fa-lg fa-plus" }),
-              _vm._v(" Create new")
+              _vm._v(" Create new"),
             ]
-          )
-        ])
+          ),
+        ]),
       ]),
       _vm._v(" "),
-      _vm._m(0)
+      _vm._m(0),
     ]),
     _vm._v(" "),
     _c("div", { staticClass: "row" }, [
@@ -343,12 +343,12 @@ var render = function() {
             ? _c(
                 "div",
                 {
-                  staticClass: "notifications-loading spinner-holder animated"
+                  staticClass: "notifications-loading spinner-holder animated",
                 },
                 [
                   _c("div", { staticClass: "spinner-overlay" }),
                   _vm._v(" "),
-                  _c("p", [_vm._v("Loading notifications")])
+                  _c("p", [_vm._v("Loading notifications")]),
                 ]
               )
             : [
@@ -362,17 +362,17 @@ var render = function() {
                               name: "model",
                               rawName: "v-model",
                               value: _vm.showTimezone,
-                              expression: "showTimezone"
-                            }
+                              expression: "showTimezone",
+                            },
                           ],
                           attrs: { id: "show-timezone", type: "checkbox" },
                           domProps: {
                             checked: Array.isArray(_vm.showTimezone)
                               ? _vm._i(_vm.showTimezone, null) > -1
-                              : _vm.showTimezone
+                              : _vm.showTimezone,
                           },
                           on: {
-                            change: function($event) {
+                            change: function ($event) {
                               var $$a = _vm.showTimezone,
                                 $$el = $event.target,
                                 $$c = $$el.checked ? true : false
@@ -391,24 +391,25 @@ var render = function() {
                               } else {
                                 _vm.showTimezone = $$c
                               }
-                            }
-                          }
+                            },
+                          },
                         }),
                         _vm._v(" "),
-                        _vm._m(2)
+                        _vm._m(2),
                       ]),
                       _vm._v(" "),
                       _c(
                         "table",
                         {
-                          staticClass: "table table-condensed notification-list"
+                          staticClass:
+                            "table table-condensed notification-list",
                         },
                         [
                           _vm._m(3),
                           _vm._v(" "),
                           _c(
                             "tbody",
-                            _vm._l(_vm.notifications, function(notification) {
+                            _vm._l(_vm.notifications, function (notification) {
                               return _c(
                                 "tr",
                                 {
@@ -416,8 +417,8 @@ var render = function() {
                                   attrs: {
                                     "data-notification-id": notification.id,
                                     "data-job-id":
-                                      notification.job && notification.job.id
-                                  }
+                                      notification.job && notification.job.id,
+                                  },
                                 },
                                 [
                                   _c(
@@ -431,10 +432,11 @@ var render = function() {
                                             "tooltip",
                                             {
                                               attrs: {
-                                                title: _vm.getNotificationTooltip(
-                                                  notification
-                                                )
-                                              }
+                                                title:
+                                                  _vm.getNotificationTooltip(
+                                                    notification
+                                                  ),
+                                              },
                                             },
                                             [
                                               notification.status === "draft"
@@ -442,7 +444,7 @@ var render = function() {
                                                     "span",
                                                     {
                                                       staticClass:
-                                                        "label label-default"
+                                                        "label label-default",
                                                     },
                                                     [_vm._v("Draft")]
                                                   )
@@ -453,7 +455,7 @@ var render = function() {
                                                           "span",
                                                           {
                                                             staticClass:
-                                                              "label label-info"
+                                                              "label label-info",
                                                           },
                                                           [
                                                             _vm._v(
@@ -463,14 +465,14 @@ var render = function() {
                                                                     notification
                                                                   )
                                                                 )
-                                                            )
+                                                            ),
                                                           ]
                                                         )
                                                       : _c(
                                                           "span",
                                                           {
                                                             staticClass:
-                                                              "label label-success"
+                                                              "label label-success",
                                                           },
                                                           [
                                                             _vm._v(
@@ -480,13 +482,13 @@ var render = function() {
                                                                     notification
                                                                   )
                                                                 )
-                                                            )
+                                                            ),
                                                           ]
-                                                        )
-                                                  ]
+                                                        ),
+                                                  ],
                                             ],
                                             2
-                                          )
+                                          ),
                                         ],
                                         1
                                       ),
@@ -496,7 +498,7 @@ var render = function() {
                                           ? _c("strong", [
                                               _vm._v(
                                                 _vm._s(notification.data.title)
-                                              )
+                                              ),
                                             ])
                                           : _vm._e(),
                                         _vm._v(" "),
@@ -508,12 +510,12 @@ var render = function() {
                                           "\n                    " +
                                             _vm._s(notification.data.message) +
                                             "\n                  "
-                                        )
+                                        ),
                                       ]),
                                       _vm._v(" "),
                                       _c("Notification-Link", {
-                                        attrs: { notification: notification }
-                                      })
+                                        attrs: { notification: notification },
+                                      }),
                                     ],
                                     1
                                   ),
@@ -525,13 +527,13 @@ var render = function() {
                                       _c("Notification-Notes", {
                                         attrs: { notification: notification },
                                         on: {
-                                          "update:notification": function(
+                                          "update:notification": function (
                                             $event
                                           ) {
                                             notification = $event
-                                          }
-                                        }
-                                      })
+                                          },
+                                        },
+                                      }),
                                     ],
                                     1
                                   ),
@@ -566,11 +568,11 @@ var render = function() {
                                               : _vm._e(),
                                             _vm._v(
                                               "\n                    notifications"
-                                            )
+                                            ),
                                           ],
                                           2
-                                        )
-                                      ])
+                                        ),
+                                      ]),
                                     ]
                                   ),
                                   _vm._v(" "),
@@ -588,21 +590,21 @@ var render = function() {
                                                 {
                                                   attrs: { href: "#" },
                                                   on: {
-                                                    click: function($event) {
+                                                    click: function ($event) {
                                                       $event.preventDefault()
                                                       return _vm.editNotification(
                                                         notification
                                                       )
-                                                    }
-                                                  }
+                                                    },
+                                                  },
                                                 },
                                                 [
                                                   _c("i", {
                                                     staticClass:
-                                                      "fa fa-fw fa-lg fa-pencil"
-                                                  })
+                                                      "fa fa-fw fa-lg fa-pencil",
+                                                  }),
                                                 ]
-                                              )
+                                              ),
                                             ]
                                           )
                                         : _vm._e(),
@@ -616,21 +618,21 @@ var render = function() {
                                             {
                                               attrs: { href: "#" },
                                               on: {
-                                                click: function($event) {
+                                                click: function ($event) {
                                                   $event.preventDefault()
                                                   return _vm.cloneNotification(
                                                     notification
                                                   )
-                                                }
-                                              }
+                                                },
+                                              },
                                             },
                                             [
                                               _c("i", {
                                                 staticClass:
-                                                  "fa fa-fw fa-lg fa-copy"
-                                              })
+                                                  "fa fa-fw fa-lg fa-copy",
+                                              }),
                                             ]
-                                          )
+                                          ),
                                         ]
                                       ),
                                       _vm._v(" "),
@@ -640,8 +642,8 @@ var render = function() {
                                             {
                                               attrs: {
                                                 title:
-                                                  "Push notification result"
-                                              }
+                                                  "Push notification result",
+                                              },
                                             },
                                             [
                                               _c(
@@ -651,12 +653,13 @@ var render = function() {
                                                     title:
                                                       "Push notification result",
                                                     placement: "left",
-                                                    content: _vm.getNotificationLog(
-                                                      notification
-                                                    ),
+                                                    content:
+                                                      _vm.getNotificationLog(
+                                                        notification
+                                                      ),
                                                     "data-job-id":
-                                                      notification.job.id
-                                                  }
+                                                      notification.job.id,
+                                                  },
                                                 },
                                                 [
                                                   _c(
@@ -664,7 +667,7 @@ var render = function() {
                                                     {
                                                       attrs: { href: "#" },
                                                       on: {
-                                                        click: function(
+                                                        click: function (
                                                           $event
                                                         ) {
                                                           $event.preventDefault()
@@ -672,18 +675,18 @@ var render = function() {
                                                             null,
                                                             arguments
                                                           )
-                                                        }
-                                                      }
+                                                        },
+                                                      },
                                                     },
                                                     [
                                                       _c("i", {
                                                         staticClass:
-                                                          "fa fa-fw fa-lg fa-list-alt"
-                                                      })
+                                                          "fa fa-fw fa-lg fa-list-alt",
+                                                      }),
                                                     ]
-                                                  )
+                                                  ),
                                                 ]
-                                              )
+                                              ),
                                             ],
                                             1
                                           )
@@ -699,32 +702,32 @@ var render = function() {
                                                 {
                                                   attrs: { href: "#" },
                                                   on: {
-                                                    click: function($event) {
+                                                    click: function ($event) {
                                                       $event.preventDefault()
                                                       return _vm.deleteNotification(
                                                         notification
                                                       )
-                                                    }
-                                                  }
+                                                    },
+                                                  },
                                                 },
                                                 [
                                                   _c("i", {
                                                     staticClass:
-                                                      "fa fa-fw fa-lg fa-trash"
-                                                  })
+                                                      "fa fa-fw fa-lg fa-trash",
+                                                  }),
                                                 ]
-                                              )
+                                              ),
                                             ]
                                           )
-                                        : _vm._e()
+                                        : _vm._e(),
                                     ],
                                     1
-                                  )
+                                  ),
                                 ]
                               )
                             }),
                             0
-                          )
+                          ),
                         ]
                       ),
                       _vm._v(" "),
@@ -737,19 +740,19 @@ var render = function() {
                               "page-count": _vm.pageCount,
                               "prev-text": "Prev",
                               "next-text": "Next",
-                              "container-class": "pagination clearfix"
+                              "container-class": "pagination clearfix",
                             },
                             model: {
                               value: _vm.pageNumber,
-                              callback: function($$v) {
+                              callback: function ($$v) {
                                 _vm.pageNumber = $$v
                               },
-                              expression: "pageNumber"
-                            }
+                              expression: "pageNumber",
+                            },
                           }),
                           _vm._v(" "),
                           _c("span", { staticClass: "top-align" }, [
-                            _vm._v("Show rows:")
+                            _vm._v("Show rows:"),
                           ]),
                           _vm._v(" "),
                           _c("label", { staticClass: "select-proxy-display" }, [
@@ -761,17 +764,20 @@ var render = function() {
                                     name: "model",
                                     rawName: "v-model",
                                     value: _vm.batchSize,
-                                    expression: "batchSize"
-                                  }
+                                    expression: "batchSize",
+                                  },
                                 ],
                                 staticClass: "hidden-select form-control",
                                 on: {
-                                  change: function($event) {
+                                  change: function ($event) {
                                     var $$selectedVal = Array.prototype.filter
-                                      .call($event.target.options, function(o) {
-                                        return o.selected
-                                      })
-                                      .map(function(o) {
+                                      .call(
+                                        $event.target.options,
+                                        function (o) {
+                                          return o.selected
+                                        }
+                                      )
+                                      .map(function (o) {
                                         var val =
                                           "_value" in o ? o._value : o.value
                                         return val
@@ -779,38 +785,38 @@ var render = function() {
                                     _vm.batchSize = $event.target.multiple
                                       ? $$selectedVal
                                       : $$selectedVal[0]
-                                  }
-                                }
+                                  },
+                                },
                               },
-                              _vm._l(_vm.batchSizes, function(size, index) {
+                              _vm._l(_vm.batchSizes, function (size, index) {
                                 return _c("option", {
                                   key: index,
                                   domProps: {
                                     value: size,
-                                    innerHTML: _vm._s(size)
-                                  }
+                                    innerHTML: _vm._s(size),
+                                  },
                                 })
                               }),
                               0
                             ),
                             _vm._v(" "),
                             _c("span", {
-                              staticClass: "icon fa fa-chevron-down"
-                            })
-                          ])
+                              staticClass: "icon fa fa-chevron-down",
+                            }),
+                          ]),
                         ],
                         1
-                      )
-                    ]
-              ]
+                      ),
+                    ],
+              ],
         ],
         2
-      )
-    ])
+      ),
+    ]),
   ])
 }
 var staticRenderFns = [
-  function() {
+  function () {
     var _vm = this
     var _h = _vm.$createElement
     var _c = _vm._self._c || _h
@@ -820,17 +826,17 @@ var staticRenderFns = [
           "a",
           {
             staticClass: "btn btn-default show-settings pull-right",
-            attrs: { href: "#" }
+            attrs: { href: "#" },
           },
           [
             _c("i", { staticClass: "fa fa-fw fa-lg fa-cog" }),
-            _vm._v(" Push notification settings")
+            _vm._v(" Push notification settings"),
           ]
-        )
-      ])
+        ),
+      ]),
     ])
   },
-  function() {
+  function () {
     var _vm = this
     var _h = _vm.$createElement
     var _c = _vm._self._c || _h
@@ -840,22 +846,22 @@ var staticRenderFns = [
       _c("p", [
         _vm._v(
           "Communicate latest updates and promotions with your users so they can re-engage with your app."
-        )
-      ])
+        ),
+      ]),
     ])
   },
-  function() {
+  function () {
     var _vm = this
     var _h = _vm.$createElement
     var _c = _vm._self._c || _h
     return _c("label", { attrs: { for: "show-timezone" } }, [
       _c("span", { staticClass: "check" }, [
-        _c("i", { staticClass: "fa fa-check" })
+        _c("i", { staticClass: "fa fa-check" }),
       ]),
-      _vm._v(" Show timezones\n            ")
+      _vm._v(" Show timezones\n            "),
     ])
   },
-  function() {
+  function () {
     var _vm = this
     var _h = _vm.$createElement
     var _c = _vm._self._c || _h
@@ -867,10 +873,10 @@ var staticRenderFns = [
         _vm._v(" "),
         _c("th", [_vm._v("Sent to")]),
         _vm._v(" "),
-        _c("th")
-      ])
+        _c("th"),
+      ]),
     ])
-  }
+  },
 ]
 render._withStripped = true
 
@@ -1359,7 +1365,7 @@ __webpack_require__.r(__webpack_exports__);
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "render", function() { return render; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return staticRenderFns; });
-var render = function() {
+var render = function () {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
@@ -1375,14 +1381,14 @@ var render = function() {
                   {
                     attrs: { href: "#" },
                     on: {
-                      click: function($event) {
+                      click: function ($event) {
                         $event.preventDefault()
                         return _vm.previewPage.apply(null, arguments)
-                      }
-                    }
+                      },
+                    },
                   },
                   [_vm._v(_vm._s(_vm.pageName))]
-                )
+                ),
               ]
             : _vm._e(),
           _vm._v(" "),
@@ -1395,13 +1401,13 @@ var render = function() {
                     attrs: {
                       href: _vm.link.url,
                       target: "_blank",
-                      title: _vm.link.url
-                    }
+                      title: _vm.link.url,
+                    },
                   },
                   [_vm._v(_vm._s(_vm.linkHost))]
-                )
+                ),
               ]
-            : _vm._e()
+            : _vm._e(),
         ],
         2
       )
@@ -1957,7 +1963,7 @@ __webpack_require__.r(__webpack_exports__);
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "render", function() { return render; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return staticRenderFns; });
-var render = function() {
+var render = function () {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
@@ -1966,7 +1972,7 @@ var render = function() {
     [
       !_vm.notification.id
         ? _c("p", { staticClass: "notes-unsupported" }, [
-            _vm._v("Not supported")
+            _vm._v("Not supported"),
           ])
         : [
             _vm.mode === "view"
@@ -1975,7 +1981,7 @@ var render = function() {
                     ? [
                         _c("p", {
                           staticClass: "notes-content",
-                          domProps: { innerHTML: _vm._s(_vm.getNotes()) }
+                          domProps: { innerHTML: _vm._s(_vm.getNotes()) },
                         }),
                         _vm._v(" "),
                         _c("p", { staticClass: "notes-toolbar" }, [
@@ -1984,14 +1990,14 @@ var render = function() {
                             {
                               staticClass: "btn btn-sm btn-default",
                               on: {
-                                click: function($event) {
+                                click: function ($event) {
                                   return _vm.edit()
-                                }
-                              }
+                                },
+                              },
                             },
                             [_vm._v("Edit notes")]
-                          )
-                        ])
+                          ),
+                        ]),
                       ]
                     : [
                         _c("p", { staticClass: "notes-toolbar" }, [
@@ -2000,15 +2006,15 @@ var render = function() {
                             {
                               staticClass: "btn btn-sm btn-default",
                               on: {
-                                click: function($event) {
+                                click: function ($event) {
                                   return _vm.edit()
-                                }
-                              }
+                                },
+                              },
                             },
                             [_vm._v("Add notes")]
-                          )
-                        ])
-                      ]
+                          ),
+                        ]),
+                      ],
                 ]
               : _vm._e(),
             _vm._v(" "),
@@ -2021,25 +2027,25 @@ var render = function() {
                           name: "model",
                           rawName: "v-model",
                           value: _vm.notes,
-                          expression: "notes"
-                        }
+                          expression: "notes",
+                        },
                       ],
                       staticClass: "form-control",
                       attrs: {
                         rows: "4",
                         placeholder:
-                          "(Optional) Add some notes to this notification. Your users will not see this."
+                          "(Optional) Add some notes to this notification. Your users will not see this.",
                       },
                       domProps: { value: _vm.notes },
                       on: {
-                        input: function($event) {
+                        input: function ($event) {
                           if ($event.target.composing) {
                             return
                           }
                           _vm.notes = $event.target.value
-                        }
-                      }
-                    })
+                        },
+                      },
+                    }),
                   ]),
                   _vm._v(" "),
                   _c("p", [
@@ -2048,10 +2054,10 @@ var render = function() {
                       {
                         staticClass: "btn btn-sm btn-primary",
                         on: {
-                          click: function($event) {
+                          click: function ($event) {
                             return _vm.update()
-                          }
-                        }
+                          },
+                        },
                       },
                       [_vm._v("Save")]
                     ),
@@ -2061,17 +2067,17 @@ var render = function() {
                       {
                         staticClass: "btn btn-sm btn-default",
                         on: {
-                          click: function($event) {
+                          click: function ($event) {
                             return _vm.cancel()
-                          }
-                        }
+                          },
+                        },
                       },
                       [_vm._v("Cancel")]
-                    )
-                  ])
+                    ),
+                  ]),
                 ]
-              : _vm._e()
-          ]
+              : _vm._e(),
+          ],
     ],
     2
   )
@@ -2258,7 +2264,7 @@ __webpack_require__.r(__webpack_exports__);
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "render", function() { return render; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return staticRenderFns; });
-var render = function() {
+var render = function () {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
@@ -2268,8 +2274,8 @@ var render = function() {
       attrs: {
         "data-toggle": "tooltip",
         "data-placement": _vm.placement,
-        title: _vm.title
-      }
+        title: _vm.title,
+      },
     },
     [_vm._t("default")],
     2
@@ -2375,7 +2381,7 @@ __webpack_require__.r(__webpack_exports__);
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "render", function() { return render; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return staticRenderFns; });
-var render = function() {
+var render = function () {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
@@ -2387,8 +2393,8 @@ var render = function() {
         "data-placement": _vm.placement,
         title: _vm.title,
         "data-content": _vm.content,
-        "data-trigger": _vm.trigger
-      }
+        "data-trigger": _vm.trigger,
+      },
     },
     [_vm._t("default")],
     2
@@ -2933,7 +2939,7 @@ __webpack_require__.r(__webpack_exports__);
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "render", function() { return render; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return staticRenderFns; });
-var render = function() {
+var render = function () {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
@@ -2944,8 +2950,8 @@ var render = function() {
             _c("div", { staticClass: "spinner-holder animated" }, [
               _c("div", { staticClass: "spinner-overlay" }),
               _vm._v(" "),
-              _c("p", { domProps: { innerHTML: _vm._s(_vm.saveMessage) } })
-            ])
+              _c("p", { domProps: { innerHTML: _vm._s(_vm.saveMessage) } }),
+            ]),
           ])
         : _c(
             "div",
@@ -2954,11 +2960,11 @@ var render = function() {
               _c(
                 "div",
                 { staticClass: "steps-holder" },
-                _vm._l(_vm.steps, function(stepObj, index) {
+                _vm._l(_vm.steps, function (stepObj, index) {
                   return _c("div", {
                     key: stepObj.name,
                     staticClass: "step",
-                    class: { active: index === _vm.step }
+                    class: { active: index === _vm.step },
                   })
                 }),
                 0
@@ -2972,10 +2978,10 @@ var render = function() {
                       name: "show",
                       rawName: "v-show",
                       value: _vm.steps[_vm.step].name === "configure",
-                      expression: "steps[step].name === 'configure'"
-                    }
+                      expression: "steps[step].name === 'configure'",
+                    },
                   ],
-                  staticClass: "row"
+                  staticClass: "row",
                 },
                 [
                   _c("div", { staticClass: "col-md-8 col-md-offset-2" }, [
@@ -2988,8 +2994,8 @@ var render = function() {
                             name: "model",
                             rawName: "v-model",
                             value: _vm.notification.data.title,
-                            expression: "notification.data.title"
-                          }
+                            expression: "notification.data.title",
+                          },
                         ],
                         staticClass: "form-control",
                         attrs: {
@@ -2997,11 +3003,11 @@ var render = function() {
                           placeholder: "Enter notification title",
                           "data-count-selector": "#title-count",
                           maxlength: _vm.titleCharacterLimit,
-                          required: ""
+                          required: "",
                         },
                         domProps: { value: _vm.notification.data.title },
                         on: {
-                          input: function($event) {
+                          input: function ($event) {
                             if ($event.target.composing) {
                               return
                             }
@@ -3010,8 +3016,8 @@ var render = function() {
                               "title",
                               $event.target.value
                             )
-                          }
-                        }
+                          },
+                        },
                       }),
                       _vm._v(" "),
                       _c(
@@ -3020,8 +3026,8 @@ var render = function() {
                           staticClass: "pull-right",
                           class: {
                             "text-success": _vm.titleCharactersRemaining >= 0,
-                            "text-danger": _vm.titleCharactersRemaining < 0
-                          }
+                            "text-danger": _vm.titleCharactersRemaining < 0,
+                          },
                         },
                         [
                           _vm._v(
@@ -3030,16 +3036,16 @@ var render = function() {
                           _vm.titleCharactersRemaining !== 1
                             ? void 0
                             : _vm._e(),
-                          _vm._v(" left")
+                          _vm._v(" left"),
                         ],
                         2
                       ),
                       _vm._v(" "),
                       _vm.errors.title
                         ? _c("div", { staticClass: "text-danger" }, [
-                            _vm._v(_vm._s(_vm.errors.title))
+                            _vm._v(_vm._s(_vm.errors.title)),
                           ])
-                        : _vm._e()
+                        : _vm._e(),
                     ]),
                     _vm._v(" "),
                     _c("div", { staticClass: "form-group clearfix" }, [
@@ -3049,8 +3055,8 @@ var render = function() {
                             name: "model",
                             rawName: "v-model",
                             value: _vm.notification.data.message,
-                            expression: "notification.data.message"
-                          }
+                            expression: "notification.data.message",
+                          },
                         ],
                         staticClass: "form-control",
                         attrs: {
@@ -3058,11 +3064,11 @@ var render = function() {
                           placeholder:
                             "Enter notification message (15 words recommended)",
                           maxlength: _vm.messageCharacterLimit,
-                          required: ""
+                          required: "",
                         },
                         domProps: { value: _vm.notification.data.message },
                         on: {
-                          input: function($event) {
+                          input: function ($event) {
                             if ($event.target.composing) {
                               return
                             }
@@ -3071,8 +3077,8 @@ var render = function() {
                               "message",
                               $event.target.value
                             )
-                          }
-                        }
+                          },
+                        },
                       }),
                       _vm._v(" "),
                       _c(
@@ -3081,8 +3087,8 @@ var render = function() {
                           staticClass: "pull-right",
                           class: {
                             "text-success": _vm.messageCharactersRemaining >= 0,
-                            "text-danger": _vm.messageCharactersRemaining < 0
-                          }
+                            "text-danger": _vm.messageCharactersRemaining < 0,
+                          },
                         },
                         [
                           _vm._v(
@@ -3092,16 +3098,16 @@ var render = function() {
                           _vm.messageCharactersRemaining !== 1
                             ? void 0
                             : _vm._e(),
-                          _vm._v(" left")
+                          _vm._v(" left"),
                         ],
                         2
                       ),
                       _vm._v(" "),
                       _vm.errors.message
                         ? _c("div", { staticClass: "text-danger" }, [
-                            _vm._v(_vm._s(_vm.errors.message))
+                            _vm._v(_vm._s(_vm.errors.message)),
                           ])
-                        : _vm._e()
+                        : _vm._e(),
                     ]),
                     _vm._v(" "),
                     _c("div", { staticClass: "form-group clearfix" }, [
@@ -3114,10 +3120,10 @@ var render = function() {
                             staticClass: "tab",
                             class: { active: _vm.linkAction === "" },
                             on: {
-                              click: function($event) {
+                              click: function ($event) {
                                 _vm.linkAction = ""
-                              }
-                            }
+                              },
+                            },
                           },
                           [_vm._v("No link")]
                         ),
@@ -3128,10 +3134,10 @@ var render = function() {
                             staticClass: "tab",
                             class: { active: _vm.linkAction === "screen" },
                             on: {
-                              click: function($event) {
+                              click: function ($event) {
                                 _vm.linkAction = "screen"
-                              }
-                            }
+                              },
+                            },
                           },
                           [_vm._v("Link to screen")]
                         ),
@@ -3142,14 +3148,14 @@ var render = function() {
                             staticClass: "tab",
                             class: { active: _vm.linkAction === "url" },
                             on: {
-                              click: function($event) {
+                              click: function ($event) {
                                 _vm.linkAction = "url"
-                              }
-                            }
+                              },
+                            },
                           },
                           [_vm._v("Link to web page")]
-                        )
-                      ])
+                        ),
+                      ]),
                     ]),
                     _vm._v(" "),
                     _c(
@@ -3160,10 +3166,10 @@ var render = function() {
                             name: "show",
                             rawName: "v-show",
                             value: _vm.linkAction !== "none",
-                            expression: "linkAction !== 'none'"
-                          }
+                            expression: "linkAction !== 'none'",
+                          },
                         ],
-                        staticClass: "clearfix link-providers"
+                        staticClass: "clearfix link-providers",
                       },
                       [
                         _c(
@@ -3174,17 +3180,17 @@ var render = function() {
                                 name: "show",
                                 rawName: "v-show",
                                 value: _vm.linkAction === "screen",
-                                expression: "linkAction === 'screen'"
-                              }
+                                expression: "linkAction === 'screen'",
+                              },
                             ],
-                            staticClass: "form-group"
+                            staticClass: "form-group",
                           },
                           [
                             _c("div", { ref: "screenLinkProvider" }),
                             _vm._v(" "),
                             _vm.errors.screenLink
                               ? _c("div", { staticClass: "text-danger" }, [
-                                  _vm._v(_vm._s(_vm.errors.screenLink))
+                                  _vm._v(_vm._s(_vm.errors.screenLink)),
                                 ])
                               : _vm._e(),
                             _vm._v(" "),
@@ -3195,18 +3201,18 @@ var render = function() {
                                   staticClass: "btn btn-default",
                                   attrs: { href: "#" },
                                   on: {
-                                    click: function($event) {
+                                    click: function ($event) {
                                       $event.preventDefault()
                                       return _vm.previewScreenLink.apply(
                                         null,
                                         arguments
                                       )
-                                    }
-                                  }
+                                    },
+                                  },
                                 },
                                 [_vm._v("Preview target screen")]
-                              )
-                            ])
+                              ),
+                            ]),
                           ]
                         ),
                         _vm._v(" "),
@@ -3218,21 +3224,21 @@ var render = function() {
                                 name: "show",
                                 rawName: "v-show",
                                 value: _vm.linkAction === "url",
-                                expression: "linkAction === 'url'"
-                              }
+                                expression: "linkAction === 'url'",
+                              },
                             ],
-                            staticClass: "form-group"
+                            staticClass: "form-group",
                           },
                           [
                             _c("div", { ref: "urlLinkProvider" }),
                             _vm._v(" "),
                             _vm.errors.urlLink
                               ? _c("div", { staticClass: "text-danger" }, [
-                                  _vm._v(_vm._s(_vm.errors.urlLink))
+                                  _vm._v(_vm._s(_vm.errors.urlLink)),
                                 ])
-                              : _vm._e()
+                              : _vm._e(),
                           ]
-                        )
+                        ),
                       ]
                     ),
                     _vm._v(" "),
@@ -3243,11 +3249,11 @@ var render = function() {
                           staticClass: "btn btn-default",
                           attrs: { href: "#" },
                           on: {
-                            click: function($event) {
+                            click: function ($event) {
                               $event.preventDefault()
                               return _vm.cancel.apply(null, arguments)
-                            }
-                          }
+                            },
+                          },
                         },
                         [_vm._v("Cancel")]
                       ),
@@ -3258,11 +3264,11 @@ var render = function() {
                           staticClass: "btn btn-primary",
                           attrs: { href: "#" },
                           on: {
-                            click: function($event) {
+                            click: function ($event) {
                               $event.preventDefault()
                               return _vm.nextStep.apply(null, arguments)
-                            }
-                          }
+                            },
+                          },
                         },
                         [_vm._v("Select recipients")]
                       ),
@@ -3274,16 +3280,16 @@ var render = function() {
                           staticClass: "btn btn-link",
                           attrs: { href: "#" },
                           on: {
-                            click: function($event) {
+                            click: function ($event) {
                               $event.preventDefault()
                               return _vm.save("draft")
-                            }
-                          }
+                            },
+                          },
                         },
                         [_vm._v("Save as draft")]
-                      )
-                    ])
-                  ])
+                      ),
+                    ]),
+                  ]),
                 ]
               ),
               _vm._v(" "),
@@ -3302,10 +3308,10 @@ var render = function() {
                               staticClass: "tab",
                               class: { active: _vm.audience === "" },
                               on: {
-                                click: function($event) {
+                                click: function ($event) {
                                   _vm.audience = ""
-                                }
-                              }
+                                },
+                              },
                             },
                             [_vm._v("All users")]
                           ),
@@ -3316,10 +3322,10 @@ var render = function() {
                               staticClass: "tab",
                               class: { active: _vm.audience === "loggedIn" },
                               on: {
-                                click: function($event) {
+                                click: function ($event) {
                                   _vm.audience = "loggedIn"
-                                }
-                              }
+                                },
+                              },
                             },
                             [_vm._v("Signed in users")]
                           ),
@@ -3330,13 +3336,13 @@ var render = function() {
                               staticClass: "tab",
                               class: { active: _vm.audience === "sessions" },
                               on: {
-                                click: function($event) {
+                                click: function ($event) {
                                   _vm.audience = "sessions"
-                                }
-                              }
+                                },
+                              },
                             },
                             [_vm._v("Test devices")]
-                          )
+                          ),
                         ]),
                         _vm._v(" "),
                         _vm.audience !== "sessions" && _vm.filters.length
@@ -3344,10 +3350,10 @@ var render = function() {
                               _c("h4", [
                                 _vm._v(
                                   "Recipients must match all of the following"
-                                )
+                                ),
                               ]),
                               _vm._v(" "),
-                              _vm._l(_vm.filters, function(filter, index) {
+                              _vm._l(_vm.filters, function (filter, index) {
                                 return _c(
                                   "div",
                                   { key: index, staticClass: "filters" },
@@ -3363,17 +3369,18 @@ var render = function() {
                                               staticClass:
                                                 "btn btn-circle btn-default",
                                               on: {
-                                                click: function($event) {
+                                                click: function ($event) {
                                                   return _vm.removeFilter(index)
-                                                }
-                                              }
+                                                },
+                                              },
                                             },
                                             [
                                               _c("i", {
-                                                staticClass: "fa fa-fw fa-minus"
-                                              })
+                                                staticClass:
+                                                  "fa fa-fw fa-minus",
+                                              }),
                                             ]
-                                          )
+                                          ),
                                         ]),
                                         _vm._v(" "),
                                         _c("div", { staticClass: "col-xs-4" }, [
@@ -3384,19 +3391,19 @@ var render = function() {
                                                   name: "model",
                                                   rawName: "v-model",
                                                   value: filter.column,
-                                                  expression: "filter.column"
-                                                }
+                                                  expression: "filter.column",
+                                                },
                                               ],
                                               staticClass: "form-control",
                                               attrs: {
                                                 type: "text",
-                                                placeholder: "Field name"
+                                                placeholder: "Field name",
                                               },
                                               domProps: {
-                                                value: filter.column
+                                                value: filter.column,
                                               },
                                               on: {
-                                                input: function($event) {
+                                                input: function ($event) {
                                                   if ($event.target.composing) {
                                                     return
                                                   }
@@ -3405,16 +3412,16 @@ var render = function() {
                                                     "column",
                                                     $event.target.value
                                                   )
-                                                }
-                                              }
-                                            })
+                                                },
+                                              },
+                                            }),
                                           ]),
                                           _vm._v(" "),
                                           _c(
                                             "div",
                                             {
                                               staticClass:
-                                                "form-inline filter-path"
+                                                "form-inline filter-path",
                                             },
                                             [
                                               !_vm.showFilterPath(filter)
@@ -3424,36 +3431,36 @@ var render = function() {
                                                       staticClass: "add-path",
                                                       attrs: {
                                                         href: "#",
-                                                        tabindex: "-1"
+                                                        tabindex: "-1",
                                                       },
                                                       on: {
-                                                        click: function(
+                                                        click: function (
                                                           $event
                                                         ) {
                                                           $event.preventDefault()
                                                           return _vm.addFilterPath(
                                                             filter
                                                           )
-                                                        }
-                                                      }
+                                                        },
+                                                      },
                                                     },
                                                     [
                                                       _vm._v(
                                                         "This field is an object"
-                                                      )
+                                                      ),
                                                     ]
                                                   )
                                                 : _c(
                                                     "div",
                                                     {
-                                                      staticClass: "form-group"
+                                                      staticClass: "form-group",
                                                     },
                                                     [
                                                       _c(
                                                         "label",
                                                         {
                                                           staticClass:
-                                                            "filter-path-label"
+                                                            "filter-path-label",
                                                         },
                                                         [_vm._v("Path")]
                                                       ),
@@ -3465,21 +3472,21 @@ var render = function() {
                                                             rawName: "v-model",
                                                             value: filter.path,
                                                             expression:
-                                                              "filter.path"
-                                                          }
+                                                              "filter.path",
+                                                          },
                                                         ],
                                                         staticClass:
                                                           "form-control",
                                                         attrs: {
                                                           type: "text",
                                                           placeholder:
-                                                            "e.g. companies[0].name"
+                                                            "e.g. companies[0].name",
                                                         },
                                                         domProps: {
-                                                          value: filter.path
+                                                          value: filter.path,
                                                         },
                                                         on: {
-                                                          input: function(
+                                                          input: function (
                                                             $event
                                                           ) {
                                                             if (
@@ -3494,27 +3501,27 @@ var render = function() {
                                                               $event.target
                                                                 .value
                                                             )
-                                                          }
-                                                        }
+                                                          },
+                                                        },
                                                       }),
                                                       _vm._v(" "),
                                                       _c("i", {
                                                         staticClass:
                                                           "fa fa-fw fa-times",
                                                         on: {
-                                                          click: function(
+                                                          click: function (
                                                             $event
                                                           ) {
                                                             return _vm.removeFilterPath(
                                                               filter
                                                             )
-                                                          }
-                                                        }
-                                                      })
+                                                          },
+                                                        },
+                                                      }),
                                                     ]
-                                                  )
+                                                  ),
                                             ]
-                                          )
+                                          ),
                                         ]),
                                         _vm._v(" "),
                                         _c("div", { staticClass: "col-xs-3" }, [
@@ -3522,7 +3529,7 @@ var render = function() {
                                             "label",
                                             {
                                               staticClass:
-                                                "select-proxy-display"
+                                                "select-proxy-display",
                                             },
                                             [
                                               _c(
@@ -3534,27 +3541,29 @@ var render = function() {
                                                       rawName: "v-model",
                                                       value: filter.condition,
                                                       expression:
-                                                        "filter.condition"
-                                                    }
+                                                        "filter.condition",
+                                                    },
                                                   ],
                                                   staticClass:
                                                     "hidden-select form-control",
                                                   on: {
-                                                    change: function($event) {
-                                                      var $$selectedVal = Array.prototype.filter
-                                                        .call(
-                                                          $event.target.options,
-                                                          function(o) {
-                                                            return o.selected
-                                                          }
-                                                        )
-                                                        .map(function(o) {
-                                                          var val =
-                                                            "_value" in o
-                                                              ? o._value
-                                                              : o.value
-                                                          return val
-                                                        })
+                                                    change: function ($event) {
+                                                      var $$selectedVal =
+                                                        Array.prototype.filter
+                                                          .call(
+                                                            $event.target
+                                                              .options,
+                                                            function (o) {
+                                                              return o.selected
+                                                            }
+                                                          )
+                                                          .map(function (o) {
+                                                            var val =
+                                                              "_value" in o
+                                                                ? o._value
+                                                                : o.value
+                                                            return val
+                                                          })
                                                       _vm.$set(
                                                         filter,
                                                         "condition",
@@ -3562,20 +3571,20 @@ var render = function() {
                                                           ? $$selectedVal
                                                           : $$selectedVal[0]
                                                       )
-                                                    }
-                                                  }
+                                                    },
+                                                  },
                                                 },
                                                 _vm._l(
                                                   _vm.filterTypes,
-                                                  function(type) {
+                                                  function (type) {
                                                     return _c("option", {
                                                       key: type.name,
                                                       domProps: {
                                                         value: type.name,
                                                         innerHTML: _vm._s(
                                                           type.label
-                                                        )
-                                                      }
+                                                        ),
+                                                      },
                                                     })
                                                   }
                                                 ),
@@ -3584,10 +3593,10 @@ var render = function() {
                                               _vm._v(" "),
                                               _c("span", {
                                                 staticClass:
-                                                  "icon fa fa-chevron-down"
-                                              })
+                                                  "icon fa fa-chevron-down",
+                                              }),
                                             ]
-                                          )
+                                          ),
                                         ]),
                                         _vm._v(" "),
                                         _c(
@@ -3599,10 +3608,10 @@ var render = function() {
                                                 type: _vm.getFilterValueType(
                                                   filter
                                                 ),
-                                                value: filter.value
+                                                value: filter.value,
                                               },
                                               on: {
-                                                "update:value": function(
+                                                "update:value": function (
                                                   $event
                                                 ) {
                                                   return _vm.$set(
@@ -3610,17 +3619,17 @@ var render = function() {
                                                     "value",
                                                     $event
                                                   )
-                                                }
-                                              }
-                                            })
+                                                },
+                                              },
+                                            }),
                                           ],
                                           1
-                                        )
+                                        ),
                                       ]
-                                    )
+                                    ),
                                   ]
                                 )
-                              })
+                              }),
                             ]
                           : _vm._e(),
                         _vm._v(" "),
@@ -3631,7 +3640,7 @@ var render = function() {
                               _c("p", { staticClass: "text-center" }, [
                                 _vm._v(
                                   "To test notifications with individual devices, enter the device ID for each device."
-                                )
+                                ),
                               ]),
                               _vm._v(" "),
                               _c(
@@ -3641,14 +3650,14 @@ var render = function() {
                                     attrs: {
                                       value: _vm.sessions,
                                       placeholder:
-                                        "Separate multiple IDs with commas"
+                                        "Separate multiple IDs with commas",
                                     },
                                     on: {
-                                      "update:value": function($event) {
+                                      "update:value": function ($event) {
                                         _vm.sessions = $event
-                                      }
-                                    }
-                                  })
+                                      },
+                                    },
+                                  }),
                                 ],
                                 1
                               ),
@@ -3661,7 +3670,7 @@ var render = function() {
                                     { staticClass: "text-center text-danger" },
                                     [_vm._v(_vm._s(_vm.errors.sessions))]
                                   )
-                                : _vm._e()
+                                : _vm._e(),
                             ]
                           : _vm._e(),
                         _vm._v(" "),
@@ -3675,20 +3684,20 @@ var render = function() {
                                       staticClass: "btn btn-default",
                                       attrs: { href: "#" },
                                       on: {
-                                        click: function($event) {
+                                        click: function ($event) {
                                           $event.preventDefault()
                                           return _vm.addFilter.apply(
                                             null,
                                             arguments
                                           )
-                                        }
-                                      }
+                                        },
+                                      },
                                     },
                                     [
                                       _c("i", {
-                                        staticClass: "fa fa-fw fa-plus"
+                                        staticClass: "fa fa-fw fa-plus",
                                       }),
-                                      _vm._v(" Add filter")
+                                      _vm._v(" Add filter"),
                                     ]
                                   ),
                                   _vm._v(" "),
@@ -3697,19 +3706,18 @@ var render = function() {
                                     {
                                       staticClass: "filter-help",
                                       attrs: {
-                                        href:
-                                          "https://help.fliplet.com/notifications-component/",
-                                        target: "_blank"
-                                      }
+                                        href: "https://help.fliplet.com/notifications-component/",
+                                        target: "_blank",
+                                      },
                                     },
                                     [
                                       _vm._v(
                                         "How to add data for filtering users"
-                                      )
+                                      ),
                                     ]
-                                  )
+                                  ),
                                 ])
-                              : _vm._e()
+                              : _vm._e(),
                           ]),
                           _vm._v(" "),
                           _c("div", { staticClass: "col-xs-4 text-right" }, [
@@ -3723,7 +3731,7 @@ var render = function() {
                                         ? [
                                             _vm._v(
                                               "\n                    Estimating...\n                  "
-                                            )
+                                            ),
                                           ]
                                         : [
                                             _vm._v(
@@ -3740,23 +3748,23 @@ var render = function() {
                                               {
                                                 attrs: {
                                                   title:
-                                                    "This is an approximation and will depend on the user preference at the time of publish. Users who have never used the app will be excluded."
-                                                }
+                                                    "This is an approximation and will depend on the user preference at the time of publish. Users who have never used the app will be excluded.",
+                                                },
                                               },
                                               [
                                                 _c("i", {
                                                   staticClass:
-                                                    "fa fa-info-circle"
-                                                })
+                                                    "fa fa-info-circle",
+                                                }),
                                               ]
-                                            )
-                                          ]
+                                            ),
+                                          ],
                                     ],
                                     2
                                   )
-                                : _vm._e()
-                            ])
-                          ])
+                                : _vm._e(),
+                            ]),
+                          ]),
                         ]),
                         _vm._v(" "),
                         _c("div", { staticClass: "form-group" }, [
@@ -3768,25 +3776,25 @@ var render = function() {
                                 name: "model",
                                 rawName: "v-model",
                                 value: _vm.notes,
-                                expression: "notes"
-                              }
+                                expression: "notes",
+                              },
                             ],
                             staticClass: "form-control",
                             attrs: {
                               rows: "4",
                               placeholder:
-                                "(Optional) Add some notes to this notification. Your users will not see this."
+                                "(Optional) Add some notes to this notification. Your users will not see this.",
                             },
                             domProps: { value: _vm.notes },
                             on: {
-                              input: function($event) {
+                              input: function ($event) {
                                 if ($event.target.composing) {
                                   return
                                 }
                                 _vm.notes = $event.target.value
-                              }
-                            }
-                          })
+                              },
+                            },
+                          }),
                         ]),
                         _vm._v(" "),
                         _c("p", { staticClass: "step-summary" }, [
@@ -3796,11 +3804,11 @@ var render = function() {
                               staticClass: "btn btn-default",
                               attrs: { href: "#" },
                               on: {
-                                click: function($event) {
+                                click: function ($event) {
                                   $event.preventDefault()
                                   return _vm.prevStep.apply(null, arguments)
-                                }
-                              }
+                                },
+                              },
                             },
                             [_vm._v("Back")]
                           ),
@@ -3811,11 +3819,11 @@ var render = function() {
                               staticClass: "btn btn-primary",
                               attrs: { href: "#" },
                               on: {
-                                click: function($event) {
+                                click: function ($event) {
                                   $event.preventDefault()
                                   return _vm.nextStep.apply(null, arguments)
-                                }
-                              }
+                                },
+                              },
                             },
                             [_vm._v("Prepare for send")]
                           ),
@@ -3827,18 +3835,18 @@ var render = function() {
                               staticClass: "btn btn-link",
                               attrs: { href: "#" },
                               on: {
-                                click: function($event) {
+                                click: function ($event) {
                                   $event.preventDefault()
                                   return _vm.save("draft")
-                                }
-                              }
+                                },
+                              },
                             },
                             [_vm._v("Save as draft")]
-                          )
-                        ])
+                          ),
+                        ]),
                       ],
                       2
-                    )
+                    ),
                   ])
                 : _vm._e(),
               _vm._v(" "),
@@ -3855,10 +3863,10 @@ var render = function() {
                               staticClass: "tab",
                               class: { active: _vm.schedule === "now" },
                               on: {
-                                click: function($event) {
+                                click: function ($event) {
                                   _vm.schedule = "now"
-                                }
-                              }
+                                },
+                              },
                             },
                             [_vm._v("Now")]
                           ),
@@ -3869,15 +3877,15 @@ var render = function() {
                               staticClass: "tab",
                               class: { active: _vm.schedule === "scheduled" },
                               on: {
-                                click: function($event) {
+                                click: function ($event) {
                                   _vm.schedule = "scheduled"
-                                }
-                              }
+                                },
+                              },
                             },
                             [_vm._v("Later")]
-                          )
-                        ])
-                      ])
+                          ),
+                        ]),
+                      ]),
                     ]),
                     _vm._v(" "),
                     _vm.schedule === "scheduled"
@@ -3886,7 +3894,7 @@ var render = function() {
                             "div",
                             {
                               staticClass:
-                                "col-md-8 col-md-offset-2 text-center"
+                                "col-md-8 col-md-offset-2 text-center",
                             },
                             [
                               _c("Datepicker", {
@@ -3894,20 +3902,20 @@ var render = function() {
                                   inline: true,
                                   "monday-first": true,
                                   required: true,
-                                  "disabled-dates": _vm.disabledDates
+                                  "disabled-dates": _vm.disabledDates,
                                 },
                                 on: {
                                   changedMonth: _vm.autosize,
                                   changedYear: _vm.autosize,
-                                  changedDecade: _vm.autosize
+                                  changedDecade: _vm.autosize,
                                 },
                                 model: {
                                   value: _vm.scheduledAtDate,
-                                  callback: function($$v) {
+                                  callback: function ($$v) {
                                     _vm.scheduledAtDate = $$v
                                   },
-                                  expression: "scheduledAtDate"
-                                }
+                                  expression: "scheduledAtDate",
+                                },
                               }),
                               _vm._v(" "),
                               _c("Timepicker", {
@@ -3915,26 +3923,26 @@ var render = function() {
                                   hour: _vm.scheduledAtHour,
                                   minute: _vm.scheduledAtMinute,
                                   timezone: _vm.scheduledAtTimezone,
-                                  date: _vm.scheduledAtDate
+                                  date: _vm.scheduledAtDate,
                                 },
                                 on: {
-                                  "update:hour": function($event) {
+                                  "update:hour": function ($event) {
                                     _vm.scheduledAtHour = $event
                                   },
-                                  "update:minute": function($event) {
+                                  "update:minute": function ($event) {
                                     _vm.scheduledAtMinute = $event
                                   },
-                                  "update:timezone": function($event) {
+                                  "update:timezone": function ($event) {
                                     _vm.scheduledAtTimezone = $event
                                   },
-                                  "update:date": function($event) {
+                                  "update:date": function ($event) {
                                     _vm.scheduledAtDate = $event
-                                  }
-                                }
-                              })
+                                  },
+                                },
+                              }),
                             ],
                             1
-                          )
+                          ),
                         ])
                       : _vm._e(),
                     _vm._v(" "),
@@ -3948,13 +3956,13 @@ var render = function() {
                             {
                               staticClass: "tab tab-checked",
                               class: {
-                                active: _vm.notificationHasChannel("in-app")
+                                active: _vm.notificationHasChannel("in-app"),
                               },
                               on: {
-                                click: function($event) {
+                                click: function ($event) {
                                   return _vm.toggleNotificationChannel("in-app")
-                                }
-                              }
+                                },
+                              },
                             },
                             [_vm._v("In-app notification")]
                           ),
@@ -3964,16 +3972,16 @@ var render = function() {
                             {
                               staticClass: "tab tab-checked",
                               class: {
-                                active: _vm.notificationHasChannel("push")
+                                active: _vm.notificationHasChannel("push"),
                               },
                               on: {
-                                click: function($event) {
+                                click: function ($event) {
                                   return _vm.toggleNotificationChannel("push")
-                                }
-                              }
+                                },
+                              },
                             },
                             [_vm._v("Push notification")]
-                          )
+                          ),
                         ]),
                         _vm._v(" "),
                         _vm._m(2),
@@ -3987,10 +3995,9 @@ var render = function() {
                                 "a",
                                 {
                                   attrs: {
-                                    href:
-                                      "https://help.fliplet.com/configure-push-notifications-for-ios/",
-                                    target: "_blank"
-                                  }
+                                    href: "https://help.fliplet.com/configure-push-notifications-for-ios/",
+                                    target: "_blank",
+                                  },
                                 },
                                 [_vm._v("iOS")]
                               ),
@@ -3999,14 +4006,13 @@ var render = function() {
                                 "a",
                                 {
                                   attrs: {
-                                    href:
-                                      "https://help.fliplet.com/configure-push-notifications-for-android/",
-                                    target: "_blank"
-                                  }
+                                    href: "https://help.fliplet.com/configure-push-notifications-for-android/",
+                                    target: "_blank",
+                                  },
                                 },
                                 [_vm._v("Android")]
                               ),
-                              _vm._v(".")
+                              _vm._v("."),
                             ])
                           : _vm._e(),
                         _vm._v(" "),
@@ -4016,8 +4022,8 @@ var render = function() {
                               { staticClass: "text-center text-danger" },
                               [_vm._v(_vm._s(_vm.errors.channels))]
                             )
-                          : _vm._e()
-                      ])
+                          : _vm._e(),
+                      ]),
                     ]),
                     _vm._v(" "),
                     _c("div", { staticClass: "row" }, [
@@ -4029,11 +4035,11 @@ var render = function() {
                               staticClass: "btn btn-default",
                               attrs: { href: "#" },
                               on: {
-                                click: function($event) {
+                                click: function ($event) {
                                   $event.preventDefault()
                                   return _vm.prevStep.apply(null, arguments)
-                                }
-                              }
+                                },
+                              },
                             },
                             [_vm._v("Back")]
                           ),
@@ -4044,11 +4050,11 @@ var render = function() {
                               staticClass: "btn btn-primary",
                               attrs: { href: "#" },
                               on: {
-                                click: function($event) {
+                                click: function ($event) {
                                   $event.preventDefault()
                                   return _vm.nextStep.apply(null, arguments)
-                                }
-                              }
+                                },
+                              },
                             },
                             [_vm._v("Review")]
                           ),
@@ -4060,17 +4066,17 @@ var render = function() {
                               staticClass: "btn btn-link",
                               attrs: { href: "#" },
                               on: {
-                                click: function($event) {
+                                click: function ($event) {
                                   $event.preventDefault()
                                   return _vm.save("draft")
-                                }
-                              }
+                                },
+                              },
                             },
                             [_vm._v("Save as draft")]
-                          )
-                        ])
-                      ])
-                    ])
+                          ),
+                        ]),
+                      ]),
+                    ]),
                   ]
                 : _vm._e(),
               _vm._v(" "),
@@ -4082,10 +4088,10 @@ var render = function() {
                       name: "show",
                       rawName: "v-show",
                       value: _vm.steps[_vm.step].name === "review",
-                      expression: "steps[step].name === 'review'"
-                    }
+                      expression: "steps[step].name === 'review'",
+                    },
                   ],
-                  staticClass: "row notification-review"
+                  staticClass: "row notification-review",
                 },
                 [
                   _c(
@@ -4098,14 +4104,14 @@ var render = function() {
                         ? [
                             _c("div", { staticClass: "notification-message" }, [
                               _c("strong", [
-                                _vm._v(_vm._s(_vm.notification.data.title))
+                                _vm._v(_vm._s(_vm.notification.data.title)),
                               ]),
                               _c("br"),
                               _vm._v(
                                 _vm._s(_vm.notification.data.message) +
                                   "\n            "
-                              )
-                            ])
+                              ),
+                            ]),
                           ]
                         : _vm._e(),
                       _vm._v(" "),
@@ -4118,7 +4124,7 @@ var render = function() {
                                 ? _c("h4", [
                                     _vm._v(
                                       "A push notification will also be sent"
-                                    )
+                                    ),
                                   ])
                                 : _vm._e(),
                               _vm._v(" "),
@@ -4129,26 +4135,28 @@ var render = function() {
                                 {
                                   staticClass:
                                     "visible-sm-block visible-md-block visible-lg-block",
-                                  attrs: { id: "notification-message-preview" }
+                                  attrs: { id: "notification-message-preview" },
                                 },
                                 [
                                   _c("img", {
                                     attrs: {
                                       src: _vm.getAsset(
                                         "img/notifications_device_preview_empty.jpg"
-                                      )
-                                    }
+                                      ),
+                                    },
                                   }),
                                   _vm._v(" "),
                                   _c(
                                     "div",
                                     {
-                                      attrs: { id: "notification-preview-home" }
+                                      attrs: {
+                                        id: "notification-preview-home",
+                                      },
                                     },
                                     [
                                       _c("img", {
                                         staticClass: "app-icon-preview",
-                                        attrs: { src: _vm.appIcon }
+                                        attrs: { src: _vm.appIcon },
                                       }),
                                       _vm._v(" "),
                                       _c(
@@ -4166,16 +4174,16 @@ var render = function() {
                                               _vm._s(
                                                 _vm.notification.data.title
                                               )
-                                            )
+                                            ),
                                           ]),
                                           _c("br"),
                                           _vm._v(
                                             _vm._s(
                                               _vm.notification.data.message
                                             ) + "\n                "
-                                          )
+                                          ),
                                         ]
-                                      )
+                                      ),
                                     ]
                                   ),
                                   _vm._v(" "),
@@ -4183,20 +4191,20 @@ var render = function() {
                                     "div",
                                     {
                                       attrs: {
-                                        id: "notification-preview-icon-home"
-                                      }
+                                        id: "notification-preview-icon-home",
+                                      },
                                     },
                                     [
                                       _c("img", {
                                         staticClass: "app-icon-preview",
-                                        attrs: { src: _vm.appIcon }
+                                        attrs: { src: _vm.appIcon },
                                       }),
                                       _vm._v(" "),
                                       _c(
                                         "strong",
                                         { staticClass: "app-name" },
                                         [_vm._v(_vm._s(_vm.appName))]
-                                      )
+                                      ),
                                     ]
                                   ),
                                   _vm._v(" "),
@@ -4204,13 +4212,13 @@ var render = function() {
                                     "div",
                                     {
                                       attrs: {
-                                        id: "notification-preview-lockscreen"
-                                      }
+                                        id: "notification-preview-lockscreen",
+                                      },
                                     },
                                     [
                                       _c("img", {
                                         staticClass: "app-icon-preview",
-                                        attrs: { src: _vm.appIcon }
+                                        attrs: { src: _vm.appIcon },
                                       }),
                                       _vm._v(" "),
                                       _c(
@@ -4228,16 +4236,16 @@ var render = function() {
                                               _vm._s(
                                                 _vm.notification.data.title
                                               )
-                                            )
+                                            ),
                                           ]),
                                           _c("br"),
                                           _vm._v(
                                             _vm._s(
                                               _vm.notification.data.message
                                             ) + "\n                "
-                                          )
+                                          ),
                                         ]
-                                      )
+                                      ),
                                     ]
                                   ),
                                   _vm._v(" "),
@@ -4245,14 +4253,13 @@ var render = function() {
                                     "div",
                                     {
                                       attrs: {
-                                        id:
-                                          "notification-preview-notification-center"
-                                      }
+                                        id: "notification-preview-notification-center",
+                                      },
                                     },
                                     [
                                       _c("img", {
                                         staticClass: "app-icon-preview",
-                                        attrs: { src: _vm.appIcon }
+                                        attrs: { src: _vm.appIcon },
                                       }),
                                       _vm._v(" "),
                                       _c("strong", { staticClass: "app-name" }),
@@ -4266,20 +4273,20 @@ var render = function() {
                                               _vm._s(
                                                 _vm.notification.data.title
                                               )
-                                            )
+                                            ),
                                           ]),
                                           _c("br"),
                                           _vm._v(
                                             _vm._s(
                                               _vm.notification.data.message
                                             ) + "\n                "
-                                          )
+                                          ),
                                         ]
-                                      )
+                                      ),
                                     ]
-                                  )
+                                  ),
                                 ]
-                              )
+                              ),
                             ]
                           )
                         : _vm._e(),
@@ -4292,19 +4299,19 @@ var render = function() {
                             ? [_vm._v("all users")]
                             : [
                                 _c("strong", [
-                                  _vm._v(_vm._s(_vm.matches.count))
+                                  _vm._v(_vm._s(_vm.matches.count)),
                                 ]),
                                 _vm._v(
                                   " " + _vm._s(_vm.audienceVerbose) + " user"
                                 ),
                                 _vm.matches.count !== 1
                                   ? [_vm._v("s")]
-                                  : _vm._e()
+                                  : _vm._e(),
                               ],
                           _vm._v(" "),
                           _vm.filterScopes.length
                             ? [_vm._v("matching all of the following")]
-                            : _vm._e()
+                            : _vm._e(),
                         ],
                         2
                       ),
@@ -4314,32 +4321,32 @@ var render = function() {
                             _c(
                               "ul",
                               { staticClass: "filter-summary-items" },
-                              _vm._l(_vm.filters, function(filter, index) {
+                              _vm._l(_vm.filters, function (filter, index) {
                                 return _c("li", {
                                   key: index,
                                   domProps: {
                                     innerHTML: _vm._s(
                                       _vm.getFilterVerbose(filter)
-                                    )
-                                  }
+                                    ),
+                                  },
                                 })
                               }),
                               0
-                            )
+                            ),
                           ]
                         : _vm._e(),
                       _vm._v(" "),
                       _c("h4", [
                         _vm._v(
                           "Send the notification " + _vm._s(_vm.scheduleVerbose)
-                        )
+                        ),
                       ]),
                       _vm._v(" "),
                       _vm.schedule === "scheduled"
                         ? _c("p", {
                             domProps: {
-                              innerHTML: _vm._s(_vm.notificationDate)
-                            }
+                              innerHTML: _vm._s(_vm.notificationDate),
+                            },
                           })
                         : _vm._e(),
                       _vm._v(" "),
@@ -4350,11 +4357,11 @@ var render = function() {
                             staticClass: "btn btn-default",
                             attrs: { href: "#" },
                             on: {
-                              click: function($event) {
+                              click: function ($event) {
                                 $event.preventDefault()
                                 return _vm.prevStep.apply(null, arguments)
-                              }
-                            }
+                              },
+                            },
                           },
                           [_vm._v("Back")]
                         ),
@@ -4364,11 +4371,11 @@ var render = function() {
                           attrs: { href: "#" },
                           domProps: { innerHTML: _vm._s(_vm.getSendLabel()) },
                           on: {
-                            click: function($event) {
+                            click: function ($event) {
                               $event.preventDefault()
                               return _vm.send()
-                            }
-                          }
+                            },
+                          },
                         }),
                         _c("br"),
                         _vm._v(" "),
@@ -4378,57 +4385,57 @@ var render = function() {
                             staticClass: "btn btn-link",
                             attrs: { href: "#" },
                             on: {
-                              click: function($event) {
+                              click: function ($event) {
                                 $event.preventDefault()
                                 return _vm.save("draft")
-                              }
-                            }
+                              },
+                            },
                           },
                           [_vm._v("Save as draft")]
-                        )
-                      ])
+                        ),
+                      ]),
                     ],
                     2
-                  )
+                  ),
                 ]
-              )
+              ),
             ],
             2
-          )
-    ])
+          ),
+    ]),
   ])
 }
 var staticRenderFns = [
-  function() {
+  function () {
     var _vm = this
     var _h = _vm.$createElement
     var _c = _vm._self._c || _h
     return _c("p", { staticClass: "help-block text-center" }, [
       _vm._v("You can find your device ID by going to "),
       _c("strong", [_vm._v("About this app")]),
-      _vm._v(" in the app on your device.")
+      _vm._v(" in the app on your device."),
     ])
   },
-  function() {
+  function () {
     var _vm = this
     var _h = _vm.$createElement
     var _c = _vm._self._c || _h
     return _c("div", { staticClass: "row" }, [
       _c("div", { staticClass: "col-md-10 col-md-offset-1" }, [
-        _c("h3", [_vm._v("Send notification...")])
-      ])
+        _c("h3", [_vm._v("Send notification...")]),
+      ]),
     ])
   },
-  function() {
+  function () {
     var _vm = this
     var _h = _vm.$createElement
     var _c = _vm._self._c || _h
     return _c("div", { staticClass: "alert alert-info" }, [
       _c("strong", [_vm._v("New!")]),
-      _vm._v(" Web apps can now receive push notifications.")
+      _vm._v(" Web apps can now receive push notifications."),
     ])
   },
-  function() {
+  function () {
     var _vm = this
     var _h = _vm.$createElement
     var _c = _vm._self._c || _h
@@ -4436,10 +4443,10 @@ var staticRenderFns = [
       _c("small", { staticClass: "text-info" }, [
         _vm._v(
           "Appearance of the notification is subject to users' device, preference and accepting to receive notifications."
-        )
-      ])
+        ),
+      ]),
     ])
-  }
+  },
 ]
 render._withStripped = true
 
@@ -5792,7 +5799,7 @@ __webpack_require__.r(__webpack_exports__);
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "render", function() { return render; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return staticRenderFns; });
-var render = function() {
+var render = function () {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
@@ -5806,20 +5813,20 @@ var render = function() {
                 name: "model",
                 rawName: "v-model",
                 value: _vm.value,
-                expression: "value"
-              }
+                expression: "value",
+              },
             ],
             staticClass: "form-control",
             attrs: { type: "text", placeholder: "Value" },
             domProps: { value: _vm.value },
             on: {
-              input: function($event) {
+              input: function ($event) {
                 if ($event.target.composing) {
                   return
                 }
                 _vm.value = $event.target.value
-              }
-            }
+              },
+            },
           })
         : _vm._e(),
       _vm._v(" "),
@@ -5827,12 +5834,12 @@ var render = function() {
         ? _c("Token-Field", {
             attrs: { value: _vm.value },
             on: {
-              "update:value": function($event) {
+              "update:value": function ($event) {
                 _vm.value = $event
-              }
-            }
+              },
+            },
           })
-        : _vm._e()
+        : _vm._e(),
     ],
     1
   )
@@ -5937,7 +5944,7 @@ __webpack_require__.r(__webpack_exports__);
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "render", function() { return render; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return staticRenderFns; });
-var render = function() {
+var render = function () {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
@@ -5948,22 +5955,22 @@ var render = function() {
           name: "model",
           rawName: "v-model",
           value: _vm.value,
-          expression: "value"
-        }
+          expression: "value",
+        },
       ],
       ref: "input",
       staticClass: "form-control",
       attrs: { type: "text", placeholder: _vm.placeholder },
       domProps: { value: _vm.value },
       on: {
-        input: function($event) {
+        input: function ($event) {
           if ($event.target.composing) {
             return
           }
           _vm.value = $event.target.value
-        }
-      }
-    })
+        },
+      },
+    }),
   ])
 }
 var staticRenderFns = []
@@ -6101,7 +6108,7 @@ __webpack_require__.r(__webpack_exports__);
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "render", function() { return render; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return staticRenderFns; });
-var render = function() {
+var render = function () {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
@@ -6117,37 +6124,37 @@ var render = function() {
                 rawName: "v-model.number",
                 value: _vm.hour12h,
                 expression: "hour12h",
-                modifiers: { number: true }
-              }
+                modifiers: { number: true },
+              },
             ],
             staticClass: "hidden-select form-control",
             on: {
-              change: function($event) {
+              change: function ($event) {
                 var $$selectedVal = Array.prototype.filter
-                  .call($event.target.options, function(o) {
+                  .call($event.target.options, function (o) {
                     return o.selected
                   })
-                  .map(function(o) {
+                  .map(function (o) {
                     var val = "_value" in o ? o._value : o.value
                     return _vm._n(val)
                   })
                 _vm.hour12h = $event.target.multiple
                   ? $$selectedVal
                   : $$selectedVal[0]
-              }
-            }
+              },
+            },
           },
-          _vm._l(_vm.hours, function(h) {
+          _vm._l(_vm.hours, function (h) {
             return _c("option", {
               key: h.value,
-              domProps: { value: h.value, innerHTML: _vm._s(h.label) }
+              domProps: { value: h.value, innerHTML: _vm._s(h.label) },
             })
           }),
           0
         ),
         _vm._v(" "),
-        _c("span", { staticClass: "icon fa fa-chevron-down" })
-      ])
+        _c("span", { staticClass: "icon fa fa-chevron-down" }),
+      ]),
     ]),
     _vm._v(" "),
     _c("div", { staticClass: "col-xs-2" }, [
@@ -6161,37 +6168,37 @@ var render = function() {
                 rawName: "v-model.number",
                 value: _vm.minute,
                 expression: "minute",
-                modifiers: { number: true }
-              }
+                modifiers: { number: true },
+              },
             ],
             staticClass: "hidden-select form-control",
             on: {
-              change: function($event) {
+              change: function ($event) {
                 var $$selectedVal = Array.prototype.filter
-                  .call($event.target.options, function(o) {
+                  .call($event.target.options, function (o) {
                     return o.selected
                   })
-                  .map(function(o) {
+                  .map(function (o) {
                     var val = "_value" in o ? o._value : o.value
                     return _vm._n(val)
                   })
                 _vm.minute = $event.target.multiple
                   ? $$selectedVal
                   : $$selectedVal[0]
-              }
-            }
+              },
+            },
           },
-          _vm._l(_vm.minutes, function(m) {
+          _vm._l(_vm.minutes, function (m) {
             return _c("option", {
               key: m.value,
-              domProps: { value: m.value, innerHTML: _vm._s(m.label) }
+              domProps: { value: m.value, innerHTML: _vm._s(m.label) },
             })
           }),
           0
         ),
         _vm._v(" "),
-        _c("span", { staticClass: "icon fa fa-chevron-down" })
-      ])
+        _c("span", { staticClass: "icon fa fa-chevron-down" }),
+      ]),
     ]),
     _vm._v(" "),
     _c("div", { staticClass: "col-xs-2" }, [
@@ -6204,35 +6211,35 @@ var render = function() {
                 name: "model",
                 rawName: "v-model",
                 value: _vm.ampm,
-                expression: "ampm"
-              }
+                expression: "ampm",
+              },
             ],
             staticClass: "hidden-select form-control",
             on: {
-              change: function($event) {
+              change: function ($event) {
                 var $$selectedVal = Array.prototype.filter
-                  .call($event.target.options, function(o) {
+                  .call($event.target.options, function (o) {
                     return o.selected
                   })
-                  .map(function(o) {
+                  .map(function (o) {
                     var val = "_value" in o ? o._value : o.value
                     return val
                   })
                 _vm.ampm = $event.target.multiple
                   ? $$selectedVal
                   : $$selectedVal[0]
-              }
-            }
+              },
+            },
           },
           [
             _c("option", { attrs: { value: "AM" } }, [_vm._v("AM")]),
             _vm._v(" "),
-            _c("option", { attrs: { value: "PM" } }, [_vm._v("PM")])
+            _c("option", { attrs: { value: "PM" } }, [_vm._v("PM")]),
           ]
         ),
         _vm._v(" "),
-        _c("span", { staticClass: "icon fa fa-chevron-down" })
-      ])
+        _c("span", { staticClass: "icon fa fa-chevron-down" }),
+      ]),
     ]),
     _vm._v(" "),
     _c("div", { staticClass: "col-xs-6" }, [
@@ -6245,38 +6252,38 @@ var render = function() {
                 name: "model",
                 rawName: "v-model",
                 value: _vm.timezone,
-                expression: "timezone"
-              }
+                expression: "timezone",
+              },
             ],
             staticClass: "hidden-select form-control",
             on: {
-              change: function($event) {
+              change: function ($event) {
                 var $$selectedVal = Array.prototype.filter
-                  .call($event.target.options, function(o) {
+                  .call($event.target.options, function (o) {
                     return o.selected
                   })
-                  .map(function(o) {
+                  .map(function (o) {
                     var val = "_value" in o ? o._value : o.value
                     return val
                   })
                 _vm.timezone = $event.target.multiple
                   ? $$selectedVal
                   : $$selectedVal[0]
-              }
-            }
+              },
+            },
           },
-          _vm._l(_vm.adjustedTimezones, function(zone) {
+          _vm._l(_vm.adjustedTimezones, function (zone) {
             return _c("option", {
               key: zone.value,
-              domProps: { value: zone.value, innerHTML: _vm._s(zone.label) }
+              domProps: { value: zone.value, innerHTML: _vm._s(zone.label) },
             })
           }),
           0
         ),
         _vm._v(" "),
-        _c("span", { staticClass: "icon fa fa-chevron-down" })
-      ])
-    ])
+        _c("span", { staticClass: "icon fa fa-chevron-down" }),
+      ]),
+    ]),
   ])
 }
 var staticRenderFns = []
