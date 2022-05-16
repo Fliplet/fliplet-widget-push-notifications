@@ -6,22 +6,22 @@
         {{#if popupMessage}}
           {{popupTitle}}
         {{else}}
-          App updates and notifications
+          <span data-translate="widgets.pushNotifications.prompt.title">App updates and notifications</span>
         {{/if}}
       </p>
       <div class="popup-body">
         {{#if popupMessage}}
           {{ nl2br popupMessage }}
         {{else}}
-          You will receive notifications when app updates are available.<br>
-          Please tap on Allow Notifications below to receive notifications on the updates.
+        <span data-translate="widgets.pushNotifications.prompt.message.line1">You will receive notifications when app updates are available.</span><br>
+        <span data-translate="widgets.pushNotifications.prompt.message.line2">Please tap on Allow Notifications below to receive notifications on the updates.</span>
         {{/if}}
       </div>
     </div>
     <div class="popup-bottom">
-      <button type="button" data-allow>Allow Notifications</button>
-      <button type="button" data-dont-allow>Don't Allow</button>
-      <button type="button" data-remind>Remind me later</button>
+      <button type="button" data-allow data-translate="widgets.pushNotifications.prompt.button.allow">Allow Notifications</button>
+      <button type="button" data-dont-allow data-translate="widgets.pushNotifications.prompt.button.disallow">Don't Allow</button>
+      <button type="button" data-remind data-translate="widgets.pushNotifications.prompt.button.later">Remind me later</button>
     </div>
   </div>
 </div>
