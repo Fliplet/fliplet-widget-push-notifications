@@ -267,5 +267,9 @@ Fliplet.Widget.register('PushNotifications', function () {
 });
 
 Fliplet.Widget.instance('push-notification', function() {
-  $(this).translate();
+  var $container = $(this);
+
+  Fliplet().then(function() {
+    $container.translate();
+  });
 });
