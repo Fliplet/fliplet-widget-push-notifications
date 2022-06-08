@@ -80,6 +80,8 @@ Fliplet.Widget.register('PushNotifications', function () {
               Fliplet.Native.Notifications.handle(data.additionalData.customData);
             } else if (data.additionalData.foreground) {
               Fliplet.Hooks.run('pushNotification', data);
+            } else if (!data.additionalData.coldstart) {
+              Fliplet.Hooks.run('pushNotificationWake', data);
             }
 
             return;
