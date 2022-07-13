@@ -3341,7 +3341,7 @@ var render = function () {
                                 },
                               },
                             },
-                            [_vm._v("Test devices")]
+                            [_vm._v("Test sessions")]
                           ),
                         ]),
                         _vm._v(" "),
@@ -3635,11 +3635,11 @@ var render = function () {
                         _vm._v(" "),
                         _vm.audience === "sessions"
                           ? [
-                              _c("h4", [_vm._v("Device IDs")]),
+                              _c("h4", [_vm._v("Session IDs")]),
                               _vm._v(" "),
                               _c("p", { staticClass: "text-center" }, [
                                 _vm._v(
-                                  "To test notifications with individual devices, enter the device ID for each device."
+                                  "To test notifications with individual devices, enter the session ID for each device."
                                 ),
                               ]),
                               _vm._v(" "),
@@ -4411,7 +4411,7 @@ var staticRenderFns = [
     var _h = _vm.$createElement
     var _c = _vm._self._c || _h
     return _c("p", { staticClass: "help-block text-center" }, [
-      _vm._v("You can find your device ID by going to "),
+      _vm._v("You can find your session ID by going to "),
       _c("strong", [_vm._v("About this app")]),
       _vm._v(" in the app on your device."),
     ])

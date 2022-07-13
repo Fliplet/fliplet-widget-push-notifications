@@ -56,7 +56,7 @@
             <div class="tab-selection">
               <span class="tab" :class="{ 'active': audience === '' }" @click="audience = ''">All users</span>
               <span class="tab" :class="{ 'active': audience === 'loggedIn' }" @click="audience = 'loggedIn'">Signed in users</span>
-              <span class="tab" :class="{ 'active': audience === 'sessions' }" @click="audience = 'sessions'">Test devices</span>
+              <span class="tab" :class="{ 'active': audience === 'sessions' }" @click="audience = 'sessions'">Test sessions</span>
             </div>
             <template v-if="audience !== 'sessions' && filters.length">
               <h4>Recipients must match all of the following</h4>
@@ -91,10 +91,10 @@
               </div>
             </template>
             <template v-if="audience === 'sessions'">
-              <h4>Device IDs</h4>
-              <p class="text-center">To test notifications with individual devices, enter the device ID for each device.</p>
+              <h4>Session IDs</h4>
+              <p class="text-center">To test notifications with individual devices, enter the session ID for each device.</p>
               <p><Token-Field :value.sync="sessions" placeholder="Separate multiple IDs with commas"></Token-Field></p>
-              <p class="help-block text-center">You can find your device ID by going to <strong>About this app</strong> in the app on your device.</p>
+              <p class="help-block text-center">You can find your session ID by going to <strong>About this app</strong> in the app on your device.</p>
               <p class="text-center text-danger" v-if="errors.sessions">{{ errors.sessions }}</p>
             </template>
             <div class="col-xs-12 filter-summary">
