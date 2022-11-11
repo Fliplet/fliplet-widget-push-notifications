@@ -3735,7 +3735,7 @@ var render = function () {
                                           ]
                                         : [
                                             _vm._v(
-                                              "\n                  Estimated: " +
+                                              "\n                    Estimated: " +
                                                 _vm._s(_vm.matches.count) +
                                                 " user"
                                             ),
@@ -4726,6 +4726,7 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
 
 
 
@@ -4833,7 +4834,7 @@ var defaultSendLabel = 'Send notification';
 
       this.scheduledAtTimezone = Object(_libs_timezones__WEBPACK_IMPORTED_MODULE_4__["validate"])(_.get(this.notification, 'data._metadata.scheduledAtTimezone'));
       date.tz(this.scheduledAtTimezone);
-      this.scheduledAtDate = new Date(date.clone().startOf('day').format('lll'));
+      this.scheduledAtDate = date.clone().startOf('day').toDate();
       this.scheduledAtHour = date.get('hour');
       this.scheduledAtMinute = date.get('minute');
     }
