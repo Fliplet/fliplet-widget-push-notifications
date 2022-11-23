@@ -21,7 +21,7 @@
             </div>
             <div class="form-group clearfix">
               <textarea class="form-control" rows="4" v-model="notification.data.message" placeholder="Enter notification message (15 words recommended)" :maxlength="messageCharacterLimit" required></textarea>
-              <div class="pull-right"  :class="{ 'text-success': messageCharactersRemaining >= 0, 'text-danger': messageCharactersRemaining < 0 }">{{ messageCharactersRemaining }} character<template v-if="messageCharactersRemaining !== 1"></template> left</div>
+              <div class="pull-right" :class="{ 'text-success': messageCharactersRemaining >= 0, 'text-danger': messageCharactersRemaining < 0 }">{{ messageCharactersRemaining }} character<template v-if="messageCharactersRemaining !== 1"></template> left</div>
               <div class="text-danger" v-if="errors.message">{{ errors.message }}</div>
             </div>
             <div class="form-group clearfix">
@@ -93,7 +93,9 @@
             <template v-if="audience === 'sessions'">
               <h4>Session IDs</h4>
               <p class="text-center">To test notifications with individual devices, enter the session ID for each device.</p>
-              <p><Token-Field :value.sync="sessions" placeholder="Separate multiple IDs with commas"></Token-Field></p>
+              <p>
+                <Token-Field :value.sync="sessions" placeholder="Separate multiple IDs with commas"></Token-Field>
+              </p>
               <p class="help-block text-center">You can find your session ID by going to <strong>About this app</strong> in the app on your device.</p>
               <p class="text-center text-danger" v-if="errors.sessions">{{ errors.sessions }}</p>
             </template>
@@ -108,7 +110,8 @@
                       Estimating...
                     </template>
                     <template v-else>
-                    Estimated: {{ matches.count }} user<template v-if="matches.count !== 1">s</template> <tooltip title="This is an approximation and will depend on the user preference at the time of publish. Users who have never used the app will be excluded."><i class="fa fa-info-circle"></i></tooltip>
+                      Estimated: {{ matches.count }} user<template v-if="matches.count !== 1">s</template>
+                      <tooltip title="This is an approximation and will depend on the user preference at the time of publish. Users who have never used the app will be excluded."><i class="fa fa-info-circle"></i></tooltip>
                     </template>
                   </span>
                 </p>
@@ -149,14 +152,12 @@
                 @changedMonth="autosize"
                 @changedYear="autosize"
                 @changedDecade="autosize"
-                v-model="scheduledAtDate"
-              ></Datepicker>
+                v-model="scheduledAtDate"></Datepicker>
               <Timepicker
                 :hour.sync="scheduledAtHour"
                 :minute.sync="scheduledAtMinute"
                 :timezone.sync="scheduledAtTimezone"
-                :date.sync="scheduledAtDate"
-              ></Timepicker>
+                :date.sync="scheduledAtDate"></Timepicker>
             </div>
           </div>
           <div class="row">
@@ -357,7 +358,7 @@ export default {
       this.scheduledAtTimezone = validateTimezone(_.get(this.notification, 'data._metadata.scheduledAtTimezone'));
       date.tz(this.scheduledAtTimezone);
 
-      this.scheduledAtDate = new Date(date.clone().startOf('day').format('lll'));
+      this.scheduledAtDate = date.clone().startOf('day').toDate();
       this.scheduledAtHour = date.get('hour');
       this.scheduledAtMinute = date.get('minute');
     }
