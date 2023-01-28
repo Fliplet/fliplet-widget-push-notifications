@@ -298,6 +298,7 @@ export default {
       const errorTypes = {
         NoSubscriptions: 'One or more devices are not subscribed to receive this push notification.',
         NotRegistered: 'One or more devices are not subscribed to receive this push notification or the app could be uninstalled.',
+        Unregistered: 'The app could be uninstalled or reinstalled on one or more devices.',
         InvalidProviderToken: 'The APN Key ID, push certificate or Team ID is not valid. Please double-check your settings.',
         MismatchSenderId: 'The Android push notification settings for GCM incorrectly use the Project ID instead of the Sender ID',
         DeviceTokenNotForTopic: 'The target bundle identifier does not match the one being used by some of the subscribed devices.',
