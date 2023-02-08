@@ -935,13 +935,14 @@ export default {
 
           if (this.notificationHasChannel('push') && status !== 'draft') {
             // Do not assign push notification payload when saving a draft.
-            // The backend will send a push notifcation to users.
+            // The backend will send a push notification to users.
             let pushNotification = {
               payload: {
                 title: this.notification.data.title,
                 body: this.notification.data.message,
                 icon: 'icon_notification',
-                priority: 'high'
+                priority: 'high',
+                sound: 'default'
               }
             };
 
