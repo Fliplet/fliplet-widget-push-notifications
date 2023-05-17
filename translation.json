@@ -10,11 +10,11 @@
         "title": "App updates and notifications",
         "message": {
           "line1": "You will receive notifications when app updates are available.",
-          "line2": "Please tap on Allow Notifications below to receive notifications on the updates."
+          "line2": "Please tap on \"Allow notifications\" below to receive notifications on the updates."
         },
         "button": {
-          "allow": "Allow Notifications",
-          "disallow": "Don't Allow",
+          "allow": "Allow notifications",
+          "disallow": "Don't allow",
           "later": "Remind me later"
         }
       }
