@@ -1,8 +1,12 @@
 <template>
   <div class="container-fluid">
     <div class="row">
-      <div class="col-xs-6"><p><a href="#" @click.prevent="createNotification" class="btn btn-primary"><i class="fa fa-fw fa-lg fa-plus"></i> Create new</a></p></div>
-      <div class="col-xs-6"><p><a href="#" class="btn btn-default show-settings pull-right"><i class="fa fa-fw fa-lg fa-cog"></i> Push notification settings</a></p></div>
+      <div class="col-xs-6">
+        <p><a href="#" @click.prevent="createNotification" class="btn btn-primary"><i class="fa fa-fw fa-lg fa-plus"></i> Create new</a></p>
+      </div>
+      <div class="col-xs-6">
+        <p><a href="#" class="btn btn-default show-settings pull-right"><i class="fa fa-fw fa-lg fa-cog"></i> Push notification settings</a></p>
+      </div>
     </div>
     <div class="row">
       <div class="col-xs-12">
@@ -61,9 +65,9 @@
                     <p>
                       {{ userCount(notification) }}<br>
                       <small>via <template v-if="notification.type === 'in-app'">in-app</template>
-                      <template v-if="notification.type === 'in-app' && notification.job">&amp;</template>
-                      <template v-if="notification.job || notification.type === 'push'">push</template>
-                      notifications</small>
+                        <template v-if="notification.type === 'in-app' && notification.job">&amp;</template>
+                        <template v-if="notification.job || notification.type === 'push'">push</template>
+                        notifications</small>
                     </p>
                   </td>
                   <td class="list-col-actions">
@@ -393,7 +397,8 @@ export default {
         includeLogs: true,
         offset: this.offset,
         limit: this.batchSize,
-        includeAllScopes: true
+        includeAllScopes: true,
+        publishToStream: false // Avoid saving the notification to storage
       }).then((response) => {
         if (!response.entries.length && this.pageNumber > response.pageCount) {
           // Load last page
