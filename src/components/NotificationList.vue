@@ -301,13 +301,13 @@ export default {
 
       const errorTypes = {
         NoSubscriptions: 'One or more devices are not subscribed to receive this push notification.',
-        NotRegistered: 'One or more devices are not subscribed to receive this push notification or the app could be uninstalled.',
-        InvalidProviderToken: 'The APN Key ID, push certificate or Team ID is not valid. Please double-check your settings.',
-        MismatchSenderId: 'The Android push notification settings for GCM incorrectly use the Project ID instead of the Sender ID',
-        DeviceTokenNotForTopic: 'The target bundle identifier does not match the one being used by some of the subscribed devices.',
-        TopicDisallowed: 'The target bundle identifier does not match the one being used by some of the subscribed devices.',
-        GCMNotSet: 'Push notifications for Firebase (Android devices) have not been configured.',
-        APNNotSet: 'Push notifications for Apple (iOS devices) have not been configured.'
+        NotRegistered: 'One or more devices are not subscribed to receive this push notification, or the app might be uninstalled.',
+        InvalidProviderToken: 'The APN Key ID, push certificate, or Team ID is incorrect. Please verify your settings.',
+        MismatchSenderId: 'User is subscribed to push notifications for a Sender ID that doesn\'t match the configured Sender ID.',
+        DeviceTokenNotForTopic: 'The target bundle identifier doesn\'t match what some subscribed devices are using.',
+        TopicDisallowed: 'The target bundle identifier doesn\'t match what some subscribed devices are using.',
+        GCMNotSet: 'Firebase push notifications (for Android devices) haven\'t been set up.',
+        APNNotSet: 'Apple push notifications (for iOS devices) haven\'t been set up.'
       };
 
       data.errors = _.orderBy(_.map(_.keys(allErrors), (type) => {
