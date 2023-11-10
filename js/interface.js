@@ -219,13 +219,13 @@ function getPushNotifications() {
               return 'One or more devices are not subscribed to receive this push notification.'
             case 'TopicDisallowed':
             case 'DeviceTokenNotForTopic':
-              return 'The target bundle identifier (' + _.get(log, 'data.settings.apnTopic') + ') does not match with the one being used by some of the subscribed devices. (Error: TopicDisallowed)';
+              return 'The target bundle identifier (' + _.get(log, 'data.settings.apnTopic') + ') does not match with the one being used by some of the subscribed devices.';
             case 'InvalidProviderToken':
-              return 'The APN Key ID, push certificate or Team ID are not valid. Please double check the settings you have set. (Error: InvalidProviderToken)';
+              return 'The APN Key ID, push certificate or Team ID are not valid. Please double check the settings you have set.';
             case 'MismatchSenderId':
-              return 'The Android push notification settings for GCM incorrectly use the Project ID instead of the Sender ID (Error: MismatchSenderId)';
+              return 'The Sender ID provided for the push notification service does not match the ID used user subscribed to push notifications. Please ensure that the Sender ID is consistent and corresponds to the one used for subscribing to push notifications.';
             case 'NotRegistered':
-              return 'Some of the devices subscribed have uninstalled the app. (Error: NotRegistered)';
+              return 'Some of the devices subscribed have uninstalled the app.';
             default:
               return error;
           }
