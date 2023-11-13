@@ -128,6 +128,17 @@ import {
 
 const defaultAudience = '';
 const defaultScope = [];
+const pushNotificationErrorTypes = {
+  NoSubscriptions: 'One or more devices are not subscribed to receive this push notification.',
+  NotRegistered: 'One or more devices are not subscribed to receive this push notification, or the app might be uninstalled.',
+  InvalidProviderToken: 'The APN Key ID, push certificate, or Team ID are not valid. Please verify your settings.',
+  MismatchSenderId: 'The Sender ID provided for the push notification service does not match the ID used user subscribed to push notifications. Please ensure that the Sender ID is consistent and corresponds to the one used for subscribing to push notifications.',
+  DeviceTokenNotForTopic: 'The target bundle identifier does not match with the one used the subscribed devices.',
+  TopicDisallowed: 'The target bundle identifier doesn\'t match what some subscribed devices are using.',
+  GCMNotSet: 'Firebase push notifications (for Android devices) haven\'t been set up.',
+  APNNotSet: 'Apple push notifications (for iOS devices) haven\'t been set up.'
+};
+const defaultPushNotificationErrorMessage = 'Unknown error. Please contact support.';
 
 export default {
   data() {
@@ -299,21 +310,10 @@ export default {
           : Math.round((acceptedCount) / (totalCount) * 100)
       };
 
-      const errorTypes = {
-        NoSubscriptions: 'One or more devices are not subscribed to receive this push notification.',
-        NotRegistered: 'One or more devices are not subscribed to receive this push notification, or the app might be uninstalled.',
-        InvalidProviderToken: 'The APN Key ID, push certificate, or Team ID is incorrect. Please verify your settings.',
-        MismatchSenderId: 'User is subscribed to push notifications for a Sender ID that doesn\'t match the configured Sender ID.',
-        DeviceTokenNotForTopic: 'The target bundle identifier doesn\'t match what some subscribed devices are using.',
-        TopicDisallowed: 'The target bundle identifier doesn\'t match what some subscribed devices are using.',
-        GCMNotSet: 'Firebase push notifications (for Android devices) haven\'t been set up.',
-        APNNotSet: 'Apple push notifications (for iOS devices) haven\'t been set up.'
-      };
-
       data.errors = _.orderBy(_.map(_.keys(allErrors), (type) => {
         return {
           type,
-          description: errorTypes[type],
+          description: pushNotificationErrorTypes[type] || defaultPushNotificationErrorMessage,
           count: allErrors[type]
         };
       }), ['count'], ['desc']);
