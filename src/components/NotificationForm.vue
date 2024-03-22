@@ -358,7 +358,8 @@ export default {
       this.scheduledAtTimezone = validateTimezone(_.get(this.notification, 'data._metadata.scheduledAtTimezone'));
       date.tz(this.scheduledAtTimezone);
 
-      this.scheduledAtDate = date.clone().startOf('day').toDate();
+      // Use "Z" to indicate UTC timezone in the date string
+      this.scheduledAtDate = new Date(`${date.clone().startOf('day').locale('en-us').format('YYYY-MM-DDT00:00:00')}Z`);
       this.scheduledAtHour = date.get('hour');
       this.scheduledAtMinute = date.get('minute');
     }
