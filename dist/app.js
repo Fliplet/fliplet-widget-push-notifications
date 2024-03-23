@@ -1542,7 +1542,8 @@ function getDefaultNotification() {
         filters: [],
         subscriptions: [],
         schedule: 'now',
-        notes: ''
+        notes: '',
+        channels: []
       }
     }
   };
@@ -1572,7 +1573,7 @@ function setView(view) {
   state.view = view;
 }
 function setNotification(notification) {
-  state.notification = _.defaultsDeep(notification, getDefaultNotification());
+  state.notification = _.defaultsDeep({}, notification, getDefaultNotification());
 }
 function getNotification() {
   return state.notification;
@@ -4760,6 +4761,12 @@ var defaultSendLabel = 'Send notification';
     var _this = this;
     this.appIcon = this.getAsset('img/app-icon.png');
     this.notification = _.defaultsDeep(this.notification, Object(_store__WEBPACK_IMPORTED_MODULE_0__["getDefaultNotification"])());
+    this.channels = _.get(this.notification, 'data._metadata.channels', []);
+
+    // Always default to both in-app and push if no channels are set
+    if (!this.channels.length) {
+      this.channels = ['in-app', 'push'];
+    }
     var sessions = _.get(this.notification, 'data._metadata.sessions');
     if (_.isArray(sessions) && sessions.length) {
       _.forEach(sessions, function (sessionId) {
@@ -5272,7 +5279,8 @@ var defaultSendLabel = 'Send notification';
                 scheduledAtTimezone: _this4.scheduledAtTimezone,
                 scheduledAt: _this4.scheduledAt,
                 schedule: _this4.schedule,
-                notes: _this4.notes
+                notes: _this4.notes,
+                channels: _this4.channels
               }
             }
           });
