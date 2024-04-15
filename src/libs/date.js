@@ -4,27 +4,27 @@
 // https://stackoverflow.com/questions/22724898/settimezoneoffset-globally-for-whole-script/40518781
 Date.prototype.timezoneOffset = new Date().getTimezoneOffset();
 
-Date.setTimezoneOffset = function (timezoneOffset) {
+Date.setTimezoneOffset = function(timezoneOffset) {
   this.prototype.timezoneOffset = timezoneOffset;
 
   return this;
 };
 
-Date.getTimezoneOffset = function () {
+Date.getTimezoneOffset = function() {
   return this.prototype.timezoneOffset;
 };
 
-Date.prototype.setTimezoneOffset = function (timezoneOffset) {
+Date.prototype.setTimezoneOffset = function(timezoneOffset) {
   this.timezoneOffset = timezoneOffset;
 
   return this;
 };
 
-Date.prototype.getTimezoneOffset = function () {
+Date.prototype.getTimezoneOffset = function() {
   return this.timezoneOffset;
 };
 
-Date.prototype.toString = function () {
+Date.prototype.toString = function() {
   var offsetDate;
   var offsetTime;
 
@@ -34,9 +34,9 @@ Date.prototype.toString = function () {
   return offsetDate.toUTCString();
 };
 
-['Milliseconds', 'Seconds', 'Minutes', 'Hours', 'Date', 'Month', 'FullYear', 'Year', 'Day'].forEach((function () {
-  return function (key) {
-    Date.prototype['get' + key] = function () {
+['Milliseconds', 'Seconds', 'Minutes', 'Hours', 'Date', 'Month', 'FullYear', 'Year', 'Day'].forEach((function() {
+  return function(key) {
+    Date.prototype['get' + key] = function() {
       var offsetDate;
       var offsetTime;
 
@@ -46,7 +46,7 @@ Date.prototype.toString = function () {
       return offsetDate['getUTC' + key]();
     };
 
-    Date.prototype['set' + key] = function (value) {
+    Date.prototype['set' + key] = function(value) {
       var offsetDate;
       var offsetTime;
       var time;
