@@ -8,6 +8,9 @@
   "provider_only": false,
   "references": [],
   "html_tag": "div",
+  "settings": {
+    "excludedProperties": ["apnKeyId", "apnTeamId", "apnAuthKey", "gcmProjectId", "gcmServerKey"]
+  },
   "interface": {
     "dependencies": [
       "vue.js",
