@@ -56,10 +56,11 @@ Fliplet.Widget.register('PushNotifications', function () {
      * and add the event handlers on it
      */
     var push = Fliplet.User.getPushNotificationInstance(data);
+
     if (push) {
       if (subscriptionId) {
         if (subscriptionDetails.token) {
-          push.on('registration', function(data) {
+          push.on('registration', function (data) {
             if (data.registrationId === subscriptionDetails.token) {
               return; // token hasn't changed
             }
@@ -95,8 +96,10 @@ Fliplet.Widget.register('PushNotifications', function () {
             if (data.additionalData) {
               if (data.additionalData.foreground) {
                 handleForegroundNotification(data);
+
                 return;
               }
+
               /**
                * background notifications seem to open the application quite fast
                * and sometimes the transition is not applied
@@ -113,6 +116,7 @@ Fliplet.Widget.register('PushNotifications', function () {
         });
       }
     }
+
     return push;
   }
 
@@ -141,11 +145,10 @@ Fliplet.Widget.register('PushNotifications', function () {
       });
     }
 
-    if (Fliplet.Env.get('interact')
-      || (Fliplet.Env.is('web') && Fliplet.Env.get('mode') === 'preview')) {
+    if (Fliplet.Env.get('interact')) {
       return Promise.reject({
         code: -1,
-        message: 'Push notifications are not supported in Fliplet Studio.'
+        message: 'Push notifications are not supported in Fliplet Studio while in edit mode.'
       });
     }
 
@@ -180,8 +183,9 @@ Fliplet.Widget.register('PushNotifications', function () {
       });
     }).then(function (displayPopup) {
       if (!displayPopup) {
-        return subscribeUser().then(function(subscriptionId) {
+        return subscribeUser().then(function (subscriptionId) {
           initPushNotifications(subscriptionId);
+
           return subscriptionId;
         });
       }
@@ -194,6 +198,7 @@ Fliplet.Widget.register('PushNotifications', function () {
             return subscribeUser();
           }).then(function (subscriptionId) {
             initPushNotifications(subscriptionId);
+
             return subscriptionId;
           }).then(resolve).catch(function (err) {
             console.error(err);
@@ -262,16 +267,17 @@ Fliplet.Widget.register('PushNotifications', function () {
     ask: ask,
     reset: function () {
       askPromise = undefined;
+
       return Fliplet.Storage.remove(key);
     },
     isConfigured: isConfigured
   };
 });
 
-Fliplet.Widget.instance('push-notification', function() {
+Fliplet.Widget.instance('push-notification', function () {
   var $container = $(this);
 
-  Fliplet().then(function() {
+  Fliplet().then(function () {
     $container.translate();
   });
 });
