@@ -336,7 +336,15 @@ export default {
     this.appIcon = this.getAsset('img/app-icon.png');
     this.notification = _.defaultsDeep(this.notification, getDefaultNotification());
 
+    this.channels = _.get(this.notification, 'data._metadata.channels', []);
+
+    // Always default to both in-app and push if no channels are set
+    if (!this.channels.length) {
+      this.channels = ['in-app', 'push'];
+    }
+
     const sessions = _.get(this.notification, 'data._metadata.sessions');
+
 
     if (_.isArray(sessions) && sessions.length) {
       _.forEach(sessions, (sessionId) => {
@@ -358,7 +366,8 @@ export default {
       this.scheduledAtTimezone = validateTimezone(_.get(this.notification, 'data._metadata.scheduledAtTimezone'));
       date.tz(this.scheduledAtTimezone);
 
-      this.scheduledAtDate = date.clone().startOf('day').toDate();
+      // Use "Z" to indicate UTC timezone in the date string
+      this.scheduledAtDate = new Date(`${date.clone().startOf('day').locale('en-us').format('YYYY-MM-DDT00:00:00')}Z`);
       this.scheduledAtHour = date.get('hour');
       this.scheduledAtMinute = date.get('minute');
     }
@@ -906,7 +915,8 @@ export default {
                 scheduledAtTimezone: this.scheduledAtTimezone,
                 scheduledAt: this.scheduledAt,
                 schedule: this.schedule,
-                notes: this.notes
+                notes: this.notes,
+                channels: this.channels
               }
             }
           });

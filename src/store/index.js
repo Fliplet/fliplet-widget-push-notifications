@@ -17,7 +17,8 @@ export function getDefaultNotification() {
         filters: [],
         subscriptions: [],
         schedule: 'now',
-        notes: ''
+        notes: '',
+        channels: []
       }
     }
   };
@@ -53,7 +54,7 @@ export function setView(view) {
 }
 
 export function setNotification(notification) {
-  state.notification = _.defaultsDeep(notification, getDefaultNotification());
+  state.notification = _.defaultsDeep({}, notification, getDefaultNotification());
 }
 
 export function getNotification() {
