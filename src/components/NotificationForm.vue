@@ -967,7 +967,6 @@ export default {
           this.saveMessage = this.getSaveMessage(statusFrom, statusTo);
 
           if (!_.get(this, 'notification.id')) {
-            this.notification.isPushNotificationWidget = true;
             return this.instance.insert(this.notification).then(resolve);
           }
 
