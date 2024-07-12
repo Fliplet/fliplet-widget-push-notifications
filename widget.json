@@ -1,7 +1,7 @@
 {
   "name": "Push notifications",
   "package": "com.fliplet.push-notifications",
-  "version": "1.0.1",
+  "version": "1.0.0",
   "description": "<p>To be able to send push notifications to your users, you’ll need to enable and configure this option and push an update to any users you might have.</p><p>For instructions on how to get the information you need to configure this add-on, see these help articles:</p><ul><li><a href=\"http://help.fliplet.com/deploying-and-updating-apps/technical-bits/setting-up-push-notifications-for-ios\">How to set-up push notifications for iOS</a></li><li><a href=\"http://help.fliplet.com/being-successful/using-analytics/adding-googles-firebase-push-notifications-for-android\">How to set-up push notifications for Android</a></li></ul><p>For push notification best practices, you might also want to check out our blog post <a href=\"https://fliplet.com/blog/start-using-push-notifications-the-right-way/\">everything you need to know about push notifications and how to use them well</a>.</p>",
   "icon": "img/icon.png",
   "tags": ["type:appComponent", "visibility:hidden"],
