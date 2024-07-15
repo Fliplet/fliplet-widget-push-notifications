@@ -906,7 +906,7 @@ export default {
           });
 
           _.merge(this.notification, {
-            isPushNotificationWidget:true,
+            isPushNotificationWidget: true,
             status: status,
             type: this.type,
             orderAt: this.orderAt,
@@ -966,7 +966,7 @@ export default {
 
           this.isSaving = true;
           this.saveMessage = this.getSaveMessage(statusFrom, statusTo);
-          this.notification.isPushNotificationWidget = true;
+
           if (!_.get(this, 'notification.id')) {
             return this.instance.insert(this.notification).then(resolve);
           }
