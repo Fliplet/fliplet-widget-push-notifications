@@ -906,6 +906,7 @@ export default {
           });
 
           _.merge(this.notification, {
+            isPushNotificationWidget: true,
             status: status,
             type: this.type,
             orderAt: this.orderAt,
