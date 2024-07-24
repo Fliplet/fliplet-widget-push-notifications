@@ -645,7 +645,6 @@ export default {
       }
 
       const matchQuery = {
-        isPushNotificationWidget: true,
         audience: this.audience,
         scope: this.scope,
         includeMatches: true
