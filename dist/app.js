@@ -5040,6 +5040,7 @@ var defaultSendLabel = 'Send notification';
         return Promise.resolve();
       }
       var matchQuery = {
+        isPushNotificationWidget: true,
         audience: this.audience,
         scope: this.scope,
         includeMatches: true
