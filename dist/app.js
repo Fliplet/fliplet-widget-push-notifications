@@ -5327,7 +5327,7 @@ var defaultSendLabel = 'Send notification';
           if (!_.get(_this4, 'notification.id')) {
             return _this4.instance.insert(_this4.notification).then(resolve);
           }
-          return _this4.instance.update(_this4.notification.id, _.pick(_this4.notification, ['status', 'type', 'data', 'scope', 'orderAt', 'pushNotification'])).then(resolve);
+          return _this4.instance.update(_this4.notification.id, _.pick(_this4.notification, ['status', 'type', 'data', 'scope', 'orderAt', 'pushNotification', 'isPushNotificationWidget'])).then(resolve);
         });
       }).then(function (response) {
         Fliplet.Modal.alert({
