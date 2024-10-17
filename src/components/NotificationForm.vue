@@ -978,7 +978,8 @@ export default {
             'data',
             'scope',
             'orderAt',
-            'pushNotification'
+            'pushNotification',
+            'isPushNotificationWidget'
           ])).then(resolve);
         });
       }).then((response) => {
