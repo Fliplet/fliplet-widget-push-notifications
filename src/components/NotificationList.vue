@@ -15,19 +15,34 @@
           <p>Loading notifications</p>
         </div>
         <template v-else>
-          <template v-if="!notifications.length">
+          <template v-if="!notifications.length && currentStatus === 'all'">
             <div class="notifications-empty">
               <h4>Send a notification</h4>
               <p>Communicate latest updates and promotions with your users so they can re-engage with your app.</p>
             </div>
           </template>
           <template v-else>
-            <div class="checkbox checkbox-icon">
-              <input id="show-timezone" type="checkbox" v-model="showTimezone">
-              <label for="show-timezone">
-                <span class="check"><i class="fa fa-check"></i></span> Show timezones
-              </label>
+            <div class="row">
+              <div class="col-md-6">
+                <div class="notification-filters">
+                  <ul class="nav nav-pills">
+                    <li :class="{ active: currentStatus === 'all' }"><a href="#" @click.prevent="setStatusFilter('all')">All</a></li>
+                    <li :class="{ active: currentStatus === 'draft' }"><a href="#" @click.prevent="setStatusFilter('draft')">Draft</a></li>
+                    <li :class="{ active: currentStatus === 'published' }"><a href="#" @click.prevent="setStatusFilter('published')">Published</a></li>
+                    <li :class="{ active: currentStatus === 'scheduled' }"><a href="#" @click.prevent="setStatusFilter('scheduled')">Scheduled</a></li>
+                  </ul>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="checkbox checkbox-icon pull-right">
+                  <input id="show-timezone" type="checkbox" v-model="showTimezone">
+                  <label for="show-timezone">
+                    <span class="check"><i class="fa fa-check"></i></span> Show timezones
+                  </label>
+                </div>
+              </div>
             </div>
+
             <table class="table table-condensed notification-list">
               <thead>
                 <tr>
@@ -38,6 +53,9 @@
                 </tr>
               </thead>
               <tbody>
+                <tr v-if="!notifications.length" class="notification-empty">
+                  <td colspan="4">There are no {{ currentStatus }} notifications.</td>
+                </tr>
                 <tr
                   v-for="notification in notifications"
                   :key="getNotificationKey(notification)"
@@ -60,7 +78,7 @@
                     </p>
                     <Notification-Link :notification="notification"></Notification-Link>
                   </td>
-                  <td class="list-col-notes"><Notification-Notes :notification.sync="notification"></Notification-Notes></td>
+                  <td class="list-col-notes"><Notification-Notes :notification="notification" @update:notification="updatedNotification => onUpdateNotification(notification.id, updatedNotification)"></Notification-Notes></td>
                   <td class="list-col-sent-to">
                     <p>
                       {{ userCount(notification) }}<br>
@@ -149,6 +167,7 @@ export default {
       pageCount: 0,
       pageNumber: getPageNumber(),
       lastNotificationShown: false,
+      currentStatus: 'all',
       showTimezone: getShowTimezone(),
       userTimezone: validateTimezone(moment.tz.guess()),
       batchSize: 10,
@@ -195,6 +214,29 @@ export default {
     bus.$off('refresh-list', this.loadNotifications);
   },
   methods: {
+    onUpdateNotification(notificationId, updatedNotification) {
+      const index = _.findIndex(this.notifications, (n) => {
+        let id = n.id;
+
+        if (!id) {
+          id = `legacy-${_.get(n, 'job.id')}`;
+        }
+
+        return id === notificationId;
+      });
+
+      if (index > -1) {
+        this.notifications.splice(index, 1, updatedNotification);
+      }
+    },
+    setStatusFilter(status) {
+      if (this.currentStatus === status) {
+        return;
+      }
+      this.currentStatus = status;
+      this.pageNumber = 1;
+      this.loadNotifications();
+    },
     doNothing() {
       return;
     },
@@ -393,16 +435,24 @@ export default {
 
       this.isLoading = true;
 
-      return this.instance.poll({
+      const options = {
         includeLogs: true,
         offset: this.offset,
         limit: this.batchSize,
         includeAllScopes: true,
         publishToStream: false // Avoid saving the notification to storage
-      }).then((response) => {
-        if (!response.entries.length && this.pageNumber > response.pageCount) {
+      };
+
+      if (this.currentStatus !== 'all') {
+        options.status = [this.currentStatus];
+      } else {
+        options.status = ['draft', 'published', 'scheduled'];
+      }
+
+      return this.instance.poll(options).then((response) => {
+        if (!response.entries.length && this.pageNumber > 1 && this.pageNumber > response.pageCount) {
           // Load last page
-          this.pageNumber = response.pageCount;
+          this.pageNumber = response.pageCount || 1;
 
           return;
         }
