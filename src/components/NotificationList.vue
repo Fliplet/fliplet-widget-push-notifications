@@ -1,4 +1,5 @@
 <template>
+  <p>sfdsfjdfjdjfdhfhgh</p>
   <div class="container-fluid">
     <div class="row">
       <div class="col-xs-6">
@@ -37,7 +38,7 @@
                 <div class="checkbox checkbox-icon pull-right">
                   <input id="show-timezone" type="checkbox" v-model="showTimezone">
                   <label for="show-timezone">
-                    <span class="check"><i class="fa fa-check"></i></span> Show timezones
+                    <span class="check"><i class="fa fa-check"></i></span> Show timezonesdfdgfgfgfgf
                   </label>
                 </div>
               </div>
