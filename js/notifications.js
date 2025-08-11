@@ -136,6 +136,11 @@ Fliplet.Widget.register('PushNotifications', function () {
   }
 
   function ask(options) {
+    const params = new URLSearchParams(window.location.search);
+    if (params.has('headless')) {
+      return;
+    }
+
     options = options || {};
 
     if (!data || !isConfigured()) {
