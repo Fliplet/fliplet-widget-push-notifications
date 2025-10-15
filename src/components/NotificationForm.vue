@@ -318,7 +318,7 @@ export default {
           sessions: []
         }
       },
-      debouncedGetMatches: _.debounce(this.getMatches, 1500),
+      debouncedGetMatches: Fliplet.Utils.debounce(this.getMatches, 1500),
       matchQuery: null,
       loadingMatches: true,
       errors: {},
@@ -334,20 +334,20 @@ export default {
   },
   mounted() {
     this.appIcon = this.getAsset('img/app-icon.png');
-    this.notification = _.defaultsDeep(this.notification, getDefaultNotification());
+    this.notification = Fliplet.Utils.defaultsDeep(this.notification, getDefaultNotification());
 
-    this.channels = _.get(this.notification, 'data._metadata.channels', []);
+    this.channels = Fliplet.Utils.get(this.notification, 'data._metadata.channels', []);
 
     // Always default to both in-app and push if no channels are set
     if (!this.channels.length) {
       this.channels = ['in-app', 'push'];
     }
 
-    const sessions = _.get(this.notification, 'data._metadata.sessions');
+    const sessions = Fliplet.Utils.get(this.notification, 'data._metadata.sessions');
 
 
-    if (_.isArray(sessions) && sessions.length) {
-      _.forEach(sessions, (sessionId) => {
+    if (Fliplet.Utils.isArray(sessions) && sessions.length) {
+      Fliplet.Utils.forEach(sessions, (sessionId) => {
         this.sessions.push(sessionId);
       });
     }
@@ -357,13 +357,13 @@ export default {
     this.initializeProviders();
 
     if (this.schedule === 'scheduled') {
-      let date = moment.utc(moment.unix(_.get(this.notification, 'data._metadata.scheduledAt')));
+      let date = moment.utc(moment.unix(Fliplet.Utils.get(this.notification, 'data._metadata.scheduledAt')));
 
       if (!date.isValid()) {
         date = moment.utc().unix();
       }
 
-      this.scheduledAtTimezone = validateTimezone(_.get(this.notification, 'data._metadata.scheduledAtTimezone'));
+      this.scheduledAtTimezone = validateTimezone(Fliplet.Utils.get(this.notification, 'data._metadata.scheduledAtTimezone'));
       date.tz(this.scheduledAtTimezone);
 
       // Use "Z" to indicate UTC timezone in the date string
@@ -373,7 +373,7 @@ export default {
     }
 
     Fliplet.Apps.get().then((apps) => {
-      const app = _.find(apps, { id: Fliplet.Env.get('appId') });
+      const app = Fliplet.Utils.find(apps, { id: Fliplet.Env.get('appId') });
 
       if (!app) {
         return;
@@ -394,7 +394,7 @@ export default {
     },
     schedule: {
       get() {
-        const schedule = _.get(this.notification, 'data._metadata.schedule');
+        const schedule = Fliplet.Utils.get(this.notification, 'data._metadata.schedule');
 
         if (!schedule) {
           return defaultSchedule;
@@ -403,12 +403,12 @@ export default {
         return ['now', 'scheduled'].indexOf(schedule) > -1 ? schedule : defaultSchedule;
       },
       set(schedule) {
-        return _.set(this.notification, 'data._metadata.schedule', schedule);
+        return Fliplet.Utils.set(this.notification, 'data._metadata.schedule', schedule);
       }
     },
     audience: {
       get() {
-        const audience = _.get(this.notification, 'data.audience', defaultAudience);
+        const audience = Fliplet.Utils.get(this.notification, 'data.audience', defaultAudience);
 
         if (!audience) {
           return defaultAudience;
@@ -421,7 +421,7 @@ export default {
           audience = defaultAudience;
         }
 
-        _.set(this.notification, 'data.audience', audience);
+        Fliplet.Utils.set(this.notification, 'data.audience', audience);
       }
     },
     audienceVerbose() {
@@ -444,18 +444,18 @@ export default {
       }
     },
     filters() {
-      return _.get(this.notification, 'data._metadata.filters', []) || [];
+      return Fliplet.Utils.get(this.notification, 'data._metadata.filters', []) || [];
     },
     notes: {
       get() {
-        return _.get(this.notification, 'data._metadata.notes', '') || '';
+        return Fliplet.Utils.get(this.notification, 'data._metadata.notes', '') || '';
       },
       set(notes) {
-        return _.set(this.notification, 'data._metadata.notes', notes);
+        return Fliplet.Utils.set(this.notification, 'data._metadata.notes', notes);
       }
     },
     filterScopes() {
-      return _.compact(_.map(this.filters, getFilterScope));
+      return Fliplet.Utils.compact(Fliplet.Utils.map(this.filters, getFilterScope));
     },
     scope() {
       if (this.audience === 'sessions') {
@@ -552,7 +552,7 @@ export default {
 
       switch (this.steps[this.step].name) {
         case 'configure':
-          if (!_.get(this.notification, 'data.title')) {
+          if (!Fliplet.Utils.get(this.notification, 'data.title')) {
             Vue.set(this.errors, 'title', 'Please enter a title');
           }
 
@@ -560,7 +560,7 @@ export default {
             Vue.set(this.errors, 'title', `Title must be no longer than ${this.titleCharacterLimit} characters`);
           }
 
-          if (!_.get(this.notification, 'data.message')) {
+          if (!Fliplet.Utils.get(this.notification, 'data.message')) {
             Vue.set(this.errors, 'message', 'Please enter a message');
           }
 
@@ -588,7 +588,7 @@ export default {
     stepIsValid() {
       this.getErrors();
 
-      return _.isEmpty(this.errors);
+      return Fliplet.Utils.isEmpty(this.errors);
     },
     nextStep() {
       if (!this.stepIsValid()) {
@@ -601,18 +601,18 @@ export default {
       this.step = Math.max(0, this.step - 1);
     },
     goToStep(name) {
-      this.step = _.findIndex(this.steps, { name });
+      this.step = Fliplet.Utils.findIndex(this.steps, { name });
     },
     validateSessions(sessions) {
       if (typeof sessions === 'string') {
         sessions = sessions.split(',');
       }
 
-      if (!_.isArray(sessions)) {
+      if (!Fliplet.Utils.isArray(sessions)) {
         sessions = [sessions];
       }
 
-      sessions = _.compact(_.map(sessions, (id) => {
+      sessions = Fliplet.Utils.compact(Fliplet.Utils.map(sessions, (id) => {
         return parseInt(id, 10);
       }));
 
@@ -622,7 +622,7 @@ export default {
       return `${this.assetRoot}/${path}`;
     },
     notificationHasChannel(channel) {
-      return _.includes(this.channels, channel);
+      return Fliplet.Utils.includes(this.channels, channel);
     },
     addNotificationChannel(channel) {
       if (this.channels.indexOf(channel) === -1) {
@@ -651,7 +651,7 @@ export default {
         includeMatches: true
       };
 
-      if (this.matchQuery !== null && _.isEqual(matchQuery, this.matchQuery)) {
+      if (this.matchQuery !== null && Fliplet.Utils.isEqual(matchQuery, this.matchQuery)) {
         return Promise.resolve();
       }
 
@@ -709,8 +709,8 @@ export default {
       this.$refs.screenLinkProvider.innerHTML = '';
       this.screenLinkProvider = Fliplet.Widget.open('com.fliplet.link', {
         selector: this.$refs.screenLinkProvider,
-        data: _.get(this.notification, 'data.navigate.action') === 'screen'
-          ? _.merge({ options: { hideTransition: true } }, this.notification.data.navigate)
+        data: Fliplet.Utils.get(this.notification, 'data.navigate.action') === 'screen'
+          ? Fliplet.Utils.merge({ options: { hideTransition: true } }, this.notification.data.navigate)
           : {
             action: 'screen',
             page: '',
@@ -725,7 +725,7 @@ export default {
       this.$refs.urlLinkProvider.innerHTML = '';
       this.urlLinkProvider = Fliplet.Widget.open('com.fliplet.link', {
         selector: this.$refs.urlLinkProvider,
-        data: _.get(this.notification, 'data.navigate.action') === 'url'
+        data: Fliplet.Utils.get(this.notification, 'data.navigate.action') === 'url'
           ? this.notification.data.navigate
           : {
             action: 'url',
@@ -739,7 +739,7 @@ export default {
     },
     addFilter() {
       this.filters.push({});
-      _.forIn(defaultFilter, (value, key) => {
+      Fliplet.Utils.forIn(defaultFilter, (value, key) => {
         Vue.set(this.filters[this.filters.length - 1], key, value);
       });
     },
@@ -747,7 +747,7 @@ export default {
       this.filters.splice(index, 1);
     },
     openScreenPreview() {
-      if (!_.get(this.notification, 'data.navigate.page')) {
+      if (!Fliplet.Utils.get(this.notification, 'data.navigate.page')) {
         Fliplet.Modal.alert({
           message: 'Please select a screen to preview'
         });
@@ -876,7 +876,7 @@ export default {
 
       return new Promise((resolve) => {
         saveLinkProvider.then((results) => {
-          this.notification.data.navigate = _.get(results, 'data', {});
+          this.notification.data.navigate = Fliplet.Utils.get(results, 'data', {});
 
           switch (this.linkAction) {
             case 'screen':
@@ -902,11 +902,11 @@ export default {
             return;
           }
 
-          _.remove(this.filters, (filter) => {
+          Fliplet.Utils.remove(this.filters, (filter) => {
             return !filter.column || (!filter.value && ['empty', 'notempty'].indexOf(filter.condition) < 0);
           });
 
-          _.merge(this.notification, {
+          Fliplet.Utils.merge(this.notification, {
             isPushNotificationWidget: true,
             status: status,
             type: this.type,
@@ -923,7 +923,7 @@ export default {
             }
           });
 
-          if (!_.isEmpty(this.scope)) {
+          if (!Fliplet.Utils.isEmpty(this.scope)) {
             this.notification.scope = this.scope;
           } else {
             // Ensures notification scope is never empty
@@ -931,13 +931,13 @@ export default {
           }
 
           // Array properties are separated to ensure the arrays are overwritten with new values
-          _.assign(this.notification._metadata, {
+          Fliplet.Utils.assign(this.notification._metadata, {
             scope: this.scope,
             filters: this.audience !== 'sessions' ? this.filters : [],
             sessions: this.audience === 'sessions' ? this.validateSessions(this.sessions) : undefined
           });
 
-          if (_.get(this.notification, 'data.navigate') && _.isEmpty(this.notification.data.navigate)) {
+          if (Fliplet.Utils.get(this.notification, 'data.navigate') && Fliplet.Utils.isEmpty(this.notification.data.navigate)) {
             delete this.notification.data.navigate;
           }
 
@@ -959,7 +959,7 @@ export default {
             };
 
             if (this.notification.data.navigate) {
-              _.set(pushNotification, 'payload.custom.customData', this.notification.data.navigate);
+              Fliplet.Utils.set(pushNotification, 'payload.custom.customData', this.notification.data.navigate);
             }
 
             this.notification.pushNotification = pushNotification;
@@ -968,11 +968,11 @@ export default {
           this.isSaving = true;
           this.saveMessage = this.getSaveMessage(statusFrom, statusTo);
 
-          if (!_.get(this, 'notification.id')) {
+          if (!Fliplet.Utils.get(this, 'notification.id')) {
             return this.instance.insert(this.notification).then(resolve);
           }
 
-          return this.instance.update(this.notification.id, _.pick(this.notification, [
+          return this.instance.update(this.notification.id, Fliplet.Utils.pick(this.notification, [
             'status',
             'type',
             'data',

@@ -54,7 +54,7 @@ export function setView(view) {
 }
 
 export function setNotification(notification) {
-  state.notification = _.defaultsDeep({}, notification, getDefaultNotification());
+  state.notification = Fliplet.Utils.defaultsDeep({}, notification, getDefaultNotification());
 }
 
 export function getNotification() {
@@ -62,7 +62,7 @@ export function getNotification() {
 }
 
 export function getNotificationLinkAction() {
-  return _.get(state.notification, 'data.navigate.action', '');
+  return Fliplet.Utils.get(state.notification, 'data.navigate.action', '');
 }
 
 export function getPageNumber() {

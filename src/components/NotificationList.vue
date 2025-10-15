@@ -215,11 +215,11 @@ export default {
   },
   methods: {
     onUpdateNotification(notificationId, updatedNotification) {
-      const index = _.findIndex(this.notifications, (n) => {
+      const index = Fliplet.Utils.findIndex(this.notifications, (n) => {
         let id = n.id;
 
         if (!id) {
-          id = `legacy-${_.get(n, 'job.id')}`;
+          id = `legacy-${Fliplet.Utils.get(n, 'job.id')}`;
         }
 
         return id === notificationId;
@@ -244,7 +244,7 @@ export default {
       let id = notification.id;
 
       if (!id) {
-        id = `legacy-${_.get(notification, 'job.id')}`;
+        id = `legacy-${Fliplet.Utils.get(notification, 'job.id')}`;
       }
 
       const createdAt = moment(notification.createdAt).unix();
@@ -277,18 +277,18 @@ export default {
         return;
       }
 
-      const audience = _.get(notification, 'data.audience', defaultAudience);
-      const scope = _.get(notification, 'scope', defaultScope);
+      const audience = Fliplet.Utils.get(notification, 'data.audience', defaultAudience);
+      const scope = Fliplet.Utils.get(notification, 'scope', defaultScope);
 
-      if (!audience && _.isEmpty(scope)) {
+      if (!audience && Fliplet.Utils.isEmpty(scope)) {
         return 'All users';
       }
 
       return `${notification.userCount} user${notification.userCount !== 1 ? 's' : ''}`;
     },
     getNotificationTimezone(notification) {
-      const timezone = _.get(notification, 'data._metadata.scheduledAtTimezone');
-      const date = moment.utc(_.get(notification, 'orderAt')).toDate();
+      const timezone = Fliplet.Utils.get(notification, 'data._metadata.scheduledAtTimezone');
+      const date = moment.utc(Fliplet.Utils.get(notification, 'orderAt')).toDate();
 
       return getTimezoneOffsetString(timezone, date);
     },
@@ -297,13 +297,13 @@ export default {
         return `${formatDate(notification.orderAt, this.userTimezone)}`;
       }
 
-      const timezone = validateTimezone(_.get(notification, 'data._metadata.scheduledAtTimezone'));
+      const timezone = validateTimezone(Fliplet.Utils.get(notification, 'data._metadata.scheduledAtTimezone'));
 
       return `${formatDate(notification.orderAt, timezone)} ${this.getNotificationTimezone(notification)}`;
     },
     getNotificationLog(notification) {
       const tpl = Fliplet.Widget.Templates['templates.notificationLog'];
-      let data = _.merge({
+      let data = Fliplet.Utils.merge({
         android: {
           count: 0,
           success: 0,
@@ -324,9 +324,9 @@ export default {
         }
       }, notification.pushResult);
 
-      const allErrors = _.reduce(_.map(_.values(data), 'errors'), (summary, platformErrors) => {
-        _.forIn(platformErrors, (count, type) => {
-          if (!_.has(summary, type)) {
+      const allErrors = Fliplet.Utils.reduce(Fliplet.Utils.map(Fliplet.Utils.values(data), 'errors'), (summary, platformErrors) => {
+        Fliplet.Utils.forIn(platformErrors, (count, type) => {
+          if (!Fliplet.Utils.has(summary, type)) {
             summary[type] = count;
 
             return;
@@ -338,10 +338,10 @@ export default {
         return summary;
       }, {});
 
-      const acceptedCount = _.sumBy(_.keys(data), (platform) => {
+      const acceptedCount = Fliplet.Utils.sumBy(Fliplet.Utils.keys(data), (platform) => {
         return data[platform].success;
       });
-      const totalCount = _.sumBy(_.keys(data), (platform) => {
+      const totalCount = Fliplet.Utils.sumBy(Fliplet.Utils.keys(data), (platform) => {
         return data[platform].count;
       });
 
@@ -352,14 +352,14 @@ export default {
           : Math.round((acceptedCount) / (totalCount) * 100)
       };
 
-      data.errors = _.orderBy(_.map(_.keys(allErrors), (type) => {
+      data.errors = Fliplet.Utils.orderBy(Fliplet.Utils.map(Fliplet.Utils.keys(allErrors), (type) => {
         return {
           type,
           description: pushNotificationErrorTypes[type] || defaultPushNotificationErrorMessage,
           count: allErrors[type]
         };
       }), ['count'], ['desc']);
-      data.batches = _.get(notification, 'job.batches', { sent: 0, total: 0 });
+      data.batches = Fliplet.Utils.get(notification, 'job.batches', { sent: 0, total: 0 });
 
       return tpl(data);
     },
@@ -371,7 +371,7 @@ export default {
       bus.$emit('set-view', 'form');
     },
     cloneNotification(notification) {
-      setNotification(_.pick(notification, [
+      setNotification(Fliplet.Utils.pick(notification, [
         'status',
         'type',
         'data',
@@ -401,7 +401,7 @@ export default {
           return;
         }
 
-        const removedIndex = _.findIndex(this.notifications, { id: notification.id });
+        const removedIndex = Fliplet.Utils.findIndex(this.notifications, { id: notification.id });
 
         if (removedIndex < 0) {
           return;
@@ -426,7 +426,7 @@ export default {
     },
     loadNotifications(notificationId) {
       if (typeof notificationId === 'number'
-        && _.findIndex(this.notifications, { id: notificationId }) === -1
+        && Fliplet.Utils.findIndex(this.notifications, { id: notificationId }) === -1
         && this.pageNumber !== 1) {
         this.pageNumber = 1;
 

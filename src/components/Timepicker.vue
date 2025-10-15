@@ -49,13 +49,13 @@ export default {
       hour12h: this.hour % 12 || 12,
       ampm: this.hour < 12 ? 'AM' : 'PM',
       timezones: timezones,
-      hours: _.times(12, (hour) => {
+      hours: Fliplet.Utils.times(12, (hour) => {
         return {
           value: hour + 1,
           label: `0${hour + 1}`.slice(-2)
         };
       }),
-      minutes: _.times(60, (minute) => {
+      minutes: Fliplet.Utils.times(60, (minute) => {
         return {
           value: minute,
           label: `0${minute}`.slice(-2)
@@ -109,10 +109,10 @@ export default {
   },
   computed: {
     adjustedTimezones() {
-      return _.orderBy(_.map(this.timezones, (timezone) => {
+      return Fliplet.Utils.orderBy(Fliplet.Utils.map(this.timezones, (timezone) => {
         const offset = getTimezoneOffsetObject(timezone.value, this.date);
 
-        return _.extend(_.clone(timezone), {
+        return Fliplet.Utils.extend(Fliplet.Utils.clone(timezone), {
           label: `(${offset.label}) ${timezone.label}`,
           offset: offset.value
         });

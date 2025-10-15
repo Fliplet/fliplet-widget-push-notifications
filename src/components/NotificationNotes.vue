@@ -31,7 +31,7 @@ export default {
     return {
       instance: null,
       mode: 'view',
-      notes: _.get(this.notification, 'data._metadata.notes'),
+      notes: Fliplet.Utils.get(this.notification, 'data._metadata.notes'),
       cachedNotes: ''
     };
   },
@@ -62,14 +62,14 @@ export default {
       this.mode = 'view';
     },
     update() {
-      _.set(this.notification, 'data._metadata.notes', this.notes);
+      Fliplet.Utils.set(this.notification, 'data._metadata.notes', this.notes);
 
-      return this.instance.update(this.notification.id, _.pick(this.notification, 'data')).then(() => {
+      return this.instance.update(this.notification.id, Fliplet.Utils.pick(this.notification, 'data')).then(() => {
         this.cachedNotes = '';
         this.mode = 'view';
         this.$emit('update:notification', this.notification);
       }).catch((error) => {
-        _.set(this.notification, 'data._metadata.notes', this.cachedNotes);
+        Fliplet.Utils.set(this.notification, 'data._metadata.notes', this.cachedNotes);
         Fliplet.Modal.alert({
           title: 'Error updating notes',
           message: Fliplet.parseError(error)

@@ -336,7 +336,7 @@ export function validate(name) {
     name = DEFAULT_TIMEZONE;
   }
 
-  let zone = _.find(timezones, { value: name });
+  let zone = Fliplet.Utils.find(timezones, { value: name });
 
   if (zone) {
     return name;
@@ -351,7 +351,7 @@ export function validate(name) {
   const now = moment();
   const timezoneOffset = zone.utcOffset(now);
 
-  return _.get(_.find(timezones, (tz) => {
+  return Fliplet.Utils.get(Fliplet.Utils.find(timezones, (tz) => {
     return moment.tz.zone(tz.value).utcOffset(now) === timezoneOffset;
   }), 'value');
 }

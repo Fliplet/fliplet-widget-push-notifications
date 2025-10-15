@@ -15,6 +15,7 @@
     "dependencies": [
       "vue.js",
       "fliplet-core",
+      "fliplet-utils",
       "fliplet-studio-ui",
       "fliplet-notifications",
       "moment",
@@ -41,7 +42,7 @@
     ]
   },
   "build": {
-    "dependencies": ["fliplet-core", "bootstrap", "handlebars"],
+    "dependencies": ["fliplet-core", "fliplet-utils", "bootstrap", "handlebars"],
     "assets": [
       "css/notifications.css",
       "js/notifications.js",
