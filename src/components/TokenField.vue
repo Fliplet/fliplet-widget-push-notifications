@@ -20,8 +20,8 @@ export default {
     }
   },
   mounted() {
-    this.collection = _.concat(this.collection, _.map(this.value, (obj) => {
-      if (_.hasIn(obj, 'value')) {
+    this.collection = Fliplet.Utils.concat(this.collection, Fliplet.Utils.map(this.value, (obj) => {
+      if (Fliplet.Utils.hasIn(obj, 'value')) {
         return obj;
       }
 
@@ -46,13 +46,13 @@ export default {
   },
   watch: {
     collection(collection) {
-      this.$emit('update:value', _.map(collection, 'value'));
+      this.$emit('update:value', Fliplet.Utils.map(collection, 'value'));
     }
   },
   methods: {
     getTokens() {
       this.collection.splice(0, this.collection.length);
-      _.forEach($(this.$refs.input).tokenfield('getTokens'), (token) => {
+      Fliplet.Utils.forEach($(this.$refs.input).tokenfield('getTokens'), (token) => {
         this.collection.push(token);
       });
     }
