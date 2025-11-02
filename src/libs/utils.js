@@ -5,16 +5,12 @@
  * @returns {Object} Merged notification object
  */
 export function mergeNotificationDefaults(notification, defaults) {
-  return {
-    ...defaults,
-    ...notification,
-    data: {
-      ...defaults.data,
-      ...notification?.data,
-      _metadata: {
-        ...defaults.data._metadata,
-        ...notification?.data?._metadata
-      }
-    }
-  };
+  var notificationData = notification && notification.data ? notification.data : {};
+  var notificationMetadata = notificationData._metadata || {};
+
+  return Object.assign({}, defaults, notification, {
+    data: Object.assign({}, defaults.data, notificationData, {
+      _metadata: Object.assign({}, defaults.data._metadata, notificationMetadata)
+    })
+  });
 }

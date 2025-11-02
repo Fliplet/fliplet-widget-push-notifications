@@ -233,6 +233,7 @@ export default {
       if (this.currentStatus === status) {
         return;
       }
+
       this.currentStatus = status;
       this.pageNumber = 1;
       this.loadNotifications();
