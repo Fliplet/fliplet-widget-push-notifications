@@ -1,11 +1,36 @@
 <template>
-  <p>sfdsfjdfjdjfdhfhgh</p>
   <div class="container-fluid">
     <div class="row">
-      <div class="col-xs-6">
+      <div class="col-xs-2">
         <p><a href="#" @click.prevent="createNotification" class="btn btn-primary"><i class="fa fa-fw fa-lg fa-plus"></i> Create new</a></p>
       </div>
-      <div class="col-xs-6">
+      <div class="col-xs-4">
+        <div>
+          <ul class="status-pills">
+            <li :class="['pill', { active: currentStatus === 'all' }]">
+              <a href="#" @click.prevent="setStatusFilter('all')">All</a>
+            </li>
+            <li :class="['pill', { active: currentStatus === 'draft' }]">
+              <a href="#" @click.prevent="setStatusFilter('draft')">Draft</a>
+            </li>
+            <li :class="['pill', { active: currentStatus === 'published' }]">
+              <a href="#" @click.prevent="setStatusFilter('published')">Published</a>
+            </li>
+            <li :class="['pill', { active: currentStatus === 'scheduled' }]">
+              <a href="#" @click.prevent="setStatusFilter('scheduled')">Scheduled</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div class="col-xs-3">
+        <div class="checkbox checkbox-icon pull-right">
+          <input id="show-timezone" type="checkbox" v-model="showTimezone">
+          <label for="show-timezone">
+            <span class="check"><i class="fa fa-check"></i></span> Show timezones
+          </label>
+        </div>
+      </div>
+      <div class="col-xs-3">
         <p><a href="#" class="btn btn-default show-settings pull-right"><i class="fa fa-fw fa-lg fa-cog"></i> Push notification settings</a></p>
       </div>
     </div>
@@ -23,26 +48,6 @@
             </div>
           </template>
           <template v-else>
-            <div class="row">
-              <div class="col-md-6">
-                <div class="notification-filters">
-                  <ul class="nav nav-pills">
-                    <li :class="{ active: currentStatus === 'all' }"><a href="#" @click.prevent="setStatusFilter('all')">All</a></li>
-                    <li :class="{ active: currentStatus === 'draft' }"><a href="#" @click.prevent="setStatusFilter('draft')">Draft</a></li>
-                    <li :class="{ active: currentStatus === 'published' }"><a href="#" @click.prevent="setStatusFilter('published')">Published</a></li>
-                    <li :class="{ active: currentStatus === 'scheduled' }"><a href="#" @click.prevent="setStatusFilter('scheduled')">Scheduled</a></li>
-                  </ul>
-                </div>
-              </div>
-              <div class="col-md-6">
-                <div class="checkbox checkbox-icon pull-right">
-                  <input id="show-timezone" type="checkbox" v-model="showTimezone">
-                  <label for="show-timezone">
-                    <span class="check"><i class="fa fa-check"></i></span> Show timezonesdfdgfgfgfgf
-                  </label>
-                </div>
-              </div>
-            </div>
 
             <table class="table table-condensed notification-list">
               <thead>
@@ -234,6 +239,7 @@ export default {
       if (this.currentStatus === status) {
         return;
       }
+
       this.currentStatus = status;
       this.pageNumber = 1;
       this.loadNotifications();
@@ -445,9 +451,7 @@ export default {
       };
 
       if (this.currentStatus !== 'all') {
-        options.status = [this.currentStatus];
-      } else {
-        options.status = ['draft', 'published', 'scheduled'];
+        options.status = this.currentStatus;
       }
 
       return this.instance.poll(options).then((response) => {
