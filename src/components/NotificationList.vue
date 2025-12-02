@@ -1,10 +1,17 @@
 <template>
   <div class="container-fluid">
     <div class="row">
-      <div class="col-xs-2">
-        <p><a href="#" @click.prevent="createNotification" class="btn btn-primary"><i class="fa fa-fw fa-lg fa-plus"></i> Create new</a></p>
+
+        <div class="col-xs-6">
+          <p><a href="#" @click.prevent="createNotification" class="btn btn-primary"><i class="fa fa-fw fa-lg fa-plus"></i> Create new</a></p>
+        </div>
+        <div class="col-xs-6">
+          <p><a href="#" class="btn btn-default show-settings pull-right"><i class="fa fa-fw fa-lg fa-cog"></i> Push notification settings</a></p>
+        </div>
       </div>
-      <div class="col-xs-4">
+    <div class="row" v-if="isNotificationsEmpty">
+
+      <div class="col-xs-9">
         <div>
           <ul class="status-pills">
             <li :class="['pill', { active: currentStatus === 'all' }]">
@@ -29,9 +36,6 @@
             <span class="check"><i class="fa fa-check"></i></span> Show timezones
           </label>
         </div>
-      </div>
-      <div class="col-xs-3">
-        <p><a href="#" class="btn btn-default show-settings pull-right"><i class="fa fa-fw fa-lg fa-cog"></i> Push notification settings</a></p>
       </div>
     </div>
     <div class="row">
@@ -169,6 +173,7 @@ export default {
     return {
       isLoading: false,
       notifications: [],
+      isNotificationsEmpty: false,
       instance: null,
       pageCount: 0,
       pageNumber: getPageNumber(),
@@ -431,6 +436,7 @@ export default {
       setNotification();
       bus.$emit('set-view', 'form');
     },
+
     loadNotifications(notificationId) {
       if (typeof notificationId === 'number'
         && _.findIndex(this.notifications, { id: notificationId }) === -1
@@ -460,6 +466,10 @@ export default {
           this.pageNumber = response.pageCount || 1;
 
           return;
+        }
+
+        if (response.entries.length > 0 && this.currentStatus === 'all') {
+          this.isNotificationsEmpty = true;
         }
 
         this.isLoading = false;
