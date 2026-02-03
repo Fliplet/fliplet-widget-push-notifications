@@ -3938,30 +3938,19 @@ var render = function () {
                         !_vm.pushIsConfigured
                           ? _c("div", { staticClass: "alert alert-warning" }, [
                               _vm._v(
-                                "To send push notifications to your native app, you must configure push notifications on "
+                                "To send notifications to your native apps, you must first "
                               ),
                               _c(
                                 "a",
                                 {
                                   attrs: {
-                                    href: "https://help.fliplet.com/configure-push-notifications-for-ios/",
+                                    href: "https://help.fliplet.com/push-notifications/",
                                     target: "_blank",
                                   },
                                 },
-                                [_vm._v("iOS")]
+                                [_vm._v("configure")]
                               ),
-                              _vm._v(" and "),
-                              _c(
-                                "a",
-                                {
-                                  attrs: {
-                                    href: "https://help.fliplet.com/configure-push-notifications-for-android/",
-                                    target: "_blank",
-                                  },
-                                },
-                                [_vm._v("Android")]
-                              ),
-                              _vm._v("."),
+                              _vm._v(" push notifications."),
                             ])
                           : _vm._e(),
                         _vm._v(" "),
