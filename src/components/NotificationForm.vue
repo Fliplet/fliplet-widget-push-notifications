@@ -168,7 +168,7 @@
                 <span class="tab tab-checked" :class="{ 'active': notificationHasChannel('push') }" @click="toggleNotificationChannel('push')">Push notification</span>
               </div>
               <div class="alert alert-info"><strong>New!</strong> Web apps can now receive push notifications.</div>
-              <div class="alert alert-warning" v-if="!pushIsConfigured">To send push notifications to your native app, you must configure push notifications on <a href="https://help.fliplet.com/configure-push-notifications-for-ios/" target="_blank">iOS</a> and <a href="https://help.fliplet.com/configure-push-notifications-for-android/" target="_blank">Android</a>.</div>
+              <div class="alert alert-warning" v-if="!pushIsConfigured">To send notifications to your native apps, you must first <a href="https://help.fliplet.com/push-notifications/" target="_blank">configure</a> push notifications.</div>
               <p class="text-center text-danger" v-if="errors.channels">{{ errors.channels }}</p>
             </div>
           </div>
