@@ -233,6 +233,7 @@ export default {
       if (this.currentStatus === status) {
         return;
       }
+
       this.currentStatus = status;
       this.pageNumber = 1;
       this.loadNotifications();
@@ -264,8 +265,10 @@ export default {
       return 'No ID found';
     },
     initialize() {
-      return Fliplet.Pages.get().then((pages) => {
-        setAppPages(pages);
+      return Fliplet.API.request({
+        url: 'v1/apps/' + Fliplet.Env.get('appId') + '/pages?includeProduction'
+      }).then((result) => {
+        setAppPages(result.pages);
 
         this.instance = Fliplet.Notifications.init();
 

@@ -353,50 +353,169 @@ var render = function () {
                 ]
               )
             : [
-                !_vm.notifications.length
+                !_vm.notifications.length && _vm.currentStatus === "all"
                   ? [_vm._m(1)]
                   : [
-                      _c("div", { staticClass: "checkbox checkbox-icon" }, [
-                        _c("input", {
-                          directives: [
-                            {
-                              name: "model",
-                              rawName: "v-model",
-                              value: _vm.showTimezone,
-                              expression: "showTimezone",
-                            },
-                          ],
-                          attrs: { id: "show-timezone", type: "checkbox" },
-                          domProps: {
-                            checked: Array.isArray(_vm.showTimezone)
-                              ? _vm._i(_vm.showTimezone, null) > -1
-                              : _vm.showTimezone,
-                          },
-                          on: {
-                            change: function ($event) {
-                              var $$a = _vm.showTimezone,
-                                $$el = $event.target,
-                                $$c = $$el.checked ? true : false
-                              if (Array.isArray($$a)) {
-                                var $$v = null,
-                                  $$i = _vm._i($$a, $$v)
-                                if ($$el.checked) {
-                                  $$i < 0 &&
-                                    (_vm.showTimezone = $$a.concat([$$v]))
-                                } else {
-                                  $$i > -1 &&
-                                    (_vm.showTimezone = $$a
-                                      .slice(0, $$i)
-                                      .concat($$a.slice($$i + 1)))
-                                }
-                              } else {
-                                _vm.showTimezone = $$c
-                              }
-                            },
-                          },
-                        }),
+                      _c("div", { staticClass: "row" }, [
+                        _c("div", { staticClass: "col-md-6" }, [
+                          _c("div", { staticClass: "notification-filters" }, [
+                            _c("ul", { staticClass: "nav nav-pills" }, [
+                              _c(
+                                "li",
+                                {
+                                  class: {
+                                    active: _vm.currentStatus === "all",
+                                  },
+                                },
+                                [
+                                  _c(
+                                    "a",
+                                    {
+                                      attrs: { href: "#" },
+                                      on: {
+                                        click: function ($event) {
+                                          $event.preventDefault()
+                                          return _vm.setStatusFilter("all")
+                                        },
+                                      },
+                                    },
+                                    [_vm._v("All")]
+                                  ),
+                                ]
+                              ),
+                              _vm._v(" "),
+                              _c(
+                                "li",
+                                {
+                                  class: {
+                                    active: _vm.currentStatus === "draft",
+                                  },
+                                },
+                                [
+                                  _c(
+                                    "a",
+                                    {
+                                      attrs: { href: "#" },
+                                      on: {
+                                        click: function ($event) {
+                                          $event.preventDefault()
+                                          return _vm.setStatusFilter("draft")
+                                        },
+                                      },
+                                    },
+                                    [_vm._v("Draft")]
+                                  ),
+                                ]
+                              ),
+                              _vm._v(" "),
+                              _c(
+                                "li",
+                                {
+                                  class: {
+                                    active: _vm.currentStatus === "published",
+                                  },
+                                },
+                                [
+                                  _c(
+                                    "a",
+                                    {
+                                      attrs: { href: "#" },
+                                      on: {
+                                        click: function ($event) {
+                                          $event.preventDefault()
+                                          return _vm.setStatusFilter(
+                                            "published"
+                                          )
+                                        },
+                                      },
+                                    },
+                                    [_vm._v("Published")]
+                                  ),
+                                ]
+                              ),
+                              _vm._v(" "),
+                              _c(
+                                "li",
+                                {
+                                  class: {
+                                    active: _vm.currentStatus === "scheduled",
+                                  },
+                                },
+                                [
+                                  _c(
+                                    "a",
+                                    {
+                                      attrs: { href: "#" },
+                                      on: {
+                                        click: function ($event) {
+                                          $event.preventDefault()
+                                          return _vm.setStatusFilter(
+                                            "scheduled"
+                                          )
+                                        },
+                                      },
+                                    },
+                                    [_vm._v("Scheduled")]
+                                  ),
+                                ]
+                              ),
+                            ]),
+                          ]),
+                        ]),
                         _vm._v(" "),
-                        _vm._m(2),
+                        _c("div", { staticClass: "col-md-6" }, [
+                          _c(
+                            "div",
+                            {
+                              staticClass: "checkbox checkbox-icon pull-right",
+                            },
+                            [
+                              _c("input", {
+                                directives: [
+                                  {
+                                    name: "model",
+                                    rawName: "v-model",
+                                    value: _vm.showTimezone,
+                                    expression: "showTimezone",
+                                  },
+                                ],
+                                attrs: {
+                                  id: "show-timezone",
+                                  type: "checkbox",
+                                },
+                                domProps: {
+                                  checked: Array.isArray(_vm.showTimezone)
+                                    ? _vm._i(_vm.showTimezone, null) > -1
+                                    : _vm.showTimezone,
+                                },
+                                on: {
+                                  change: function ($event) {
+                                    var $$a = _vm.showTimezone,
+                                      $$el = $event.target,
+                                      $$c = $$el.checked ? true : false
+                                    if (Array.isArray($$a)) {
+                                      var $$v = null,
+                                        $$i = _vm._i($$a, $$v)
+                                      if ($$el.checked) {
+                                        $$i < 0 &&
+                                          (_vm.showTimezone = $$a.concat([$$v]))
+                                      } else {
+                                        $$i > -1 &&
+                                          (_vm.showTimezone = $$a
+                                            .slice(0, $$i)
+                                            .concat($$a.slice($$i + 1)))
+                                      }
+                                    } else {
+                                      _vm.showTimezone = $$c
+                                    }
+                                  },
+                                },
+                              }),
+                              _vm._v(" "),
+                              _vm._m(2),
+                            ]
+                          ),
+                        ]),
                       ]),
                       _vm._v(" "),
                       _c(
@@ -410,258 +529,217 @@ var render = function () {
                           _vm._v(" "),
                           _c(
                             "tbody",
-                            _vm._l(_vm.notifications, function (notification) {
-                              return _c(
-                                "tr",
-                                {
-                                  key: _vm.getNotificationKey(notification),
-                                  attrs: {
-                                    "data-notification-id": notification.id,
-                                    "data-job-id":
-                                      notification.job && notification.job.id,
-                                  },
-                                },
-                                [
-                                  _c(
-                                    "td",
-                                    { staticClass: "list-col-content" },
+                            [
+                              !_vm.notifications.length
+                                ? _c(
+                                    "tr",
+                                    { staticClass: "notification-empty" },
+                                    [
+                                      _c("td", { attrs: { colspan: "4" } }, [
+                                        _vm._v(
+                                          "There are no " +
+                                            _vm._s(_vm.currentStatus) +
+                                            " notifications."
+                                        ),
+                                      ]),
+                                    ]
+                                  )
+                                : _vm._e(),
+                              _vm._v(" "),
+                              _vm._l(
+                                _vm.notifications,
+                                function (notification) {
+                                  return _c(
+                                    "tr",
+                                    {
+                                      key: _vm.getNotificationKey(notification),
+                                      attrs: {
+                                        "data-notification-id": notification.id,
+                                        "data-job-id":
+                                          notification.job &&
+                                          notification.job.id,
+                                      },
+                                    },
                                     [
                                       _c(
-                                        "p",
+                                        "td",
+                                        { staticClass: "list-col-content" },
                                         [
                                           _c(
-                                            "tooltip",
-                                            {
-                                              attrs: {
-                                                title:
-                                                  _vm.getNotificationTooltip(
-                                                    notification
-                                                  ),
-                                              },
-                                            },
+                                            "p",
                                             [
-                                              notification.status === "draft"
-                                                ? _c(
-                                                    "span",
-                                                    {
-                                                      staticClass:
-                                                        "label label-default",
-                                                    },
-                                                    [_vm._v("Draft")]
-                                                  )
-                                                : [
-                                                    notification.status ===
-                                                    "scheduled"
-                                                      ? _c(
-                                                          "span",
-                                                          {
-                                                            staticClass:
-                                                              "label label-info",
-                                                          },
-                                                          [
-                                                            _vm._v(
-                                                              "Scheduled for " +
-                                                                _vm._s(
-                                                                  _vm.getNotificationDate(
-                                                                    notification
-                                                                  )
-                                                                )
+                                              _c(
+                                                "tooltip",
+                                                {
+                                                  attrs: {
+                                                    title:
+                                                      _vm.getNotificationTooltip(
+                                                        notification
+                                                      ),
+                                                  },
+                                                },
+                                                [
+                                                  notification.status ===
+                                                  "draft"
+                                                    ? _c(
+                                                        "span",
+                                                        {
+                                                          staticClass:
+                                                            "label label-default",
+                                                        },
+                                                        [_vm._v("Draft")]
+                                                      )
+                                                    : [
+                                                        notification.status ===
+                                                        "scheduled"
+                                                          ? _c(
+                                                              "span",
+                                                              {
+                                                                staticClass:
+                                                                  "label label-info",
+                                                              },
+                                                              [
+                                                                _vm._v(
+                                                                  "Scheduled for " +
+                                                                    _vm._s(
+                                                                      _vm.getNotificationDate(
+                                                                        notification
+                                                                      )
+                                                                    )
+                                                                ),
+                                                              ]
+                                                            )
+                                                          : _c(
+                                                              "span",
+                                                              {
+                                                                staticClass:
+                                                                  "label label-success",
+                                                              },
+                                                              [
+                                                                _vm._v(
+                                                                  "Sent on " +
+                                                                    _vm._s(
+                                                                      _vm.getNotificationDate(
+                                                                        notification
+                                                                      )
+                                                                    )
+                                                                ),
+                                                              ]
                                                             ),
-                                                          ]
-                                                        )
-                                                      : _c(
-                                                          "span",
-                                                          {
-                                                            staticClass:
-                                                              "label label-success",
-                                                          },
-                                                          [
-                                                            _vm._v(
-                                                              "Sent on " +
-                                                                _vm._s(
-                                                                  _vm.getNotificationDate(
-                                                                    notification
-                                                                  )
-                                                                )
-                                                            ),
-                                                          ]
-                                                        ),
-                                                  ],
+                                                      ],
+                                                ],
+                                                2
+                                              ),
                                             ],
-                                            2
+                                            1
                                           ),
+                                          _vm._v(" "),
+                                          _c("p", [
+                                            notification.data.title
+                                              ? _c("strong", [
+                                                  _vm._v(
+                                                    _vm._s(
+                                                      notification.data.title
+                                                    )
+                                                  ),
+                                                ])
+                                              : _vm._e(),
+                                            _vm._v(" "),
+                                            notification.data.title &&
+                                            notification.data.message
+                                              ? _c("br")
+                                              : _vm._e(),
+                                            _vm._v(
+                                              "\n                    " +
+                                                _vm._s(
+                                                  notification.data.message
+                                                ) +
+                                                "\n                  "
+                                            ),
+                                          ]),
+                                          _vm._v(" "),
+                                          _c("Notification-Link", {
+                                            attrs: {
+                                              notification: notification,
+                                            },
+                                          }),
                                         ],
                                         1
                                       ),
                                       _vm._v(" "),
-                                      _c("p", [
-                                        notification.data.title
-                                          ? _c("strong", [
-                                              _vm._v(
-                                                _vm._s(notification.data.title)
-                                              ),
-                                            ])
-                                          : _vm._e(),
-                                        _vm._v(" "),
-                                        notification.data.title &&
-                                        notification.data.message
-                                          ? _c("br")
-                                          : _vm._e(),
-                                        _vm._v(
-                                          "\n                    " +
-                                            _vm._s(notification.data.message) +
-                                            "\n                  "
-                                        ),
-                                      ]),
-                                      _vm._v(" "),
-                                      _c("Notification-Link", {
-                                        attrs: { notification: notification },
-                                      }),
-                                    ],
-                                    1
-                                  ),
-                                  _vm._v(" "),
-                                  _c(
-                                    "td",
-                                    { staticClass: "list-col-notes" },
-                                    [
-                                      _c("Notification-Notes", {
-                                        attrs: { notification: notification },
-                                        on: {
-                                          "update:notification": function (
-                                            $event
-                                          ) {
-                                            notification = $event
-                                          },
-                                        },
-                                      }),
-                                    ],
-                                    1
-                                  ),
-                                  _vm._v(" "),
-                                  _c(
-                                    "td",
-                                    { staticClass: "list-col-sent-to" },
-                                    [
-                                      _c("p", [
-                                        _vm._v(
-                                          "\n                    " +
-                                            _vm._s(_vm.userCount(notification))
-                                        ),
-                                        _c("br"),
-                                        _vm._v(" "),
-                                        _c(
-                                          "small",
-                                          [
-                                            _vm._v("via "),
-                                            notification.type === "in-app"
-                                              ? [_vm._v("in-app")]
-                                              : _vm._e(),
-                                            _vm._v(" "),
-                                            notification.type === "in-app" &&
-                                            notification.job
-                                              ? [_vm._v("&")]
-                                              : _vm._e(),
-                                            _vm._v(" "),
-                                            notification.job ||
-                                            notification.type === "push"
-                                              ? [_vm._v("push")]
-                                              : _vm._e(),
-                                            _vm._v(
-                                              "\n                      notifications"
-                                            ),
-                                          ],
-                                          2
-                                        ),
-                                      ]),
-                                    ]
-                                  ),
-                                  _vm._v(" "),
-                                  _c(
-                                    "td",
-                                    { staticClass: "list-col-actions" },
-                                    [
-                                      _vm.notificationIsEditable(notification)
-                                        ? _c(
-                                            "tooltip",
-                                            { attrs: { title: "Edit" } },
-                                            [
-                                              _c(
-                                                "a",
-                                                {
-                                                  attrs: { href: "#" },
-                                                  on: {
-                                                    click: function ($event) {
-                                                      $event.preventDefault()
-                                                      return _vm.editNotification(
-                                                        notification
-                                                      )
-                                                    },
-                                                  },
-                                                },
-                                                [
-                                                  _c("i", {
-                                                    staticClass:
-                                                      "fa fa-fw fa-lg fa-pencil",
-                                                  }),
-                                                ]
-                                              ),
-                                            ]
-                                          )
-                                        : _vm._e(),
-                                      _vm._v(" "),
                                       _c(
-                                        "tooltip",
-                                        { attrs: { title: "Copy" } },
+                                        "td",
+                                        { staticClass: "list-col-notes" },
                                         [
-                                          _c(
-                                            "a",
-                                            {
-                                              attrs: { href: "#" },
-                                              on: {
-                                                click: function ($event) {
-                                                  $event.preventDefault()
-                                                  return _vm.cloneNotification(
-                                                    notification
-                                                  )
-                                                },
+                                          _c("Notification-Notes", {
+                                            attrs: {
+                                              notification: notification,
+                                            },
+                                            on: {
+                                              "update:notification": function (
+                                                updatedNotification
+                                              ) {
+                                                return _vm.onUpdateNotification(
+                                                  notification.id,
+                                                  updatedNotification
+                                                )
                                               },
                                             },
-                                            [
-                                              _c("i", {
-                                                staticClass:
-                                                  "fa fa-fw fa-lg fa-copy",
-                                              }),
-                                            ]
-                                          ),
+                                          }),
+                                        ],
+                                        1
+                                      ),
+                                      _vm._v(" "),
+                                      _c(
+                                        "td",
+                                        { staticClass: "list-col-sent-to" },
+                                        [
+                                          _c("p", [
+                                            _vm._v(
+                                              "\n                    " +
+                                                _vm._s(
+                                                  _vm.userCount(notification)
+                                                )
+                                            ),
+                                            _c("br"),
+                                            _vm._v(" "),
+                                            _c(
+                                              "small",
+                                              [
+                                                _vm._v("via "),
+                                                notification.type === "in-app"
+                                                  ? [_vm._v("in-app")]
+                                                  : _vm._e(),
+                                                _vm._v(" "),
+                                                notification.type ===
+                                                  "in-app" && notification.job
+                                                  ? [_vm._v("&")]
+                                                  : _vm._e(),
+                                                _vm._v(" "),
+                                                notification.job ||
+                                                notification.type === "push"
+                                                  ? [_vm._v("push")]
+                                                  : _vm._e(),
+                                                _vm._v(
+                                                  "\n                      notifications"
+                                                ),
+                                              ],
+                                              2
+                                            ),
+                                          ]),
                                         ]
                                       ),
                                       _vm._v(" "),
-                                      notification.pushResult
-                                        ? _c(
-                                            "tooltip",
-                                            {
-                                              attrs: {
-                                                title:
-                                                  "Push notification result",
-                                              },
-                                            },
-                                            [
-                                              _c(
-                                                "popover",
-                                                {
-                                                  attrs: {
-                                                    title:
-                                                      "Push notification result",
-                                                    placement: "left",
-                                                    content:
-                                                      _vm.getNotificationLog(
-                                                        notification
-                                                      ),
-                                                    "data-job-id":
-                                                      notification.job.id,
-                                                  },
-                                                },
+                                      _c(
+                                        "td",
+                                        { staticClass: "list-col-actions" },
+                                        [
+                                          _vm.notificationIsEditable(
+                                            notification
+                                          )
+                                            ? _c(
+                                                "tooltip",
+                                                { attrs: { title: "Edit" } },
                                                 [
                                                   _c(
                                                     "a",
@@ -672,9 +750,8 @@ var render = function () {
                                                           $event
                                                         ) {
                                                           $event.preventDefault()
-                                                          return _vm.doNothing.apply(
-                                                            null,
-                                                            arguments
+                                                          return _vm.editNotification(
+                                                            notification
                                                           )
                                                         },
                                                       },
@@ -682,21 +759,17 @@ var render = function () {
                                                     [
                                                       _c("i", {
                                                         staticClass:
-                                                          "fa fa-fw fa-lg fa-list-alt",
+                                                          "fa fa-fw fa-lg fa-pencil",
                                                       }),
                                                     ]
                                                   ),
                                                 ]
-                                              ),
-                                            ],
-                                            1
-                                          )
-                                        : _vm._e(),
-                                      _vm._v(" "),
-                                      _vm.notificationIsDeletable(notification)
-                                        ? _c(
+                                              )
+                                            : _vm._e(),
+                                          _vm._v(" "),
+                                          _c(
                                             "tooltip",
-                                            { attrs: { title: "Delete" } },
+                                            { attrs: { title: "Copy" } },
                                             [
                                               _c(
                                                 "a",
@@ -705,7 +778,7 @@ var render = function () {
                                                   on: {
                                                     click: function ($event) {
                                                       $event.preventDefault()
-                                                      return _vm.deleteNotification(
+                                                      return _vm.cloneNotification(
                                                         notification
                                                       )
                                                     },
@@ -714,20 +787,110 @@ var render = function () {
                                                 [
                                                   _c("i", {
                                                     staticClass:
-                                                      "fa fa-fw fa-lg fa-trash",
+                                                      "fa fa-fw fa-lg fa-copy",
                                                   }),
                                                 ]
                                               ),
                                             ]
+                                          ),
+                                          _vm._v(" "),
+                                          notification.pushResult
+                                            ? _c(
+                                                "tooltip",
+                                                {
+                                                  attrs: {
+                                                    title:
+                                                      "Push notification result",
+                                                  },
+                                                },
+                                                [
+                                                  _c(
+                                                    "popover",
+                                                    {
+                                                      attrs: {
+                                                        title:
+                                                          "Push notification result",
+                                                        placement: "left",
+                                                        content:
+                                                          _vm.getNotificationLog(
+                                                            notification
+                                                          ),
+                                                        "data-job-id":
+                                                          notification.job.id,
+                                                      },
+                                                    },
+                                                    [
+                                                      _c(
+                                                        "a",
+                                                        {
+                                                          attrs: { href: "#" },
+                                                          on: {
+                                                            click: function (
+                                                              $event
+                                                            ) {
+                                                              $event.preventDefault()
+                                                              return _vm.doNothing.apply(
+                                                                null,
+                                                                arguments
+                                                              )
+                                                            },
+                                                          },
+                                                        },
+                                                        [
+                                                          _c("i", {
+                                                            staticClass:
+                                                              "fa fa-fw fa-lg fa-list-alt",
+                                                          }),
+                                                        ]
+                                                      ),
+                                                    ]
+                                                  ),
+                                                ],
+                                                1
+                                              )
+                                            : _vm._e(),
+                                          _vm._v(" "),
+                                          _vm.notificationIsDeletable(
+                                            notification
                                           )
-                                        : _vm._e(),
-                                    ],
-                                    1
-                                  ),
-                                ]
-                              )
-                            }),
-                            0
+                                            ? _c(
+                                                "tooltip",
+                                                { attrs: { title: "Delete" } },
+                                                [
+                                                  _c(
+                                                    "a",
+                                                    {
+                                                      attrs: { href: "#" },
+                                                      on: {
+                                                        click: function (
+                                                          $event
+                                                        ) {
+                                                          $event.preventDefault()
+                                                          return _vm.deleteNotification(
+                                                            notification
+                                                          )
+                                                        },
+                                                      },
+                                                    },
+                                                    [
+                                                      _c("i", {
+                                                        staticClass:
+                                                          "fa fa-fw fa-lg fa-trash",
+                                                      }),
+                                                    ]
+                                                  ),
+                                                ]
+                                              )
+                                            : _vm._e(),
+                                        ],
+                                        1
+                                      ),
+                                    ]
+                                  )
+                                }
+                              ),
+                            ],
+                            2
                           ),
                         ]
                       ),
@@ -859,7 +1022,7 @@ var staticRenderFns = [
       _c("span", { staticClass: "check" }, [
         _c("i", { staticClass: "fa fa-check" }),
       ]),
-      _vm._v(" Show timezones\n            "),
+      _vm._v(" Show timezones\n                "),
     ])
   },
   function () {
@@ -1020,6 +1183,24 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 
@@ -1052,6 +1233,7 @@ var defaultPushNotificationErrorMessage = 'Unknown error. Please contact support
       pageCount: 0,
       pageNumber: Object(_store__WEBPACK_IMPORTED_MODULE_5__["getPageNumber"])(),
       lastNotificationShown: false,
+      currentStatus: 'all',
       showTimezone: Object(_store__WEBPACK_IMPORTED_MODULE_5__["getShowTimezone"])(),
       userTimezone: Object(_libs_timezones__WEBPACK_IMPORTED_MODULE_8__["validate"])(moment.tz.guess()),
       batchSize: 10,
@@ -1098,6 +1280,26 @@ var defaultPushNotificationErrorMessage = 'Unknown error. Please contact support
     _libs_bus__WEBPACK_IMPORTED_MODULE_6__["default"].$off('refresh-list', this.loadNotifications);
   },
   methods: {
+    onUpdateNotification: function onUpdateNotification(notificationId, updatedNotification) {
+      var index = _.findIndex(this.notifications, function (n) {
+        var id = n.id;
+        if (!id) {
+          id = "legacy-".concat(_.get(n, 'job.id'));
+        }
+        return id === notificationId;
+      });
+      if (index > -1) {
+        this.notifications.splice(index, 1, updatedNotification);
+      }
+    },
+    setStatusFilter: function setStatusFilter(status) {
+      if (this.currentStatus === status) {
+        return;
+      }
+      this.currentStatus = status;
+      this.pageNumber = 1;
+      this.loadNotifications();
+    },
     doNothing: function doNothing() {
       return;
     },
@@ -1121,8 +1323,10 @@ var defaultPushNotificationErrorMessage = 'Unknown error. Please contact support
     },
     initialize: function initialize() {
       var _this = this;
-      return Fliplet.Pages.get().then(function (pages) {
-        Object(_store__WEBPACK_IMPORTED_MODULE_5__["setAppPages"])(pages);
+      return Fliplet.API.request({
+        url: 'v1/apps/' + Fliplet.Env.get('appId') + '/pages?includeProduction'
+      }).then(function (result) {
+        Object(_store__WEBPACK_IMPORTED_MODULE_5__["setAppPages"])(result.pages);
         _this.instance = Fliplet.Notifications.init();
         return _this.loadNotifications();
       });
@@ -1265,16 +1469,22 @@ var defaultPushNotificationErrorMessage = 'Unknown error. Please contact support
         return;
       }
       this.isLoading = true;
-      return this.instance.poll({
+      var options = {
         includeLogs: true,
         offset: this.offset,
         limit: this.batchSize,
         includeAllScopes: true,
         publishToStream: false // Avoid saving the notification to storage
-      }).then(function (response) {
-        if (!response.entries.length && _this3.pageNumber > response.pageCount) {
+      };
+      if (this.currentStatus !== 'all') {
+        options.status = [this.currentStatus];
+      } else {
+        options.status = ['draft', 'published', 'scheduled'];
+      }
+      return this.instance.poll(options).then(function (response) {
+        if (!response.entries.length && _this3.pageNumber > 1 && _this3.pageNumber > response.pageCount) {
           // Load last page
-          _this3.pageNumber = response.pageCount;
+          _this3.pageNumber = response.pageCount || 1;
           return;
         }
         _this3.isLoading = false;
@@ -5318,7 +5528,17 @@ var defaultSendLabel = 'Send notification';
               }
             };
             if (_this4.notification.data.navigate) {
-              _.set(pushNotification, 'payload.custom.customData', _this4.notification.data.navigate);
+              var navigateData = _.clone(_this4.notification.data.navigate);
+              if (navigateData.action === 'screen' && navigateData.page) {
+                var appPages = Object(_store__WEBPACK_IMPORTED_MODULE_0__["getAppPages"])();
+                var page = _.find(appPages, {
+                  id: parseInt(navigateData.page, 10)
+                });
+                if (page && _.get(page, 'productionPage.id')) {
+                  navigateData.productionPageId = page.productionPage.id;
+                }
+              }
+              _.set(pushNotification, 'payload.custom.customData', navigateData);
             }
             _this4.notification.pushNotification = pushNotification;
           }
