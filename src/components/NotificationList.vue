@@ -222,8 +222,10 @@ export default {
       return 'No ID found';
     },
     initialize() {
-      return Fliplet.Pages.get().then((pages) => {
-        setAppPages(pages);
+      return Fliplet.API.request({
+        url: 'v1/apps/' + Fliplet.Env.get('appId') + '/pages?includeProduction'
+      }).then((result) => {
+        setAppPages(result.pages);
 
         this.instance = Fliplet.Notifications.init();
 
