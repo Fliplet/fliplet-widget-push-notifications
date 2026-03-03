@@ -74,52 +74,52 @@ export function getFilterScope(filter) {
     return;
   }
 
-  if (['oneof', 'notoneof'].indexOf(filter.condition) > -1 && _.isEmpty(value)) {
+  if (['oneof', 'notoneof'].indexOf(filter.condition) > -1 && Fliplet.Utils.isEmpty(value)) {
     return;
   }
 
   if (path) {
-    _.set(scope, column, {});
+    Fliplet.Utils.set(scope, column, {});
     scope = result[column];
   } else {
     path = column;
   }
 
-  if (['oneof', 'notoneof'].indexOf(filter.condition) < 0 && _.isArray(value)) {
+  if (['oneof', 'notoneof'].indexOf(filter.condition) < 0 && Fliplet.Utils.isArray(value)) {
     value = value[0];
   }
 
   switch (filter.condition) {
     case 'equals': // Equals
-      _.setWith(scope, path, { $iLike: value }, Object);
+      Fliplet.Utils.setWith(scope, path, { $iLike: value }, Object);
       break;
     case 'notequal': // Not equal
-      _.setWith(scope, path, { $or: [
+      Fliplet.Utils.setWith(scope, path, { $or: [
         { $eq: null },
         { $in: ['', '[]'] },
         { $ne: value }
       ] }, Object);
       break;
     case 'oneof': // Is one of
-      if (!_.isArray(value)) {
+      if (!Fliplet.Utils.isArray(value)) {
         value = [value];
       }
 
-      _.setWith(scope, path, { $in: value }, Object);
+      Fliplet.Utils.setWith(scope, path, { $in: value }, Object);
       break;
     case 'notoneof': // Is not one of
-      if (!_.isArray(value)) {
+      if (!Fliplet.Utils.isArray(value)) {
         value = [value];
       }
 
-      _.setWith(scope, path, { $or: [
+      Fliplet.Utils.setWith(scope, path, { $or: [
         { $eq: null },
         { $in: ['', '[]'] },
         { $notIn: value }
       ] }, Object);
       break;
     case 'contains': // Contains
-      _.setWith(scope, path, {
+      Fliplet.Utils.setWith(scope, path, {
         $or: [
           { $iLike: { $any: [value] } },
           { $iLike: `%${value}%` }
@@ -127,7 +127,7 @@ export function getFilterScope(filter) {
       }, Object);
       break;
     case 'notcontain': // Does not contain
-      _.setWith(scope, path, {
+      Fliplet.Utils.setWith(scope, path, {
         $or: [
           { $eq: null },
           { $in: ['', '[]'] },
@@ -141,7 +141,7 @@ export function getFilterScope(filter) {
       }, Object);
       break;
     case 'empty': // Is empty
-      _.setWith(scope, path, {
+      Fliplet.Utils.setWith(scope, path, {
         $or: [
           { $eq: null },
           { $in: ['', '[]'] }
@@ -149,7 +149,7 @@ export function getFilterScope(filter) {
       }, Object);
       break;
     case 'notempty': // Is not empty
-      _.setWith(scope, path, {
+      Fliplet.Utils.setWith(scope, path, {
         $and: [
           { $ne: null },
           { $notIn: ['', '[]'] }
@@ -157,16 +157,16 @@ export function getFilterScope(filter) {
       }, Object);
       break;
     case 'gt': // Greater than
-      _.setWith(scope, path, { $gt: value }, Object);
+      Fliplet.Utils.setWith(scope, path, { $gt: value }, Object);
       break;
     case 'gte': // Greater than or equal to
-      _.setWith(scope, path, { $gte: value }, Object);
+      Fliplet.Utils.setWith(scope, path, { $gte: value }, Object);
       break;
     case 'lt': // Less than
-      _.setWith(scope, path, { $lt: value }, Object);
+      Fliplet.Utils.setWith(scope, path, { $lt: value }, Object);
       break;
     case 'lte': // Less than or equal to
-      _.setWith(scope, path, { $lte: value }, Object);
+      Fliplet.Utils.setWith(scope, path, { $lte: value }, Object);
       break;
     default:
       scope = undefined;
@@ -189,7 +189,7 @@ export function getFilterVerbose(filter) {
     return;
   }
 
-  if (_.map(filterTypes, 'name').indexOf(condition) < 0) {
+  if (Fliplet.Utils.map(filterTypes, 'name').indexOf(condition) < 0) {
     return;
   }
 
@@ -197,11 +197,11 @@ export function getFilterVerbose(filter) {
     column = `${column} (${path})`;
   }
 
-  if (_.isArray(value)) {
+  if (Fliplet.Utils.isArray(value)) {
     value = value.join(', ');
   }
 
-  verbose = `${column} ${_.find(filterTypes, { name: condition }).labelVerbose}`;
+  verbose = `${column} ${Fliplet.Utils.find(filterTypes, { name: condition }).labelVerbose}`;
 
   if (['empty', 'notempty'].indexOf(filter.condition) < 0) {
     verbose += ` ${value}`;

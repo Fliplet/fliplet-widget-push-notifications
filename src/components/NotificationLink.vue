@@ -23,9 +23,9 @@ export default {
   },
   computed: {
     link() {
-      const link = _.get(this.notification, 'data.navigate', {});
+      const link = Fliplet.Utils.get(this.notification, 'data.navigate', {});
 
-      if (_.isNull(link)) {
+      if (Fliplet.Utils.isNull(link)) {
         return {};
       }
 
@@ -52,7 +52,7 @@ export default {
       }
 
       const appPages = getAppPages();
-      const page = _.find(appPages, { id: parseInt(this.link.page, 10) });
+      const page = Fliplet.Utils.find(appPages, { id: parseInt(this.link.page, 10) });
 
       if (!page) {
         return '(Page not found)';
