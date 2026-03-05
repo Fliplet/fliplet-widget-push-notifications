@@ -165,6 +165,15 @@ Fliplet.Widget.register('PushNotifications', function () {
     // Wait for pageView hooks before asking. This ensures that when pageView hooks navigate away
     // from the page we don't display the push notifications popup.
     askPromise = waitForPageViewHooks.then(function () {
+      return Fliplet.App.Storage.get('fl_portal_redirect');
+    }).then(function (inPortal) {
+      if (data.showOnceOnPortal && inPortal) {
+        return Promise.reject({
+          code: 5,
+          message: 'Push notifications are not shown in portal apps when showOnceOnPortal is enabled.'
+        });
+      }
+
       return Fliplet.Storage.get(key);
     }).then(function (alreadyShown) {
       // When forced by the UI we skip the popup and also mark it as seen
