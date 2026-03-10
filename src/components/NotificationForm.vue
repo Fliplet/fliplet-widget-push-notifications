@@ -250,7 +250,7 @@
 
 <script>
 import { getAssetRoot, getNotification, getNotificationLinkAction,
-  getShowTimezone, getDefaultNotification } from '../store';
+  getShowTimezone, getDefaultNotification, getAppPages } from '../store';
 import bus from '../libs/bus';
 import { filterTypes, getFilterScope, getFilterVerbose } from '../libs/scope';
 import { formatDate } from '../libs/date';
@@ -959,7 +959,18 @@ export default {
             };
 
             if (this.notification.data.navigate) {
-              _.set(pushNotification, 'payload.custom.customData', this.notification.data.navigate);
+              const navigateData = _.clone(this.notification.data.navigate);
+
+              if (navigateData.action === 'screen' && navigateData.page) {
+                const appPages = getAppPages();
+                const page = _.find(appPages, { id: parseInt(navigateData.page, 10) });
+
+                if (page && _.get(page, 'productionPage.id')) {
+                  navigateData.productionPageId = page.productionPage.id;
+                }
+              }
+
+              _.set(pushNotification, 'payload.custom.customData', navigateData);
             }
 
             this.notification.pushNotification = pushNotification;
