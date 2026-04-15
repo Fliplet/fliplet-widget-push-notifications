@@ -9,7 +9,17 @@
   "references": [],
   "html_tag": "div",
   "settings": {
-    "excludedProperties": ["apnKeyId", "apnTeamId", "apnAuthKey", "gcmProjectId", "gcmServerKey"]
+    "excludedProperties": [
+      "apnKeyId",
+      "apnTeamId",
+      "apnAuthKey",
+      "gcmProjectId",
+      "gcmServerKey",
+      "private_key",
+      "client_email",
+      "project_id",
+      "gcmSenderId"
+    ]
   },
   "interface": {
     "dependencies": [
