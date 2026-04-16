@@ -60,6 +60,19 @@ Fliplet.Widget.register('PushNotifications', function () {
     if (push) {
       if (subscriptionId) {
         if (subscriptionDetails.token) {
+          // Immediate check: the Cordova plugin fires the 'registration' event very early
+          // at app launch, often before this listener is attached. If registrationId was
+          // already captured by getPushNotificationInstance(), compare it now so we don't
+          // miss a token rotation that happened before this point.
+          var currentToken = typeof Fliplet.User.getRegistrationId === 'function'
+            ? Fliplet.User.getRegistrationId()
+            : undefined;
+
+          if (currentToken && currentToken !== subscriptionDetails.token) {
+            Fliplet.User.updateSubscription({ token: currentToken });
+          }
+
+          // Retain the event listener as a fallback for token rotation mid-session
           push.on('registration', function (data) {
             if (data.registrationId === subscriptionDetails.token) {
               return; // token hasn't changed
