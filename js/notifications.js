@@ -69,7 +69,13 @@ Fliplet.Widget.register('PushNotifications', function () {
             : undefined;
 
           if (currentToken && currentToken !== subscriptionDetails.token) {
-            Fliplet.User.updateSubscription({ token: currentToken });
+            console.info('[push] OS token rotated since last registration — updating subscription');
+            Fliplet.User.updateSubscription({ token: currentToken }).catch(function (err) {
+              console.warn('[push] immediate token update failed', err);
+            });
+            // Update the cached token so the listener below doesn't fire a redundant
+            // updateSubscription if the plugin re-emits 'registration' with the same value.
+            subscriptionDetails.token = currentToken;
           }
 
           // Retain the event listener as a fallback for token rotation mid-session
@@ -81,7 +87,10 @@ Fliplet.Widget.register('PushNotifications', function () {
             // update subscription with new token
             Fliplet.User.updateSubscription({
               token: data.registrationId
+            }).catch(function (err) {
+              console.warn('[push] mid-session token update failed', err);
             });
+            subscriptionDetails.token = data.registrationId;
           });
         }
 
