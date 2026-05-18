@@ -57,6 +57,24 @@ Fliplet.Widget.register('PushNotifications', function () {
      */
     var push = Fliplet.User.getPushNotificationInstance(data);
 
+    if (!push && Fliplet.Env.is('web') && subscriptionId && subscriptionDetails.token
+        && typeof Fliplet.User.getCurrentWebPushToken === 'function') {
+      // Web has no Cordova plugin firing a 'registration' event, so instead read
+      // the live SW push subscription once at launch and update the server-side
+      // subscription if the cached token differs from the current browser endpoint.
+      Fliplet.User.getCurrentWebPushToken().then(function (currentToken) {
+        if (!currentToken || currentToken === subscriptionDetails.token) {
+          return;
+        }
+
+        console.info('[push] Web push subscription has rotated since last registration — updating subscription');
+
+        return Fliplet.User.updateSubscription({ token: currentToken }).catch(function (err) {
+          console.warn('[push] web token update failed', err);
+        });
+      });
+    }
+
     if (push) {
       if (subscriptionId) {
         if (subscriptionDetails.token) {
