@@ -72,6 +72,11 @@ Fliplet.Widget.register('PushNotifications', function () {
         return Fliplet.User.updateSubscription({ token: currentToken }).catch(function (err) {
           console.warn('[push] web token update failed', err);
         });
+      }).catch(function (err) {
+        // Defensive outer catch: if fliplet-core's getCurrentWebPushToken contract
+        // ever changes to reject (it currently swallows internally), don't leak an
+        // UnhandledPromiseRejection.
+        console.warn('[push] web token rotation check failed', err);
       });
     }
 
