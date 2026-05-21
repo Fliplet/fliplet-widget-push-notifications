@@ -250,7 +250,7 @@
 
 <script>
 import { getAssetRoot, getNotification, getNotificationLinkAction,
-  getShowTimezone, getDefaultNotification } from '../store';
+  getShowTimezone, getDefaultNotification, getAppPages } from '../store';
 import { mergeNotificationDefaults } from '../libs/utils';
 import bus from '../libs/bus';
 import { filterTypes, getFilterScope, getFilterVerbose } from '../libs/scope';
@@ -960,7 +960,18 @@ export default {
             };
 
             if (this.notification.data.navigate) {
-              Fliplet.Utils.set(pushNotification, 'payload.custom.customData', this.notification.data.navigate);
+              const navigateData = Object.assign({}, this.notification.data.navigate);
+
+              if (navigateData.action === 'screen' && navigateData.page) {
+                const appPages = getAppPages();
+                const page = Fliplet.Utils.find(appPages, (p) => p.id === parseInt(navigateData.page, 10));
+
+                if (page && Fliplet.Utils.get(page, 'productionPage.id')) {
+                  navigateData.productionPageId = page.productionPage.id;
+                }
+              }
+
+              Fliplet.Utils.set(pushNotification, 'payload.custom.customData', navigateData);
             }
 
             this.notification.pushNotification = pushNotification;
