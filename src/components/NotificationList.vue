@@ -18,7 +18,7 @@
           <template v-if="!notifications.length">
             <div class="notifications-empty">
               <h4>Send a notification</h4>
-              <p>Communicate latest updates and promotions with your users so they can re-engage with your app.</p>
+              <p>Communicate latest updates and promotions with your users so they can re-engage with your project.</p>
             </div>
           </template>
           <template v-else>
