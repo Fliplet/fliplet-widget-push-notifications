@@ -10,15 +10,15 @@
   "html_tag": "div",
   "settings": {
     "excludedProperties": [
-      "apnKeyId",
-      "apnTeamId",
-      "apnAuthKey",
       "gcmProjectId",
-      "gcmServerKey",
-      "private_key",
-      "client_email",
-      "project_id",
-      "gcmSenderId"
+      "gcmServerKey"
+      // "apnKeyId",
+      // "apnTeamId",
+      // "apnAuthKey",
+      // "private_key",
+      // "client_email",
+      // "project_id",
+      // "gcmSenderId"
     ]
   },
   "interface": {
