@@ -846,7 +846,7 @@ var staticRenderFns = [
       _vm._v(" "),
       _c("p", [
         _vm._v(
-          "Communicate latest updates and promotions with your users so they can re-engage with your project."
+          "Communicate latest updates and promotions with your users so they can re-engage with your app."
         ),
       ]),
     ])
@@ -3699,7 +3699,7 @@ var render = function () {
                                               {
                                                 attrs: {
                                                   title:
-                                                    "This is an approximation and will depend on the user preference at the time of publish. Users who have never used the project will be excluded.",
+                                                    "This is an approximation and will depend on the user preference at the time of publish. Users who have never used the app will be excluded.",
                                                 },
                                               },
                                               [

@@ -111,7 +111,7 @@
                     </template>
                     <template v-else>
                       Estimated: {{ matches.count }} user<template v-if="matches.count !== 1">s</template>
-                      <tooltip title="This is an approximation and will depend on the user preference at the time of publish. Users who have never used the project will be excluded."><i class="fa fa-info-circle"></i></tooltip>
+                      <tooltip title="This is an approximation and will depend on the user preference at the time of publish. Users who have never used the app will be excluded."><i class="fa fa-info-circle"></i></tooltip>
                     </template>
                   </span>
                 </p>
