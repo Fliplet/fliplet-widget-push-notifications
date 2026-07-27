@@ -57,9 +57,51 @@ Fliplet.Widget.register('PushNotifications', function () {
      */
     var push = Fliplet.User.getPushNotificationInstance(data);
 
+    if (!push && Fliplet.Env.is('web') && subscriptionId && subscriptionDetails.token
+        && typeof Fliplet.User.getCurrentWebPushToken === 'function') {
+      // Web has no Cordova plugin firing a 'registration' event, so instead read
+      // the live SW push subscription once at launch and update the server-side
+      // subscription if the cached token differs from the current browser endpoint.
+      Fliplet.User.getCurrentWebPushToken().then(function (currentToken) {
+        if (!currentToken || currentToken === subscriptionDetails.token) {
+          return;
+        }
+
+        console.info('[push] Web push subscription has rotated since last registration — updating subscription');
+
+        return Fliplet.User.updateSubscription({ token: currentToken }).catch(function (err) {
+          console.warn('[push] web token update failed', err);
+        });
+      }).catch(function (err) {
+        // Defensive outer catch: if fliplet-core's getCurrentWebPushToken contract
+        // ever changes to reject (it currently swallows internally), don't leak an
+        // UnhandledPromiseRejection.
+        console.warn('[push] web token rotation check failed', err);
+      });
+    }
+
     if (push) {
       if (subscriptionId) {
         if (subscriptionDetails.token) {
+          // Immediate check: the Cordova plugin fires the 'registration' event very early
+          // at app launch, often before this listener is attached. If registrationId was
+          // already captured by getPushNotificationInstance(), compare it now so we don't
+          // miss a token rotation that happened before this point.
+          var currentToken = typeof Fliplet.User.getRegistrationId === 'function'
+            ? Fliplet.User.getRegistrationId()
+            : undefined;
+
+          if (currentToken && currentToken !== subscriptionDetails.token) {
+            console.info('[push] OS token rotated since last registration — updating subscription');
+            Fliplet.User.updateSubscription({ token: currentToken }).catch(function (err) {
+              console.warn('[push] immediate token update failed', err);
+            });
+            // Update the cached token so the listener below doesn't fire a redundant
+            // updateSubscription if the plugin re-emits 'registration' with the same value.
+            subscriptionDetails.token = currentToken;
+          }
+
+          // Retain the event listener as a fallback for token rotation mid-session
           push.on('registration', function (data) {
             if (data.registrationId === subscriptionDetails.token) {
               return; // token hasn't changed
@@ -68,7 +110,10 @@ Fliplet.Widget.register('PushNotifications', function () {
             // update subscription with new token
             Fliplet.User.updateSubscription({
               token: data.registrationId
+            }).catch(function (err) {
+              console.warn('[push] mid-session token update failed', err);
             });
+            subscriptionDetails.token = data.registrationId;
           });
         }
 
