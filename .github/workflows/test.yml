@@ -12,22 +12,16 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
-    strategy:
-      fail-fast: false
-      matrix:
-        # The vendor guard in test/timezone-data.test.js compares the bundled
-        # IANA data against the runner's own tzdata, which differs per Node
-        # release line, so run the range the team actually develops on.
-        node-version: ['18.x', '20.x', '22.x']
-
-    name: test (node ${{ matrix.node-version }})
-
     steps:
       - uses: actions/checkout@v4
 
+      # The staleness guard in test/timezone-data.test.js compares the bundled
+      # IANA data against the runner's own tzdata, so run the newest Node the
+      # team supports: an older line carries older rules and would keep the
+      # guard quiet after the vendor file has gone stale.
       - uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: '22.x'
 
       # Only `dependencies` are needed to run the tests; the build toolchain in
       # `devDependencies` pins native modules that no longer install cleanly.

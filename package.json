@@ -4,6 +4,9 @@
   "description": "Fliplet widget for setting up push notifications",
   "author": "Tony Wu <twu@fliplet.com>",
   "private": true,
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
     "watch": "gulp build && gulp watch",
     "build": "gulp build",
