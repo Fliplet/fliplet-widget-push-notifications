@@ -6,7 +6,8 @@
   "private": true,
   "scripts": {
     "watch": "gulp build && gulp watch",
-    "build": "gulp build"
+    "build": "gulp build",
+    "test": "node --test 'test/*.test.js'"
   },
   "dependencies": {
     "core-js": "^3.16.0",
