@@ -7,7 +7,7 @@
   "scripts": {
     "watch": "gulp build && gulp watch",
     "build": "gulp build",
-    "test": "node --test 'test/*.test.js'"
+    "test": "node --test"
   },
   "dependencies": {
     "core-js": "^3.16.0",

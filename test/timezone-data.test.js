@@ -27,6 +27,14 @@ const dropdownZones = (require('fs')
 // changes; anything older schedules those zones an hour out. See DEV-1812.
 const MINIMUM_DATA_VERSION = '2026c';
 
+// How far the bundled data may fall behind the calendar before this suite calls
+// it stale. The IANA drift check below is the primary alarm and fires as soon
+// as the runtime knows newer rules; this is the backstop for a runner whose own
+// tzdata is older than the bundle. The file went 14 months out of date before
+// anyone noticed (PS-908 in June 2025, then DEV-1812), which is what this
+// bound exists to stop.
+const MAXIMUM_DATA_AGE_YEARS = 2;
+
 function parseDataVersion(version) {
   const parts = /^(\d{4})([a-z]*)$/.exec(version);
 
@@ -35,16 +43,61 @@ function parseDataVersion(version) {
   return { year: parseInt(parts[1], 10), release: parts[2] };
 }
 
+// IANA versions are a year plus a lowercase release suffix, so within a year a
+// longer suffix sorts after a shorter one and equal lengths compare directly.
+function compareDataVersions(left, right) {
+  const a = parseDataVersion(left);
+  const b = parseDataVersion(right);
+
+  if (a.year !== b.year) {
+    return a.year < b.year ? -1 : 1;
+  }
+
+  if (a.release.length !== b.release.length) {
+    return a.release.length < b.release.length ? -1 : 1;
+  }
+
+  if (a.release === b.release) {
+    return 0;
+  }
+
+  return a.release < b.release ? -1 : 1;
+}
+
 test('bundled IANA data is current', function() {
-  const bundled = parseDataVersion(moment.tz.dataVersion);
-  const minimum = parseDataVersion(MINIMUM_DATA_VERSION);
-  const isCurrent = bundled.year > minimum.year
-    || (bundled.year === minimum.year && bundled.release.length > minimum.release.length)
-    || (bundled.year === minimum.year && bundled.release.length === minimum.release.length && bundled.release >= minimum.release);
+  assert.ok(
+    compareDataVersions(moment.tz.dataVersion, MINIMUM_DATA_VERSION) >= 0,
+    'bundled IANA data is ' + moment.tz.dataVersion + ', expected ' + MINIMUM_DATA_VERSION + ' or newer'
+  );
+});
+
+test('bundled IANA data is not behind the runtime tzdata', function(t) {
+  // Node ships its own IANA release for Intl, and it moves on every time the
+  // runtime is upgraded. If it has overtaken the vendor file then newer rules
+  // exist that the widget is not scheduling against, which is exactly the
+  // DEV-1812 defect. Unlike MINIMUM_DATA_VERSION this needs no maintenance: it
+  // starts failing on its own once the bundle falls behind.
+  if (!process.versions.tz) {
+    return t.skip('this Node build does not report its tzdata version');
+  }
 
   assert.ok(
-    isCurrent,
-    'bundled IANA data is ' + moment.tz.dataVersion + ', expected ' + MINIMUM_DATA_VERSION + ' or newer'
+    compareDataVersions(moment.tz.dataVersion, process.versions.tz) >= 0,
+    'bundled IANA data is ' + moment.tz.dataVersion + ' but this Node runtime already has '
+      + process.versions.tz + '; refresh vendor/moment-timezone-with-data-10-year-range.min.js '
+      + 'and raise MINIMUM_DATA_VERSION'
+  );
+});
+
+test('bundled IANA data has not fallen behind the calendar', function() {
+  const bundledYear = parseDataVersion(moment.tz.dataVersion).year;
+  const oldestAcceptableYear = new Date().getUTCFullYear() - MAXIMUM_DATA_AGE_YEARS;
+
+  assert.ok(
+    bundledYear >= oldestAcceptableYear,
+    'bundled IANA data is from ' + bundledYear + ', more than ' + MAXIMUM_DATA_AGE_YEARS
+      + ' years old; refresh vendor/moment-timezone-with-data-10-year-range.min.js '
+      + 'and raise MINIMUM_DATA_VERSION'
   );
 });
 
@@ -83,9 +136,10 @@ test('every timezone offered in the picker exists in the bundled data', function
 });
 
 test('bundled data covers the full historical and future range', function() {
-  // The file is named "10-year-range" but has always shipped the full-data
-  // build. Swapping in an actual 10-year build silently narrows coverage to
-  // roughly the current decade and breaks far-future scheduling.
+  // The file is named "10-year-range" but has shipped the full-data build since
+  // PS-908 (#209). Swapping in an actual 10-year build silently narrows coverage
+  // to roughly the current decade and breaks far-future scheduling, which is
+  // what #216 did before #218 reverted it.
   const untils = moment.tz.zone('Europe/London').untils;
 
   assert.ok(
