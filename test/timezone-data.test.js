@@ -110,7 +110,11 @@ test('zones corrected by IANA 2026c resolve to the current offset', function() {
     ['America/Yellowknife', '2026-11-15T12:00:00Z', 360],
     ['Canada/Mountain', '2026-11-15T12:00:00Z', 360],
     ['Africa/Casablanca', '2026-09-25T12:00:00Z', 0],
-    ['Africa/El_Aaiun', '2026-09-25T12:00:00Z', 0]
+    ['Africa/El_Aaiun', '2026-09-25T12:00:00Z', 0],
+    // IANA 2026c moved Moldova's DST changeover from 00:00 to 01:00 UTC, so the
+    // two datasets disagree only inside a one-hour band at each transition.
+    ['Europe/Chisinau', '2026-10-25T00:30:00Z', -180],
+    ['Europe/Tiraspol', '2026-10-25T00:30:00Z', -180]
   ];
 
   cases.forEach(function(testCase) {
