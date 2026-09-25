@@ -9,7 +9,24 @@
   "references": [],
   "html_tag": "div",
   "settings": {
-    "excludedProperties": ["gcmProjectId", "gcmServerKey", "gcmSenderId"]
+    "excludedProperties": [
+      "apnKeyId",
+      "apnTeamId",
+      "apnAuthKey",
+      "gcmProjectId",
+      "gcmServerKey",
+      "gcmSenderId",
+      "private_key",
+      "private_key_id",
+      "client_email",
+      "client_id",
+      "project_id",
+      "fcm_private_key",
+      "fcm_client_email",
+      "fcm_project_id",
+      "wnsClientId",
+      "wnsClientSecret"
+    ]
   },
   "interface": {
     "dependencies": [
