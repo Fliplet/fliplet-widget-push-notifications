@@ -18,7 +18,15 @@
       "private_key",
       "client_email",
       "project_id",
-      "gcmSenderId"
+      "gcmSenderId",
+      "private_key_id",
+      "client_id",
+      "client_x509_cert_url",
+      "fcm_private_key",
+      "fcm_client_email",
+      "fcm_project_id",
+      "wnsClientId",
+      "wnsClientSecret"
     ]
   },
   "interface": {
