@@ -1,0 +1,30 @@
+name: Tests
+
+on:
+  push:
+    branches:
+      - master
+      - production
+      - 'projects/**'
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # The staleness guard in test/timezone-data.test.js compares the bundled
+      # IANA data against the runner's own tzdata, so run the newest Node the
+      # team supports: an older line carries older rules and would keep the
+      # guard quiet after the vendor file has gone stale.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+
+      # Only `dependencies` are needed to run the tests; the build toolchain in
+      # `devDependencies` pins native modules that no longer install cleanly.
+      - run: npm ci --omit=dev
+
+      - run: npm test
