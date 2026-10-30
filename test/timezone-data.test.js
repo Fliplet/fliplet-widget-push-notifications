@@ -72,6 +72,10 @@ test('bundled IANA data is current', function() {
 });
 
 test('bundled IANA data is not behind the runtime tzdata', function(t) {
+  if (process.env.TZ_DRIFT_CHECK !== 'true') {
+    return t.skip('drift alarms run on the weekly schedule, not on pull requests');
+  }
+
   // Node ships its own IANA release for Intl, and it moves on every time the
   // runtime is upgraded. If it has overtaken the vendor file then newer rules
   // exist that the widget is not scheduling against, which is exactly the
@@ -89,7 +93,11 @@ test('bundled IANA data is not behind the runtime tzdata', function(t) {
   );
 });
 
-test('bundled IANA data has not fallen behind the calendar', function() {
+test('bundled IANA data has not fallen behind the calendar', function(t) {
+  if (process.env.TZ_DRIFT_CHECK !== 'true') {
+    return t.skip('drift alarms run on the weekly schedule, not on pull requests');
+  }
+
   const bundledYear = parseDataVersion(moment.tz.dataVersion).year;
   const oldestAcceptableYear = new Date().getUTCFullYear() - MAXIMUM_DATA_AGE_YEARS;
 

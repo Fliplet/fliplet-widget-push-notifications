@@ -7,6 +7,10 @@ on:
       - production
       - 'projects/**'
   pull_request:
+  # The drift alarms only fail on this run, so a vendor file going stale never
+  # blocks an unrelated PR or a hotfix. Monday 08:00 UTC.
+  schedule:
+    - cron: '0 8 * * 1'
 
 jobs:
   test:
@@ -27,4 +31,9 @@ jobs:
       # `devDependencies` pins native modules that no longer install cleanly.
       - run: npm ci --omit=dev
 
+      # TZ_DRIFT_CHECK gates the two staleness alarms in
+      # test/timezone-data.test.js. They are a maintenance reminder, not a merge
+      # gate: on a PR they skip, on the weekly run they fail.
       - run: npm test
+        env:
+          TZ_DRIFT_CHECK: ${{ github.event_name == 'schedule' }}
