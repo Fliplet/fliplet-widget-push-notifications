@@ -25,7 +25,7 @@ const dropdownZones = (require('fs')
 // IANA release the bundled data must be at or beyond. 2026c is the release that
 // carries Morocco's move to permanent UTC+0 and the Canadian permanent-DST
 // changes; anything older schedules those zones an hour out. See DEV-1812.
-const MINIMUM_DATA_VERSION = '2026c';
+const MINIMUM_DATA_VERSION = '2026f';
 
 // How far the bundled data may fall behind the calendar before this suite calls
 // it stale. The IANA drift check below is the primary alarm and fires as soon
@@ -101,7 +101,7 @@ test('bundled IANA data has not fallen behind the calendar', function() {
   );
 });
 
-test('zones corrected by IANA 2026c resolve to the current offset', function() {
+test('zones corrected by recent IANA releases resolve to the current offset', function() {
   // [zone, instant, expected minutes to subtract from local time to reach UTC]
   const cases = [
     ['America/Vancouver', '2026-11-15T12:00:00Z', 420],
@@ -114,7 +114,15 @@ test('zones corrected by IANA 2026c resolve to the current offset', function() {
     // IANA 2026c moved Moldova's DST changeover from 00:00 to 01:00 UTC, so the
     // two datasets disagree only inside a one-hour band at each transition.
     ['Europe/Chisinau', '2026-10-25T00:30:00Z', -180],
-    ['Europe/Tiraspol', '2026-10-25T00:30:00Z', -180]
+    ['Europe/Tiraspol', '2026-10-25T00:30:00Z', -180],
+    // Added in releases after 2026c: Manitoba, Cuba and Inuvik stop observing
+    // DST from 1 November 2026, the same wave as the Canadian zones above.
+    ['America/Winnipeg', '2026-11-15T12:00:00Z', 300],
+    ['Canada/Central', '2026-11-15T12:00:00Z', 300],
+    ['America/Rainy_River', '2026-11-15T12:00:00Z', 300],
+    ['America/Havana', '2026-11-15T12:00:00Z', 240],
+    ['Cuba', '2026-11-15T12:00:00Z', 240],
+    ['America/Inuvik', '2026-11-15T12:00:00Z', 360]
   ];
 
   cases.forEach(function(testCase) {
