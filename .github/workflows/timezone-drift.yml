@@ -1,0 +1,39 @@
+# Weekly reminder that the bundled IANA timezone data has fallen behind.
+#
+# This file lives on master because GitHub only triggers scheduled workflows
+# from the repository's default branch. The code it checks lives on production,
+# so the job checks that branch out explicitly rather than testing master, whose
+# vendor file is older and would report a drift we do not care about.
+#
+# The drift checks are gated behind TZ_DRIFT_CHECK so they stay off pull
+# requests, where a runner's tzdata overtaking the bundle would redden every PR
+# in the repo including a hotfix. This run is the one place they are meant to
+# fail. See test/timezone-data.test.js and DEV-1812.
+name: Timezone data drift
+
+on:
+  schedule:
+    - cron: '0 8 * * 1'
+  # So the alarm can be exercised without waiting a week.
+  workflow_dispatch:
+
+jobs:
+  drift:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: production
+
+      # Newest Node the team supports: an older line carries older tzdata and
+      # would keep the alarm quiet after the vendor file has gone stale.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+
+      - run: npm ci --omit=dev
+
+      - run: npm test
+        env:
+          TZ_DRIFT_CHECK: 'true'
