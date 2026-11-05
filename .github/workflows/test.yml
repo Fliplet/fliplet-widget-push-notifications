@@ -7,10 +7,6 @@ on:
       - production
       - 'projects/**'
   pull_request:
-  # The drift alarms only fail on this run, so a vendor file going stale never
-  # blocks an unrelated PR or a hotfix. Monday 08:00 UTC.
-  schedule:
-    - cron: '0 8 * * 1'
 
 jobs:
   test:
@@ -19,10 +15,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # The staleness guard in test/timezone-data.test.js compares the bundled
-      # IANA data against the runner's own tzdata, so run the newest Node the
-      # team supports: an older line carries older rules and would keep the
-      # guard quiet after the vendor file has gone stale.
       - uses: actions/setup-node@v4
         with:
           node-version: '22.x'
@@ -31,9 +23,6 @@ jobs:
       # `devDependencies` pins native modules that no longer install cleanly.
       - run: npm ci --omit=dev
 
-      # TZ_DRIFT_CHECK gates the two staleness alarms in
-      # test/timezone-data.test.js. They are a maintenance reminder, not a merge
-      # gate: on a PR they skip, on the weekly run they fail.
+      # The two drift alarms in test/timezone-data.test.js skip here. They run
+      # weekly from timezone-drift.yml on master.
       - run: npm test
-        env:
-          TZ_DRIFT_CHECK: ${{ github.event_name == 'schedule' }}
