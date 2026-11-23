@@ -64,6 +64,31 @@ Date.prototype.toString = function() {
   };
 })(this));
 
+/**
+ * Builds a Date whose getFullYear/getMonth/getDate read the given calendar day at 00:00.
+ * Uses setters only so the result is correct under the Date.prototype patch above,
+ * which reads with the offset captured at page load rather than the target date's offset.
+ * @param {Number} year - Full year, e.g. 2027
+ * @param {Number} month - Zero-based month
+ * @param {Number} day - Day of the month
+ * @returns {Date} Date for the calendar day
+ */
+export function toCalendarDate(year, month, day) {
+  const date = new Date();
+
+  // Move to the 1st first so the month change can't overflow (e.g. Jan 31 to Feb)
+  date.setDate(1);
+  date.setFullYear(year);
+  date.setMonth(month);
+  date.setDate(day);
+  date.setHours(0);
+  date.setMinutes(0);
+  date.setSeconds(0);
+  date.setMilliseconds(0);
+
+  return date;
+}
+
 export function calendarDate(value) {
   return moment(value).calendar(null, {
     sameDay: '[Today at] h:mm A',

@@ -253,7 +253,7 @@ import { getAssetRoot, getNotification, getNotificationLinkAction,
   getShowTimezone, getDefaultNotification, getAppPages } from '../store';
 import bus from '../libs/bus';
 import { filterTypes, getFilterScope, getFilterVerbose } from '../libs/scope';
-import { formatDate } from '../libs/date';
+import { formatDate, toCalendarDate } from '../libs/date';
 import {
   validate as validateTimezone,
   getOffsetString as getTimezoneOffsetString
@@ -360,14 +360,13 @@ export default {
       let date = moment.utc(moment.unix(_.get(this.notification, 'data._metadata.scheduledAt')));
 
       if (!date.isValid()) {
-        date = moment.utc().unix();
+        date = moment.utc();
       }
 
       this.scheduledAtTimezone = validateTimezone(_.get(this.notification, 'data._metadata.scheduledAtTimezone'));
       date.tz(this.scheduledAtTimezone);
 
-      // Use "Z" to indicate UTC timezone in the date string
-      this.scheduledAtDate = new Date(`${date.clone().startOf('day').locale('en-us').format('YYYY-MM-DDT00:00:00')}Z`);
+      this.scheduledAtDate = toCalendarDate(date.year(), date.month(), date.date());
       this.scheduledAtHour = date.get('hour');
       this.scheduledAtMinute = date.get('minute');
     }

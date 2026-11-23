@@ -530,7 +530,7 @@ var staticRenderFns = [function () {
     _c = _vm._self._c;
   return _c("div", {
     staticClass: "notifications-empty"
-  }, [_c("h4", [_vm._v("Send a notification")]), _vm._v(" "), _c("p", [_vm._v("Communicate latest updates and promotions with your users so they can re-engage with your app.")])]);
+  }, [_c("h4", [_vm._v("Send a notification")]), _vm._v(" "), _c("p", [_vm._v("Communicate latest updates and promotions with your users so they can re-engage with your project.")])]);
 }, function () {
   var _vm = this,
     _c = _vm._self._c;
@@ -1848,6 +1848,7 @@ __webpack_require__.r(__webpack_exports__);
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "toCalendarDate", function() { return toCalendarDate; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "calendarDate", function() { return calendarDate; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "formatDate", function() { return formatDate; });
 /* eslint-disable no-extend-native */
@@ -1899,6 +1900,30 @@ Date.prototype.toString = function () {
     return this;
   };
 }(undefined));
+
+/**
+ * Builds a Date whose getFullYear/getMonth/getDate read the given calendar day at 00:00.
+ * Uses setters only so the result is correct under the Date.prototype patch above,
+ * which reads with the offset captured at page load rather than the target date's offset.
+ * @param {Number} year - Full year, e.g. 2027
+ * @param {Number} month - Zero-based month
+ * @param {Number} day - Day of the month
+ * @returns {Date} Date for the calendar day
+ */
+function toCalendarDate(year, month, day) {
+  var date = new Date();
+
+  // Move to the 1st first so the month change can't overflow (e.g. Jan 31 to Feb)
+  date.setDate(1);
+  date.setFullYear(year);
+  date.setMonth(month);
+  date.setDate(day);
+  date.setHours(0);
+  date.setMinutes(0);
+  date.setSeconds(0);
+  date.setMilliseconds(0);
+  return date;
+}
 function calendarDate(value) {
   return moment(value).calendar(null, {
     sameDay: '[Today at] h:mm A',
@@ -2726,7 +2751,7 @@ var render = function render() {
     staticClass: "recipient-count"
   }, [_vm.loadingMatches ? [_vm._v("\n                    Estimating...\n                  ")] : [_vm._v("\n                    Estimated: " + _vm._s(_vm.matches.count) + " user"), _vm.matches.count !== 1 ? [_vm._v("s")] : _vm._e(), _vm._v(" "), _c("tooltip", {
     attrs: {
-      title: "This is an approximation and will depend on the user preference at the time of publish. Users who have never used the app will be excluded."
+      title: "This is an approximation and will depend on the user preference at the time of publish. Users who have never used the project will be excluded."
     }
   }, [_c("i", {
     staticClass: "fa fa-info-circle"
@@ -3220,13 +3245,11 @@ var defaultSendLabel = 'Send notification';
     if (this.schedule === 'scheduled') {
       var date = moment.utc(moment.unix(_.get(this.notification, 'data._metadata.scheduledAt')));
       if (!date.isValid()) {
-        date = moment.utc().unix();
+        date = moment.utc();
       }
       this.scheduledAtTimezone = Object(_libs_timezones__WEBPACK_IMPORTED_MODULE_4__["validate"])(_.get(this.notification, 'data._metadata.scheduledAtTimezone'));
       date.tz(this.scheduledAtTimezone);
-
-      // Use "Z" to indicate UTC timezone in the date string
-      this.scheduledAtDate = new Date("".concat(date.clone().startOf('day').locale('en-us').format('YYYY-MM-DDT00:00:00'), "Z"));
+      this.scheduledAtDate = Object(_libs_date__WEBPACK_IMPORTED_MODULE_3__["toCalendarDate"])(date.year(), date.month(), date.date());
       this.scheduledAtHour = date.get('hour');
       this.scheduledAtMinute = date.get('minute');
     }
