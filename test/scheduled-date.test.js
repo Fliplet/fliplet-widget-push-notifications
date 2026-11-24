@@ -2,8 +2,8 @@
  * Guards the send time the schedule step loads and saves when a scheduled notification
  * is copied or edited (src/components/NotificationForm.vue). See PS-2188.
  *
- * Runs the form's own mounted() and scheduledAt, not a copy of them, so undoing
- * the fix in the component or in src/libs/date.js fails here.
+ * Runs the store's, the form's, the list's and the timepicker's own code, not a copy of it,
+ * so undoing the fix in any of them or in src/libs fails here.
  *
  * The bundle patches Date.prototype get and set methods (src/libs/date.js) to read
  * with the viewer's offset captured at page load. The form must build the
@@ -18,60 +18,42 @@
 
 const fs = require('fs');
 const path = require('path');
+const util = require('util');
+const v8 = require('v8');
 const vm = require('vm');
 const childProcess = require('child_process');
 
 const VENDOR = path.join(__dirname, '..', 'vendor', 'moment-timezone-with-data-10-year-range.min.js');
-const DATE_LIB = path.join(__dirname, '..', 'src', 'libs', 'date.js');
-const FORM = path.join(__dirname, '..', 'src', 'components', 'NotificationForm.vue');
+const SRC = path.join(__dirname, '..', 'src');
 const CHILD_FLAG = '--scheduled-date-child';
 
-// Applies src/libs/date.js to this process, as the bundle does in the browser, and
-// returns only what it exports.
-function loadDateLib() {
-  const source = fs.readFileSync(DATE_LIB, 'utf8');
-  const names = Array.from(source.matchAll(/^export\s+function\s+(\w+)/gm), function(match) {
-    return match[1];
-  });
+function noop() {}
 
-  return vm.runInThisContext(
-    '(function() {' + source.replace(/^export\s+/gm, '') + '\nreturn { ' + names.join(', ') + ' };\n})()',
-    { filename: DATE_LIB }
-  );
-}
-
-// Evaluates the form's <script> and returns the component options. Imports from
-// src/libs/date.js are real and must be exported there. Every other import is stubbed.
-function loadForm(dateLib) {
-  const script = fs.readFileSync(FORM, 'utf8').match(/<script>([\s\S]*)<\/script>/)[1];
-  const importPattern = /^import\s+([\s\S]*?)\s+from\s+'([^']+)';$/gm;
-
-  for (const match of script.matchAll(importPattern)) {
-    match[1].replace(/[{}]/g, '').split(',').forEach(function(specifier) {
-      const names = specifier.trim().split(/\s+as\s+/);
-      const local = names[names.length - 1];
-
-      if (match[2] !== '../libs/date') {
-        global[local] = function() {
-          return {};
-        };
-
-        return;
-      }
-
-      if (!dateLib[names[0]]) {
-        throw new Error(names[0] + ' is not exported by src/libs/date.js');
-      }
-
-      global[local] = dateLib[names[0]];
-    });
-  }
-
-  global.validateTimezone = function(name) {
-    return name;
+// The lodash functions the code under test uses, with lodash's behaviour. lodash comes from
+// the Fliplet CDN in the browser, and CI doesn't install it.
+function createLodash() {
+  const isObject = function(value) {
+    return value !== null && typeof value === 'object';
   };
 
-  global._ = {
+  // As in lodash, null and other values that aren't undefined are kept
+  const defaultsDeep = function(target, ...sources) {
+    sources.filter(isObject).forEach(function(source) {
+      Object.keys(source).forEach(function(key) {
+        if (!isObject(source[key])) {
+          target[key] = target[key] === undefined ? source[key] : target[key];
+        } else if (target[key] === undefined) {
+          target[key] = defaultsDeep(Array.isArray(source[key]) ? [] : {}, source[key]);
+        } else if (isObject(target[key])) {
+          defaultsDeep(target[key], source[key]);
+        }
+      });
+    });
+
+    return target;
+  };
+
+  return {
     debounce: function(fn) {
       return fn;
     },
@@ -82,46 +64,155 @@ function loadForm(dateLib) {
 
       return value === undefined ? fallback : value;
     },
-    defaultsDeep: function(object) {
+    set: function(object, keys, value) {
+      const path = keys.split('.');
+      const last = path.pop();
+      const parent = path.reduce(function(current, key) {
+        if (!isObject(current[key])) {
+          current[key] = {};
+        }
+
+        return current[key];
+      }, object);
+
+      parent[last] = value;
+
       return object;
     },
+    pick: function(object, keys) {
+      return keys.reduce(function(result, key) {
+        if (key in object) {
+          result[key] = object[key];
+        }
+
+        return result;
+      }, {});
+    },
+    find: function(list, match) {
+      return list.find(typeof match === 'function' ? match : function(item) {
+        return Object.keys(match).every(function(key) {
+          return item[key] === match[key];
+        });
+      });
+    },
+    map: function(list, fn) {
+      return list.map(fn);
+    },
+    forEach: function(list, fn) {
+      list.forEach(fn);
+    },
+    orderBy: function(list, keys, orders) {
+      return list.slice().sort(function(a, b) {
+        return (a[keys[0]] - b[keys[0]]) * (orders[0] === 'desc' ? -1 : 1);
+      });
+    },
+    clone: function(object) {
+      return Object.assign({}, object);
+    },
+    extend: Object.assign,
+    defaultsDeep: defaultsDeep,
     isArray: Array.isArray
   };
-
-  global.Fliplet = {
-    Notifications: { init: function() {} },
-    Apps: { get: function() {
-      return new Promise(function() {});
-    } },
-    Env: { get: function() {} },
-    Widget: { getData: function() {} }
-  };
-
-  vm.runInThisContext(
-    script.replace(importPattern, '').replace('export default {', 'var NotificationForm = {'),
-    { filename: FORM }
-  );
-
-  return global.NotificationForm;
 }
 
-// Opens a notification in the form, as copy and edit do, and returns the form state.
-function openInForm(form, item) {
-  const noop = function() {};
-  const notification = { data: { _metadata: item.metadata } };
+// Runs a file from src and returns what it exports (component options for a .vue file).
+// Imports found in `modules` are real and must be exported there. Every other import is stubbed.
+function loadSource(file, modules) {
+  const filename = path.join(SRC, file);
+  const isComponent = path.extname(file) === '.vue';
+  const content = fs.readFileSync(filename, 'utf8');
+  const source = isComponent ? content.match(/<script>([\s\S]*)<\/script>/)[1] : content;
+  const names = Array.from(source.matchAll(/^export\s+(?:function|const)\s+(\w+)/gm), function(match) {
+    return match[1];
+  });
+  const imports = {};
 
-  ['status', 'orderAt'].forEach(function(key) {
-    if (key in item) {
-      notification[key] = item[key];
+  const body = source.replace(/^import\s+([\s\S]*?)\s+from\s+'([^']+)';$/gm, function(match, specifiers, from) {
+    const target = path.resolve(path.dirname(filename), from);
+    const key = path.relative(SRC, target);
+
+    if (from.startsWith('.') && !['', '.js', '.vue'].some(function(extension) {
+      return fs.existsSync(target + extension);
+    })) {
+      throw new Error(from + ' imported by src/' + file + ' does not exist');
+    }
+
+    specifiers.replace(/[{}]/g, '').split(',').forEach(function(specifier) {
+      const parts = specifier.trim().split(/\s+as\s+/);
+      const local = parts[parts.length - 1];
+
+      if (!modules[key]) {
+        imports[local] = Object.assign(function() {
+          return {};
+        }, { $emit: noop, get: noop });
+
+        return;
+      }
+
+      if (!modules[key][parts[0]]) {
+        throw new Error(parts[0] + ' is not exported by src/' + key);
+      }
+
+      imports[local] = modules[key][parts[0]];
+    });
+
+    return '';
+  }).replace(/^export default /m, 'return ').replace(/^export\s+/gm, '');
+
+  return vm.runInThisContext(
+    '(function(' + Object.keys(imports).join(', ') + ') {' + body
+      + (isComponent ? '' : '\nreturn { ' + names.join(', ') + ' };') + '\n})',
+    { filename: filename }
+  )(...Object.values(imports));
+}
+
+// Loads the widget's code into this process. src/libs/date.js patches Date, as it does in the browser.
+function loadWidget(moment) {
+  global.moment = moment;
+  global.location = { origin: '' };
+  global._ = createLodash();
+  global.Fliplet = {
+    Notifications: { init: noop },
+    Apps: { get: function() {
+      return new Promise(noop);
+    } },
+    Env: { get: noop },
+    Widget: { getData: noop }
+  };
+
+  const date = loadSource('libs/date.js', {});
+  const timezones = loadSource('libs/timezones.js', {});
+  const store = loadSource('store/index.js', { 'libs/date': date });
+  const modules = { 'libs/date': date, 'libs/timezones': timezones, store: store };
+
+  // Timezones that aren't in the picker are kept, so that they can be tested
+  const formTimezones = Object.assign({}, timezones, {
+    validate: function(name) {
+      return name;
     }
   });
 
+  return {
+    date: date,
+    timezones: timezones,
+    store: store,
+    form: loadSource('components/NotificationForm.vue', Object.assign({}, modules, { 'libs/timezones': formTimezones })),
+    list: loadSource('components/NotificationList.vue', modules),
+    timepicker: loadSource('components/Timepicker.vue', modules)
+  };
+}
+
+// Opens the form with the notification in the store and returns the form state
+function openForm(widget) {
+  const form = widget.form;
   const state = Object.assign(form.data.call({ getMatches: noop }), {
-    schedule: 'scheduled',
-    notification: notification,
     getAsset: noop,
     getMatches: noop,
     initializeProviders: noop
+  });
+
+  Object.keys(form.computed).forEach(function(name) {
+    Object.defineProperty(state, name, { get: form.computed[name].get || form.computed[name] });
   });
 
   // Vue doesn't track properties that data() doesn't declare, so mounted() can't add any
@@ -132,15 +223,31 @@ function openInForm(form, item) {
   return state;
 }
 
+// Opens a notification from the list. The action is one of the list's methods.
+function openNotification(widget, action, notification) {
+  widget.list.methods[action].call({}, notification);
+
+  return openForm(widget);
+}
+
+// Edits a notification that has the Later option saved
+function openScheduled(widget, item) {
+  const notification = { data: { _metadata: Object.assign({ schedule: 'scheduled' }, item.metadata) } };
+
+  ['status', 'orderAt'].forEach(function(key) {
+    if (key in item) {
+      notification[key] = item[key];
+    }
+  });
+
+  return openNotification(widget, 'editNotification', notification);
+}
+
 // Child mode: opens each notification in the form under the patch.
 function runChild() {
   const moment = require(VENDOR);
-  const input = JSON.parse(fs.readFileSync(0, 'utf8'));
-
-  global.moment = moment;
-
-  const dateLib = loadDateLib();
-  const form = loadForm(dateLib);
+  const input = v8.deserialize(fs.readFileSync(0));
+  const widget = loadWidget(moment);
   const read = function(d) {
     return [
       d.getFullYear(),
@@ -150,18 +257,18 @@ function runChild() {
   };
 
   const save = function(state) {
-    return form.computed.scheduledAt.call(state);
+    return state.scheduledAt;
   };
 
   const openEdited = function() {
-    return openInForm(form, {
+    return openScheduled(widget, {
       metadata: { scheduledAt: input.edited.scheduledAt, scheduledAtTimezone: input.edited.timezone }
     });
   };
 
   // A date as the datepicker emits it: a new object, with any time of day
   const pickDate = function(day, hour, minute) {
-    const date = dateLib.toCalendarDate(day[0], day[1], day[2]);
+    const date = widget.date.toCalendarDate(day[0], day[1], day[2]);
 
     date.setHours(hour);
     date.setMinutes(minute);
@@ -170,7 +277,7 @@ function runChild() {
   };
 
   const cases = input.cases.map(function(item) {
-    const state = openInForm(form, {
+    const state = openScheduled(widget, {
       metadata: { scheduledAt: item.scheduledAt, scheduledAtTimezone: item.timezone }
     });
 
@@ -182,7 +289,7 @@ function runChild() {
     const before = moment().unix();
 
     try {
-      return { scheduledAt: save(openInForm(form, item)), before: before, after: moment().unix() };
+      return { scheduledAt: save(openScheduled(widget, item)), before: before, after: moment().unix() };
     } catch (error) {
       return { error: error.message };
     }
@@ -220,11 +327,92 @@ function runChild() {
     return save(state);
   });
 
-  // The timepicker sets the hour on the form's own date object (src/libs/timezones.js)
+  // The timepicker sets the hour on the form's own date object (src/components/Timepicker.vue)
   const mutated = openEdited();
 
   mutated.scheduledAtDate.setHours(12);
   repicked.push(save(mutated));
+
+  // Opened from the list, with the status that the Send button saves. Errors are reported per notification.
+  const opened = input.opened.map(function(item) {
+    const before = v8.deserialize(v8.serialize(item.notification));
+
+    try {
+      const state = openNotification(widget, item.action, item.notification);
+      let sentStatus;
+
+      widget.form.methods.send.call({
+        schedule: state.schedule,
+        save: function(status) {
+          sentStatus = status;
+        }
+      });
+
+      return {
+        schedule: state.schedule,
+        scheduledAt: state.scheduledAt,
+        orderAt: state.orderAt,
+        titleCharactersRemaining: state.titleCharactersRemaining,
+        sentStatus: sentStatus,
+        mutated: !util.isDeepStrictEqual(before, item.notification)
+      };
+    } catch (error) {
+      return { error: error.message };
+    }
+  });
+
+  const createdState = openNotification(widget, 'createNotification');
+  const created = {
+    schedule: createdState.schedule,
+    isDefault: util.isDeepStrictEqual(createdState.notification, widget.store.getDefaultNotification())
+  };
+
+  const offsets = input.offsets.map(function(item) {
+    const date = new Date(item.unix * 1000);
+    const momentDate = moment.unix(item.unix);
+
+    return {
+      form: openScheduled(widget, {
+        metadata: { scheduledAt: item.unix, scheduledAtTimezone: item.timezone }
+      }).notificationTimezone,
+      fromDate: widget.timezones.getOffsetString(item.timezone, date),
+      fromMoment: widget.timezones.getOffsetString(item.timezone, momentDate),
+      dateAfter: date.getTime() / 1000,
+      momentAfter: momentDate.unix()
+    };
+  });
+
+  const otherOffsets = {
+    unknownZone: widget.timezones.getOffset('Not/AZone', new Date()),
+    noDate: widget.timezones.getOffset('Asia/Tokyo'),
+    notADate: widget.timezones.getOffset('Asia/Tokyo', '2027-07-15')
+  };
+
+  const listDates = input.listRows.map(function(item) {
+    return widget.list.methods.getNotificationDate.call(
+      Object.assign({ showTimezone: true }, widget.list.methods),
+      item.notification
+    );
+  });
+
+  // As opened by the form (midnight), and as picked in the datepicker (any time)
+  const timepicker = [[0, 0], [12, 0], [23, 59]].map(function(time) {
+    return input.labelDays.map(function(day) {
+      const date = pickDate(day, time[0], time[1]);
+      const options = widget.timepicker.computed.adjustedTimezones.call({
+        timezones: widget.timezones.timezones,
+        date: date
+      });
+
+      return {
+        day: read(date),
+        hour: date.getHours(),
+        labels: options.map(function(option) {
+          return [option.value, option.label.slice(0, '(GMT+00:00)'.length)];
+        })
+      };
+    });
+  });
 
   // Pretend "now" is Jan 31 so a naive setMonth(1) would overflow into March.
   const NativeDate = Date;
@@ -242,7 +430,7 @@ function runChild() {
   global.Date = Jan31Date;
 
   const overflow = input.overflow.map(function(item) {
-    return read(dateLib.toCalendarDate(item[0], item[1], item[2]));
+    return read(widget.date.toCalendarDate(item[0], item[1], item[2]));
   });
 
   global.Date = NativeDate;
@@ -252,7 +440,13 @@ function runChild() {
     saved: saved,
     edits: edits,
     repicked: repicked,
-    overflow: overflow
+    overflow: overflow,
+    opened: opened,
+    created: created,
+    offsets: offsets,
+    otherOffsets: otherOffsets,
+    listDates: listDates,
+    timepicker: timepicker
   }));
 }
 
@@ -310,7 +504,7 @@ function defineTests() {
   ];
 
   // Usable scheduledAt values. The saved value must be a whole number, because the API
-  // parses a string orderAt as a date. orderAt must not be used for these.
+  // parses a string orderAt as a date. orderAt is in the past, so it must not be used for these.
   const STORED = moment.tz('2027-07-15 23:30:37', 'YYYY-MM-DD HH:mm:ss', 'America/Chicago').unix();
   const PAST = moment.tz('2026-01-15 09:30', 'YYYY-MM-DD HH:mm', 'America/Chicago').unix();
 
@@ -324,10 +518,136 @@ function defineTests() {
   const usable = USABLE.map(function(item) {
     return Object.assign({
       status: 'scheduled',
-      orderAt: FUTURE.toISOString(),
+      orderAt: YESTERDAY.toISOString(),
       metadata: { scheduledAt: item.scheduledAt, scheduledAtTimezone: 'America/Chicago' }
     }, item);
   });
+
+  // Both times are usable. Rescheduling through the API changes only orderAt.
+  const BEFORE_FUTURE = FUTURE.clone().subtract(1, 'day');
+  const AFTER_FUTURE = FUTURE.clone().add(1, 'day');
+
+  const CONFLICTS = [
+    { status: 'scheduled', scheduledAt: PAST, orderAt: FUTURE, expected: FUTURE.unix() },
+    { status: 'scheduled', scheduledAt: BEFORE_FUTURE.unix(), orderAt: FUTURE, expected: FUTURE.unix() },
+    { status: 'scheduled', scheduledAt: AFTER_FUTURE.unix(), orderAt: FUTURE, expected: FUTURE.unix() },
+    { status: 'scheduled', scheduledAt: STORED, orderAt: YESTERDAY, expected: STORED },
+    { status: 'draft', scheduledAt: STORED, orderAt: FUTURE, expected: STORED },
+    { status: 'published', scheduledAt: STORED, orderAt: FUTURE, expected: STORED }
+  ];
+
+  const conflicts = CONFLICTS.map(function(item) {
+    return {
+      name: item.status + ', scheduledAt ' + item.scheduledAt + ', orderAt ' + item.orderAt.unix(),
+      status: item.status,
+      orderAt: item.orderAt.toISOString(),
+      metadata: { scheduledAt: item.scheduledAt, scheduledAtTimezone: 'America/Chicago' },
+      expected: item.expected
+    };
+  });
+
+  const withMetadata = function(metadata) {
+    return { title: 'Title', message: 'Message', _metadata: metadata };
+  };
+
+  // Data without a 'now' or 'scheduled' schedule, e.g. from the JS API
+  const UNFLAGGED = [
+    { name: 'no _metadata', data: { title: 'Title', message: 'Message' } },
+    { name: '_metadata null', data: withMetadata(null) },
+    { name: '_metadata {}', data: withMetadata({}) },
+    { name: 'data missing' },
+    { name: 'data null', data: null }
+  ].concat([undefined, null, '', 'later', 1, true, {}].map(function(schedule) {
+    return { name: 'schedule ' + JSON.stringify(schedule), data: withMetadata({ schedule: schedule }) };
+  }));
+
+  const LATER = { status: 'scheduled', orderAt: FUTURE.toISOString() };
+
+  const NOT_LATER = [
+    { status: 'scheduled', orderAt: YESTERDAY.toISOString() },
+    { status: 'scheduled' },
+    { status: 'scheduled', orderAt: null },
+    { status: 'scheduled', orderAt: 'invalid' },
+    { status: 'draft', orderAt: FUTURE.toISOString() },
+    { status: 'published', orderAt: FUTURE.toISOString() },
+    { orderAt: FUTURE.toISOString() }
+  ];
+
+  const opened = [];
+
+  const addOpened = function(name, fields, data, schedule) {
+    ['editNotification', 'cloneNotification'].forEach(function(action) {
+      const notification = Object.assign({ id: 1, type: 'in-app', scope: {} }, fields);
+
+      if (data !== undefined) {
+        notification.data = data;
+      }
+
+      opened.push({
+        name: [action, name, JSON.stringify(fields)].join(', '),
+        action: action,
+        notification: notification,
+        schedule: schedule
+      });
+    });
+  };
+
+  UNFLAGGED.forEach(function(item) {
+    addOpened(item.name, LATER, item.data, 'scheduled');
+
+    // The list and the form can't show these
+    if (item.data === null) {
+      return;
+    }
+
+    NOT_LATER.forEach(function(fields) {
+      addOpened(item.name, fields, item.data, 'now');
+    });
+  });
+
+  [LATER].concat(NOT_LATER).forEach(function(fields) {
+    ['now', 'scheduled'].forEach(function(schedule) {
+      addOpened('schedule ' + schedule, fields, withMetadata({ schedule: schedule }), schedule);
+    });
+  });
+
+  // Instants around clock changes. All of these timezones are in the picker.
+  const OFFSETS = [
+    ['Europe/London', '2027-10-31T00:30:00Z', '01:30 GMT+01:00'],
+    ['Europe/London', '2027-10-31T01:30:00Z', '01:30 GMT+00:00'],
+    ['Europe/London', '2027-03-28T00:30:00Z', '00:30 GMT+00:00'],
+    ['Europe/London', '2027-03-28T01:30:00Z', '02:30 GMT+01:00'],
+    ['Europe/London', '2027-03-27T20:00:00Z', '20:00 GMT+00:00'],
+    ['US/Eastern', '2027-11-07T04:30:00Z', '00:30 GMT-04:00'],
+    ['US/Eastern', '2027-11-07T05:30:00Z', '01:30 GMT-04:00'],
+    ['US/Eastern', '2027-11-07T06:30:00Z', '01:30 GMT-05:00'],
+    ['US/Eastern', '2027-03-14T03:00:00Z', '22:00 GMT-05:00'],
+    ['Europe/London', '2027-07-15T08:30:00Z', '09:30 GMT+01:00'],
+    ['Europe/London', '2027-01-15T09:30:00Z', '09:30 GMT+00:00'],
+    ['Asia/Calcutta', '2027-07-15T04:00:00Z', '09:30 GMT+05:30']
+  ].map(function(item) {
+    assert.strictEqual(moment.tz(item[1], item[0]).format('HH:mm [GMT]Z'), item[2]);
+
+    return { timezone: item[0], unix: moment.utc(item[1]).unix(), expected: item[2].slice('00:00 '.length) };
+  });
+
+  // The date and the offset are shown in the same timezone, which is London if there isn't one
+  const listRows = OFFSETS.map(function(item) {
+    return { timezone: item.timezone, unix: item.unix };
+  }).concat(['2027-07-15T08:30:00Z', '2027-01-15T09:30:00Z'].map(function(utc) {
+    return { unix: moment.utc(utc).unix() };
+  })).map(function(item) {
+    const orderAt = moment.unix(item.unix).toISOString();
+    const metadata = item.timezone ? { _metadata: { scheduledAtTimezone: item.timezone } } : {};
+
+    return {
+      notification: { orderAt: orderAt, data: metadata },
+      expected: moment.tz(orderAt, item.timezone || 'Europe/London').format('MMM D YYYY, h:mm A [GMT]Z')
+    };
+  });
+
+  // Days without a clock change in any timezone, in each half of the year
+  const LABEL_DAYS = [[2027, 0, 15], [2027, 6, 15]];
 
   const fallbacks = [];
 
@@ -405,13 +725,17 @@ function defineTests() {
 
     const output = childProcess.execFileSync(process.execPath, [__filename, CHILD_FLAG], {
       env: env,
-      input: JSON.stringify({
+      input: v8.serialize({
         cases: cases,
-        saved: fallbacks.concat(usable),
+        saved: fallbacks.concat(usable, conflicts),
         edited: EDITED,
         edits: EDITS,
         repicked: REPICKED,
-        overflow: OVERFLOW
+        overflow: OVERFLOW,
+        opened: opened,
+        offsets: OFFSETS,
+        listRows: listRows,
+        labelDays: LABEL_DAYS
       }),
       encoding: 'utf8'
     });
@@ -480,6 +804,83 @@ function defineTests() {
 
         assert.strictEqual(actual.error, undefined, 'form opens for ' + item.name);
         assert.strictEqual(actual.scheduledAt, item.expected, 'send time is kept for ' + item.name);
+      });
+    });
+
+    test('a future orderAt of a scheduled notification comes before scheduledAt, viewer in ' + viewerTimezone, function() {
+      const result = runInTimezone(viewerTimezone);
+
+      conflicts.forEach(function(item, index) {
+        const actual = result.saved[fallbacks.length + usable.length + index];
+
+        assert.strictEqual(actual.error, undefined, 'form opens for ' + item.name);
+        assert.strictEqual(actual.scheduledAt, item.expected, 'send time for ' + item.name);
+      });
+    });
+
+    test('a scheduled notification without a schedule opens in Later, viewer in ' + viewerTimezone, function() {
+      const result = runInTimezone(viewerTimezone);
+
+      opened.forEach(function(item, index) {
+        const actual = result.opened[index];
+
+        assert.strictEqual(actual.error, undefined, 'form opens for ' + item.name);
+        assert.strictEqual(actual.mutated, false, 'list row is unchanged for ' + item.name);
+        assert.strictEqual(actual.schedule, item.schedule, 'schedule for ' + item.name);
+        assert.strictEqual(actual.sentStatus, item.schedule === 'scheduled' ? 'scheduled' : 'published',
+          'status on send for ' + item.name);
+        assert.strictEqual(typeof actual.titleCharactersRemaining, 'number', 'title is shown for ' + item.name);
+
+        if (item.schedule === 'scheduled' && item.notification.status === 'scheduled'
+          && item.notification.orderAt === LATER.orderAt) {
+          assert.strictEqual(actual.scheduledAt, FUTURE.unix(), 'scheduledAt is orderAt for ' + item.name);
+          assert.strictEqual(actual.orderAt, FUTURE.unix(), 'orderAt is kept for ' + item.name);
+        }
+      });
+
+      assert.deepStrictEqual(result.created, { schedule: 'now', isDefault: true });
+    });
+
+    test('timezone offsets are exact around clock changes, viewer in ' + viewerTimezone, function() {
+      const result = runInTimezone(viewerTimezone);
+
+      OFFSETS.forEach(function(item, index) {
+        assert.deepStrictEqual(result.offsets[index], {
+          form: item.expected,
+          fromDate: item.expected,
+          fromMoment: item.expected,
+          dateAfter: item.unix,
+          momentAfter: item.unix
+        }, item.timezone + ' at ' + moment.unix(item.unix).toISOString());
+      });
+
+      assert.deepStrictEqual(result.otherOffsets, { unknownZone: 0, noDate: -540, notADate: -540 });
+    });
+
+    test('the list shows the date and offset in the same timezone, viewer in ' + viewerTimezone, function() {
+      const result = runInTimezone(viewerTimezone);
+
+      assert.deepStrictEqual(result.listDates, listRows.map(function(item) {
+        return item.expected;
+      }));
+    });
+
+    test('the timepicker sets the date to noon and labels its timezones, viewer in ' + viewerTimezone, function() {
+      const result = runInTimezone(viewerTimezone);
+
+      result.timepicker.forEach(function(days) {
+        days.forEach(function(actual, index) {
+          const day = moment.utc(LABEL_DAYS[index]).format('YYYY-MM-DD');
+
+          assert.strictEqual(actual.day, day, 'the calendar day is kept');
+          assert.strictEqual(actual.hour, 12, 'the date is at noon');
+          assert.ok(actual.labels.length > 70, 'all timezones are listed');
+
+          actual.labels.forEach(function(label) {
+            assert.strictEqual(label[1], '(GMT' + moment.tz(day + ' 12:00', label[0]).format('Z') + ')',
+              label[0] + ' on ' + day);
+          });
+        });
       });
     });
 

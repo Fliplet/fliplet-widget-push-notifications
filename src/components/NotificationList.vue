@@ -247,7 +247,7 @@ export default {
       return `${notification.userCount} user${notification.userCount !== 1 ? 's' : ''}`;
     },
     getNotificationTimezone(notification) {
-      const timezone = _.get(notification, 'data._metadata.scheduledAtTimezone');
+      const timezone = validateTimezone(_.get(notification, 'data._metadata.scheduledAtTimezone'));
       const date = moment.utc(_.get(notification, 'orderAt')).toDate();
 
       return getTimezoneOffsetString(timezone, date);

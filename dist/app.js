@@ -113,7 +113,7 @@ new Vue({
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Application_vue_vue_type_template_id_44b1e432__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(2);
 /* harmony import */ var _Application_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(4);
-/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(18);
+/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(19);
 
 
 
@@ -194,7 +194,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _components_NotificationList__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(6);
 /* harmony import */ var _components_NotificationForm__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(39);
 /* harmony import */ var _store__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(16);
-/* harmony import */ var _libs_bus__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(25);
+/* harmony import */ var _libs_bus__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(26);
 
 
 
@@ -240,7 +240,7 @@ __webpack_require__.r(__webpack_exports__);
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _NotificationList_vue_vue_type_template_id_93ede84e__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(7);
 /* harmony import */ var _NotificationList_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(9);
-/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(18);
+/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(19);
 
 
 
@@ -567,14 +567,14 @@ __webpack_require__.r(__webpack_exports__);
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _NotificationLink__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(11);
-/* harmony import */ var _NotificationNotes__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(19);
-/* harmony import */ var _Tooltip__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(26);
-/* harmony import */ var _Popover__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(31);
-/* harmony import */ var vuejs_paginate__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(36);
+/* harmony import */ var _NotificationNotes__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(20);
+/* harmony import */ var _Tooltip__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(27);
+/* harmony import */ var _Popover__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(32);
+/* harmony import */ var vuejs_paginate__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(37);
 /* harmony import */ var vuejs_paginate__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(vuejs_paginate__WEBPACK_IMPORTED_MODULE_4__);
 /* harmony import */ var _store__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(16);
-/* harmony import */ var _libs_bus__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(25);
-/* harmony import */ var _libs_date__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(37);
+/* harmony import */ var _libs_bus__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(26);
+/* harmony import */ var _libs_date__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(18);
 /* harmony import */ var _libs_timezones__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(38);
 
 
@@ -696,7 +696,7 @@ var defaultPushNotificationErrorMessage = 'Unknown error. Please contact support
       return "".concat(notification.userCount, " user").concat(notification.userCount !== 1 ? 's' : '');
     },
     getNotificationTimezone: function getNotificationTimezone(notification) {
-      var timezone = _.get(notification, 'data._metadata.scheduledAtTimezone');
+      var timezone = Object(_libs_timezones__WEBPACK_IMPORTED_MODULE_8__["validate"])(_.get(notification, 'data._metadata.scheduledAtTimezone'));
       var date = moment.utc(_.get(notification, 'orderAt')).toDate();
       return Object(_libs_timezones__WEBPACK_IMPORTED_MODULE_8__["getOffsetString"])(timezone, date);
     },
@@ -856,7 +856,7 @@ var defaultPushNotificationErrorMessage = 'Unknown error. Please contact support
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _NotificationLink_vue_vue_type_template_id_a5fc0596__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(12);
 /* harmony import */ var _NotificationLink_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(14);
-/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(18);
+/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(19);
 
 
 
@@ -1041,6 +1041,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setShowTimezone", function() { return setShowTimezone; });
 /* harmony import */ var js_cookie__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(17);
 /* harmony import */ var js_cookie__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(js_cookie__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _libs_date__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(18);
+
 
 var COOKIE = {
   showTimezone: '_show_timezone'
@@ -1090,7 +1092,14 @@ function setView(view) {
   state.view = view;
 }
 function setNotification(notification) {
-  state.notification = _.defaultsDeep({}, notification, getDefaultNotification());
+  var stored = _.defaultsDeep({}, notification);
+  var schedule = _.get(stored, 'data._metadata.schedule');
+
+  // Notifications scheduled through the API may not have a schedule, and the defaults would set it to 'now'
+  if (['now', 'scheduled'].indexOf(schedule) === -1 && Object(_libs_date__WEBPACK_IMPORTED_MODULE_1__["getScheduledOrderAt"])(stored) !== null) {
+    _.set(stored, 'data._metadata.schedule', 'scheduled');
+  }
+  state.notification = _.defaultsDeep(stored, getDefaultNotification());
 }
 function getNotification() {
   return state.notification;
@@ -1299,6 +1308,200 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "toCalendarDate", function() { return toCalendarDate; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getScheduledOrderAt", function() { return getScheduledOrderAt; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getStoredSendTime", function() { return getStoredSendTime; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getScheduleFields", function() { return getScheduleFields; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getScheduledTimestamp", function() { return getScheduledTimestamp; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "calendarDate", function() { return calendarDate; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "formatDate", function() { return formatDate; });
+/* eslint-disable no-extend-native */
+
+// Adds support for Date.prototype.setTimezoneOffset
+// https://stackoverflow.com/questions/22724898/settimezoneoffset-globally-for-whole-script/40518781
+Date.prototype.timezoneOffset = new Date().getTimezoneOffset();
+Date.setTimezoneOffset = function (timezoneOffset) {
+  this.prototype.timezoneOffset = timezoneOffset;
+  return this;
+};
+Date.getTimezoneOffset = function () {
+  return this.prototype.timezoneOffset;
+};
+Date.prototype.setTimezoneOffset = function (timezoneOffset) {
+  this.timezoneOffset = timezoneOffset;
+  return this;
+};
+Date.prototype.getTimezoneOffset = function () {
+  return this.timezoneOffset;
+};
+Date.prototype.toString = function () {
+  var offsetDate;
+  var offsetTime;
+  offsetTime = this.timezoneOffset * 60 * 1000;
+  offsetDate = new Date(this.getTime() - offsetTime);
+  return offsetDate.toUTCString();
+};
+['Milliseconds', 'Seconds', 'Minutes', 'Hours', 'Date', 'Month', 'FullYear', 'Year', 'Day'].forEach(function () {
+  return function (key) {
+    Date.prototype['get' + key] = function () {
+      var offsetDate;
+      var offsetTime;
+      offsetTime = this.timezoneOffset * 60 * 1000;
+      offsetDate = new Date(this.getTime() - offsetTime);
+      return offsetDate['getUTC' + key]();
+    };
+    Date.prototype['set' + key] = function (value) {
+      var offsetDate;
+      var offsetTime;
+      var time;
+      offsetTime = this.timezoneOffset * 60 * 1000;
+      offsetDate = new Date(this.getTime() - offsetTime);
+      offsetDate['setUTC' + key](value);
+      time = offsetDate.getTime() + offsetTime;
+      this.setTime(time);
+      return time;
+    };
+    return this;
+  };
+}(undefined));
+
+/**
+ * Builds a Date whose getFullYear/getMonth/getDate read the given calendar day at 00:00.
+ * Uses setters only so the result is correct under the Date.prototype patch above,
+ * which reads with the offset captured at page load rather than the target date's offset.
+ * @param {Number} year - Full year, e.g. 2027
+ * @param {Number} month - Zero-based month
+ * @param {Number} day - Day of the month
+ * @returns {Date} Date for the calendar day
+ */
+function toCalendarDate(year, month, day) {
+  var date = new Date();
+
+  // Move to the 1st first so the month change can't overflow (e.g. Jan 31 to Feb)
+  date.setDate(1);
+  date.setFullYear(year);
+  date.setMonth(month);
+  date.setDate(day);
+  date.setHours(0);
+  date.setMinutes(0);
+  date.setSeconds(0);
+  date.setMilliseconds(0);
+  return date;
+}
+
+/**
+ * Finds the future orderAt of a scheduled notification.
+ * @param {Object} notification - Notification as returned by the API
+ * @returns {Number|null} UNIX timestamp in seconds, or null if it isn't scheduled for the future
+ */
+function getScheduledOrderAt(notification) {
+  // orderAt is the creation time of a draft and the sent time of a published notification
+  if (_.get(notification, 'status') !== 'scheduled') {
+    return null;
+  }
+  var orderAt = moment(_.get(notification, 'orderAt'), moment.ISO_8601);
+
+  // The API sends notifications with a past send time immediately
+  return orderAt.isAfter(moment()) ? orderAt.unix() : null;
+}
+
+/**
+ * Finds the send time stored on a notification.
+ * @param {Object} notification - Notification as returned by the API
+ * @returns {Number|null} UNIX timestamp in seconds, or null if there isn't a usable one
+ */
+function getStoredSendTime(notification) {
+  var orderAt = getScheduledOrderAt(notification);
+
+  // Rescheduling through the API changes orderAt but not the metadata
+  if (orderAt !== null) {
+    return orderAt;
+  }
+
+  // Always a number, because the API reads a string as a date.
+  // Missing and empty values become NaN or 0.
+  var scheduledAt = moment.unix(_.get(notification, 'data._metadata.scheduledAt')).unix();
+  return scheduledAt > 0 ? scheduledAt : null;
+}
+
+/**
+ * Reads a send time into the values shown on the schedule step.
+ * @param {Number|null} sendTime - UNIX timestamp in seconds, or null to use the default
+ * @param {String} timezone - Timezone the notification is scheduled in
+ * @returns {Object} Calendar date, hour and minute in the given timezone
+ */
+function getScheduleFields(sendTime, timezone) {
+  // Same default as a new notification. The current time would be in the past
+  // by the time the user saves, and the API sends those immediately.
+  var date = sendTime === null ? moment.utc().add(2, 'hours') : moment.unix(sendTime);
+  date.tz(timezone);
+  return {
+    date: toCalendarDate(date.year(), date.month(), date.date()),
+    hour: date.get('hour'),
+    minute: date.get('minute')
+  };
+}
+function isSameDay(a, b) {
+  return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+}
+
+/**
+ * Converts the values picked on the schedule step back to a send time.
+ * @param {Object} fields - Calendar date, hour and minute
+ * @param {String} timezone - Timezone the values are in
+ * @param {Object|null} loaded - Stored send time the form opened with, and the fields and timezone read from it
+ * @returns {Number} UNIX timestamp in seconds
+ */
+function getScheduledTimestamp(fields, timezone, loaded) {
+  // The fields can't hold seconds, or tell apart an hour that repeats when the clocks go back,
+  // so a send time that wasn't changed is returned as it was stored
+  if (loaded && loaded.timezone === timezone && loaded.fields.hour === fields.hour && loaded.fields.minute === fields.minute && isSameDay(loaded.fields.date, fields.date)) {
+    return loaded.sendTime;
+  }
+  return moment.tz([fields.date.getFullYear(), fields.date.getMonth(), fields.date.getDate(), fields.hour, fields.minute], timezone).utc().unix();
+}
+function calendarDate(value) {
+  return moment(value).calendar(null, {
+    sameDay: '[Today at] h:mm A',
+    nextDay: '[Tomorrow at ] h:mm A',
+    nextWeek: 'dddd [at] h:mm A',
+    lastDay: '[Yesterday at] h:mm A',
+    lastWeek: '[Last] dddd [at] h:mm A',
+    sameElse: 'MMMM Do YYYY'
+  });
+}
+function formatDate(value, timezone) {
+  // @param value (Moment | Date | Number | String) Number would be a UNIX timestamp in seconds
+  var date;
+  if (value instanceof moment) {
+    date = value;
+  } else if (value instanceof Date) {
+    date = moment(value);
+  } else if (typeof value === 'number' || parseFloat(value).toString() === value) {
+    date = moment.utc(moment.unix(value));
+  } else {
+    date = moment(value);
+  }
+  if (!date.isValid()) {
+    // Invalid date. Using current time as fallback.
+    date = moment.utc();
+  }
+  if (timezone) {
+    try {
+      date.tz(timezone);
+    } catch (e) {
+      date.tz('UTC');
+    }
+  }
+  return date.format('MMM D YYYY, h:mm A');
+}
+
+/***/ }),
+/* 19 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return normalizeComponent; });
 /* globals __VUE_SSR_CONTEXT__ */
 
@@ -1399,14 +1602,14 @@ function normalizeComponent(
 
 
 /***/ }),
-/* 19 */
+/* 20 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _NotificationNotes_vue_vue_type_template_id_7c3cf4d4__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(20);
-/* harmony import */ var _NotificationNotes_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(22);
-/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(18);
+/* harmony import */ var _NotificationNotes_vue_vue_type_template_id_7c3cf4d4__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(21);
+/* harmony import */ var _NotificationNotes_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(23);
+/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(19);
 
 
 
@@ -1431,12 +1634,12 @@ component.options.__file = "src/components/NotificationNotes.vue"
 /* harmony default export */ __webpack_exports__["default"] = (component.exports);
 
 /***/ }),
-/* 20 */
+/* 21 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_3_0_node_modules_vue_loader_lib_loaders_templateLoader_js_ref_6_node_modules_vue_loader_lib_index_js_vue_loader_options_NotificationNotes_vue_vue_type_template_id_7c3cf4d4__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(21);
+/* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_3_0_node_modules_vue_loader_lib_loaders_templateLoader_js_ref_6_node_modules_vue_loader_lib_index_js_vue_loader_options_NotificationNotes_vue_vue_type_template_id_7c3cf4d4__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(22);
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_babel_loader_lib_index_js_ref_3_0_node_modules_vue_loader_lib_loaders_templateLoader_js_ref_6_node_modules_vue_loader_lib_index_js_vue_loader_options_NotificationNotes_vue_vue_type_template_id_7c3cf4d4__WEBPACK_IMPORTED_MODULE_0__["render"]; });
 
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_babel_loader_lib_index_js_ref_3_0_node_modules_vue_loader_lib_loaders_templateLoader_js_ref_6_node_modules_vue_loader_lib_index_js_vue_loader_options_NotificationNotes_vue_vue_type_template_id_7c3cf4d4__WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
@@ -1444,7 +1647,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 /***/ }),
-/* 21 */
+/* 22 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -1521,22 +1724,22 @@ render._withStripped = true;
 
 
 /***/ }),
-/* 22 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_3_0_node_modules_vue_loader_lib_index_js_vue_loader_options_NotificationNotes_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(23);
-/* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_ref_3_0_node_modules_vue_loader_lib_index_js_vue_loader_options_NotificationNotes_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_0__["default"]); 
-
-/***/ }),
 /* 23 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _libs_string__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(24);
-/* harmony import */ var _libs_bus__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(25);
+/* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_3_0_node_modules_vue_loader_lib_index_js_vue_loader_options_NotificationNotes_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(24);
+/* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_ref_3_0_node_modules_vue_loader_lib_index_js_vue_loader_options_NotificationNotes_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_0__["default"]); 
+
+/***/ }),
+/* 24 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _libs_string__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(25);
+/* harmony import */ var _libs_bus__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(26);
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
@@ -1593,7 +1796,7 @@ __webpack_require__.r(__webpack_exports__);
 });
 
 /***/ }),
-/* 24 */
+/* 25 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -1604,7 +1807,7 @@ function nl2br(str) {
 }
 
 /***/ }),
-/* 25 */
+/* 26 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -1617,14 +1820,14 @@ bus.callbacks = {};
 /* harmony default export */ __webpack_exports__["default"] = (bus);
 
 /***/ }),
-/* 26 */
+/* 27 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _Tooltip_vue_vue_type_template_id_70596efa__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(27);
-/* harmony import */ var _Tooltip_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(29);
-/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(18);
+/* harmony import */ var _Tooltip_vue_vue_type_template_id_70596efa__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(28);
+/* harmony import */ var _Tooltip_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(30);
+/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(19);
 
 
 
@@ -1649,12 +1852,12 @@ component.options.__file = "src/components/Tooltip.vue"
 /* harmony default export */ __webpack_exports__["default"] = (component.exports);
 
 /***/ }),
-/* 27 */
+/* 28 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_3_0_node_modules_vue_loader_lib_loaders_templateLoader_js_ref_6_node_modules_vue_loader_lib_index_js_vue_loader_options_Tooltip_vue_vue_type_template_id_70596efa__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(28);
+/* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_3_0_node_modules_vue_loader_lib_loaders_templateLoader_js_ref_6_node_modules_vue_loader_lib_index_js_vue_loader_options_Tooltip_vue_vue_type_template_id_70596efa__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(29);
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_babel_loader_lib_index_js_ref_3_0_node_modules_vue_loader_lib_loaders_templateLoader_js_ref_6_node_modules_vue_loader_lib_index_js_vue_loader_options_Tooltip_vue_vue_type_template_id_70596efa__WEBPACK_IMPORTED_MODULE_0__["render"]; });
 
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_babel_loader_lib_index_js_ref_3_0_node_modules_vue_loader_lib_loaders_templateLoader_js_ref_6_node_modules_vue_loader_lib_index_js_vue_loader_options_Tooltip_vue_vue_type_template_id_70596efa__WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
@@ -1662,7 +1865,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 /***/ }),
-/* 28 */
+/* 29 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -1685,16 +1888,16 @@ render._withStripped = true;
 
 
 /***/ }),
-/* 29 */
+/* 30 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_3_0_node_modules_vue_loader_lib_index_js_vue_loader_options_Tooltip_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(30);
+/* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_3_0_node_modules_vue_loader_lib_index_js_vue_loader_options_Tooltip_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(31);
 /* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_ref_3_0_node_modules_vue_loader_lib_index_js_vue_loader_options_Tooltip_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_0__["default"]); 
 
 /***/ }),
-/* 30 */
+/* 31 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -1721,14 +1924,14 @@ __webpack_require__.r(__webpack_exports__);
 });
 
 /***/ }),
-/* 31 */
+/* 32 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _Popover_vue_vue_type_template_id_b98493b6__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(32);
-/* harmony import */ var _Popover_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(34);
-/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(18);
+/* harmony import */ var _Popover_vue_vue_type_template_id_b98493b6__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(33);
+/* harmony import */ var _Popover_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(35);
+/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(19);
 
 
 
@@ -1753,12 +1956,12 @@ component.options.__file = "src/components/Popover.vue"
 /* harmony default export */ __webpack_exports__["default"] = (component.exports);
 
 /***/ }),
-/* 32 */
+/* 33 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_3_0_node_modules_vue_loader_lib_loaders_templateLoader_js_ref_6_node_modules_vue_loader_lib_index_js_vue_loader_options_Popover_vue_vue_type_template_id_b98493b6__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(33);
+/* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_3_0_node_modules_vue_loader_lib_loaders_templateLoader_js_ref_6_node_modules_vue_loader_lib_index_js_vue_loader_options_Popover_vue_vue_type_template_id_b98493b6__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(34);
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_babel_loader_lib_index_js_ref_3_0_node_modules_vue_loader_lib_loaders_templateLoader_js_ref_6_node_modules_vue_loader_lib_index_js_vue_loader_options_Popover_vue_vue_type_template_id_b98493b6__WEBPACK_IMPORTED_MODULE_0__["render"]; });
 
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_babel_loader_lib_index_js_ref_3_0_node_modules_vue_loader_lib_loaders_templateLoader_js_ref_6_node_modules_vue_loader_lib_index_js_vue_loader_options_Popover_vue_vue_type_template_id_b98493b6__WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
@@ -1766,7 +1969,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 /***/ }),
-/* 33 */
+/* 34 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -1791,16 +1994,16 @@ render._withStripped = true;
 
 
 /***/ }),
-/* 34 */
+/* 35 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_3_0_node_modules_vue_loader_lib_index_js_vue_loader_options_Popover_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(35);
+/* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_3_0_node_modules_vue_loader_lib_index_js_vue_loader_options_Popover_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(36);
 /* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_ref_3_0_node_modules_vue_loader_lib_index_js_vue_loader_options_Popover_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_0__["default"]); 
 
 /***/ }),
-/* 35 */
+/* 36 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -1837,191 +2040,10 @@ __webpack_require__.r(__webpack_exports__);
 });
 
 /***/ }),
-/* 36 */
+/* 37 */
 /***/ (function(module, exports, __webpack_require__) {
 
 !function(e,t){ true?module.exports=t():undefined}(this,function(){return function(e){function t(s){if(n[s])return n[s].exports;var a=n[s]={exports:{},id:s,loaded:!1};return e[s].call(a.exports,a,a.exports,t),a.loaded=!0,a.exports}var n={};return t.m=e,t.c=n,t.p="",t(0)}([function(e,t,n){"use strict";function s(e){return e&&e.__esModule?e:{default:e}}var a=n(1),i=s(a);e.exports=i.default},function(e,t,n){n(2);var s=n(6)(n(7),n(8),"data-v-82963a40",null);e.exports=s.exports},function(e,t,n){var s=n(3);"string"==typeof s&&(s=[[e.id,s,""]]);n(5)(s,{});s.locals&&(e.exports=s.locals)},function(e,t,n){t=e.exports=n(4)(),t.push([e.id,"a[data-v-82963a40]{cursor:pointer}",""])},function(e,t){e.exports=function(){var e=[];return e.toString=function(){for(var e=[],t=0;t<this.length;t++){var n=this[t];n[2]?e.push("@media "+n[2]+"{"+n[1]+"}"):e.push(n[1])}return e.join("")},e.i=function(t,n){"string"==typeof t&&(t=[[null,t,""]]);for(var s={},a=0;a<this.length;a++){var i=this[a][0];"number"==typeof i&&(s[i]=!0)}for(a=0;a<t.length;a++){var r=t[a];"number"==typeof r[0]&&s[r[0]]||(n&&!r[2]?r[2]=n:n&&(r[2]="("+r[2]+") and ("+n+")"),e.push(r))}},e}},function(e,t,n){function s(e,t){for(var n=0;n<e.length;n++){var s=e[n],a=c[s.id];if(a){a.refs++;for(var i=0;i<a.parts.length;i++)a.parts[i](s.parts[i]);for(;i<s.parts.length;i++)a.parts.push(l(s.parts[i],t))}else{for(var r=[],i=0;i<s.parts.length;i++)r.push(l(s.parts[i],t));c[s.id]={id:s.id,refs:1,parts:r}}}}function a(e){for(var t=[],n={},s=0;s<e.length;s++){var a=e[s],i=a[0],r=a[1],o=a[2],l=a[3],u={css:r,media:o,sourceMap:l};n[i]?n[i].parts.push(u):t.push(n[i]={id:i,parts:[u]})}return t}function i(e,t){var n=g(),s=C[C.length-1];if("top"===e.insertAt)s?s.nextSibling?n.insertBefore(t,s.nextSibling):n.appendChild(t):n.insertBefore(t,n.firstChild),C.push(t);else{if("bottom"!==e.insertAt)throw new Error("Invalid value for parameter 'insertAt'. Must be 'top' or 'bottom'.");n.appendChild(t)}}function r(e){e.parentNode.removeChild(e);var t=C.indexOf(e);t>=0&&C.splice(t,1)}function o(e){var t=document.createElement("style");return t.type="text/css",i(e,t),t}function l(e,t){var n,s,a;if(t.singleton){var i=v++;n=h||(h=o(t)),s=u.bind(null,n,i,!1),a=u.bind(null,n,i,!0)}else n=o(t),s=d.bind(null,n),a=function(){r(n)};return s(e),function(t){if(t){if(t.css===e.css&&t.media===e.media&&t.sourceMap===e.sourceMap)return;s(e=t)}else a()}}function u(e,t,n,s){var a=n?"":s.css;if(e.styleSheet)e.styleSheet.cssText=b(t,a);else{var i=document.createTextNode(a),r=e.childNodes;r[t]&&e.removeChild(r[t]),r.length?e.insertBefore(i,r[t]):e.appendChild(i)}}function d(e,t){var n=t.css,s=t.media,a=t.sourceMap;if(s&&e.setAttribute("media",s),a&&(n+="\n/*# sourceURL="+a.sources[0]+" */",n+="\n/*# sourceMappingURL=data:application/json;base64,"+btoa(unescape(encodeURIComponent(JSON.stringify(a))))+" */"),e.styleSheet)e.styleSheet.cssText=n;else{for(;e.firstChild;)e.removeChild(e.firstChild);e.appendChild(document.createTextNode(n))}}var c={},p=function(e){var t;return function(){return"undefined"==typeof t&&(t=e.apply(this,arguments)),t}},f=p(function(){return/msie [6-9]\b/.test(window.navigator.userAgent.toLowerCase())}),g=p(function(){return document.head||document.getElementsByTagName("head")[0]}),h=null,v=0,C=[];e.exports=function(e,t){t=t||{},"undefined"==typeof t.singleton&&(t.singleton=f()),"undefined"==typeof t.insertAt&&(t.insertAt="bottom");var n=a(e);return s(n,t),function(e){for(var i=[],r=0;r<n.length;r++){var o=n[r],l=c[o.id];l.refs--,i.push(l)}if(e){var u=a(e);s(u,t)}for(var r=0;r<i.length;r++){var l=i[r];if(0===l.refs){for(var d=0;d<l.parts.length;d++)l.parts[d]();delete c[l.id]}}}};var b=function(){var e=[];return function(t,n){return e[t]=n,e.filter(Boolean).join("\n")}}()},function(e,t){e.exports=function(e,t,n,s){var a,i=e=e||{},r=typeof e.default;"object"!==r&&"function"!==r||(a=e,i=e.default);var o="function"==typeof i?i.options:i;if(t&&(o.render=t.render,o.staticRenderFns=t.staticRenderFns),n&&(o._scopeId=n),s){var l=o.computed||(o.computed={});Object.keys(s).forEach(function(e){var t=s[e];l[e]=function(){return t}})}return{esModule:a,exports:i,options:o}}},function(e,t){"use strict";Object.defineProperty(t,"__esModule",{value:!0}),t.default={props:{value:{type:Number},pageCount:{type:Number,required:!0},forcePage:{type:Number},clickHandler:{type:Function,default:function(){}},pageRange:{type:Number,default:3},marginPages:{type:Number,default:1},prevText:{type:String,default:"Prev"},nextText:{type:String,default:"Next"},breakViewText:{type:String,default:"…"},containerClass:{type:String},pageClass:{type:String},pageLinkClass:{type:String},prevClass:{type:String},prevLinkClass:{type:String},nextClass:{type:String},nextLinkClass:{type:String},breakViewClass:{type:String},breakViewLinkClass:{type:String},activeClass:{type:String,default:"active"},disabledClass:{type:String,default:"disabled"},noLiSurround:{type:Boolean,default:!1},firstLastButton:{type:Boolean,default:!1},firstButtonText:{type:String,default:"First"},lastButtonText:{type:String,default:"Last"},hidePrevNext:{type:Boolean,default:!1}},beforeUpdate:function(){void 0!==this.forcePage&&this.forcePage!==this.selected&&(this.selected=this.forcePage)},computed:{selected:{get:function(){return this.value||this.innerValue},set:function(e){this.innerValue=e}},pages:function(){var e=this,t={};if(this.pageCount<=this.pageRange)for(var n=0;n<this.pageCount;n++){var s={index:n,content:n+1,selected:n===this.selected-1};t[n]=s}else{for(var a=Math.floor(this.pageRange/2),i=function(n){var s={index:n,content:n+1,selected:n===e.selected-1};t[n]=s},r=function(e){var n={disabled:!0,breakView:!0};t[e]=n},o=0;o<this.marginPages;o++)i(o);var l=0;this.selected-a>0&&(l=this.selected-1-a);var u=l+this.pageRange-1;u>=this.pageCount&&(u=this.pageCount-1,l=u-this.pageRange+1);for(var d=l;d<=u&&d<=this.pageCount-1;d++)i(d);l>this.marginPages&&r(l-1),u+1<this.pageCount-this.marginPages&&r(u+1);for(var c=this.pageCount-1;c>=this.pageCount-this.marginPages;c--)i(c)}return t}},data:function(){return{innerValue:1}},methods:{handlePageSelected:function(e){this.selected!==e&&(this.innerValue=e,this.$emit("input",e),this.clickHandler(e))},prevPage:function(){this.selected<=1||this.handlePageSelected(this.selected-1)},nextPage:function(){this.selected>=this.pageCount||this.handlePageSelected(this.selected+1)},firstPageSelected:function(){return 1===this.selected},lastPageSelected:function(){return this.selected===this.pageCount||0===this.pageCount},selectFirstPage:function(){this.selected<=1||this.handlePageSelected(1)},selectLastPage:function(){this.selected>=this.pageCount||this.handlePageSelected(this.pageCount)}}}},function(e,t){e.exports={render:function(){var e=this,t=e.$createElement,n=e._self._c||t;return e.noLiSurround?n("div",{class:e.containerClass},[e.firstLastButton?n("a",{class:[e.pageLinkClass,e.firstPageSelected()?e.disabledClass:""],attrs:{tabindex:"0"},domProps:{innerHTML:e._s(e.firstButtonText)},on:{click:function(t){e.selectFirstPage()},keyup:function(t){return"button"in t||!e._k(t.keyCode,"enter",13)?void e.selectFirstPage():null}}}):e._e(),e._v(" "),e.firstPageSelected()&&e.hidePrevNext?e._e():n("a",{class:[e.prevLinkClass,e.firstPageSelected()?e.disabledClass:""],attrs:{tabindex:"0"},domProps:{innerHTML:e._s(e.prevText)},on:{click:function(t){e.prevPage()},keyup:function(t){return"button"in t||!e._k(t.keyCode,"enter",13)?void e.prevPage():null}}}),e._v(" "),e._l(e.pages,function(t){return[t.breakView?n("a",{class:[e.pageLinkClass,e.breakViewLinkClass,t.disabled?e.disabledClass:""],attrs:{tabindex:"0"}},[e._t("breakViewContent",[e._v(e._s(e.breakViewText))])],2):t.disabled?n("a",{class:[e.pageLinkClass,t.selected?e.activeClass:"",e.disabledClass],attrs:{tabindex:"0"}},[e._v(e._s(t.content))]):n("a",{class:[e.pageLinkClass,t.selected?e.activeClass:""],attrs:{tabindex:"0"},on:{click:function(n){e.handlePageSelected(t.index+1)},keyup:function(n){return"button"in n||!e._k(n.keyCode,"enter",13)?void e.handlePageSelected(t.index+1):null}}},[e._v(e._s(t.content))])]}),e._v(" "),e.lastPageSelected()&&e.hidePrevNext?e._e():n("a",{class:[e.nextLinkClass,e.lastPageSelected()?e.disabledClass:""],attrs:{tabindex:"0"},domProps:{innerHTML:e._s(e.nextText)},on:{click:function(t){e.nextPage()},keyup:function(t){return"button"in t||!e._k(t.keyCode,"enter",13)?void e.nextPage():null}}}),e._v(" "),e.firstLastButton?n("a",{class:[e.pageLinkClass,e.lastPageSelected()?e.disabledClass:""],attrs:{tabindex:"0"},domProps:{innerHTML:e._s(e.lastButtonText)},on:{click:function(t){e.selectLastPage()},keyup:function(t){return"button"in t||!e._k(t.keyCode,"enter",13)?void e.selectLastPage():null}}}):e._e()],2):n("ul",{class:e.containerClass},[e.firstLastButton?n("li",{class:[e.pageClass,e.firstPageSelected()?e.disabledClass:""]},[n("a",{class:e.pageLinkClass,attrs:{tabindex:e.firstPageSelected()?-1:0},domProps:{innerHTML:e._s(e.firstButtonText)},on:{click:function(t){e.selectFirstPage()},keyup:function(t){return"button"in t||!e._k(t.keyCode,"enter",13)?void e.selectFirstPage():null}}})]):e._e(),e._v(" "),e.firstPageSelected()&&e.hidePrevNext?e._e():n("li",{class:[e.prevClass,e.firstPageSelected()?e.disabledClass:""]},[n("a",{class:e.prevLinkClass,attrs:{tabindex:e.firstPageSelected()?-1:0},domProps:{innerHTML:e._s(e.prevText)},on:{click:function(t){e.prevPage()},keyup:function(t){return"button"in t||!e._k(t.keyCode,"enter",13)?void e.prevPage():null}}})]),e._v(" "),e._l(e.pages,function(t){return n("li",{class:[e.pageClass,t.selected?e.activeClass:"",t.disabled?e.disabledClass:"",t.breakView?e.breakViewClass:""]},[t.breakView?n("a",{class:[e.pageLinkClass,e.breakViewLinkClass],attrs:{tabindex:"0"}},[e._t("breakViewContent",[e._v(e._s(e.breakViewText))])],2):t.disabled?n("a",{class:e.pageLinkClass,attrs:{tabindex:"0"}},[e._v(e._s(t.content))]):n("a",{class:e.pageLinkClass,attrs:{tabindex:"0"},on:{click:function(n){e.handlePageSelected(t.index+1)},keyup:function(n){return"button"in n||!e._k(n.keyCode,"enter",13)?void e.handlePageSelected(t.index+1):null}}},[e._v(e._s(t.content))])])}),e._v(" "),e.lastPageSelected()&&e.hidePrevNext?e._e():n("li",{class:[e.nextClass,e.lastPageSelected()?e.disabledClass:""]},[n("a",{class:e.nextLinkClass,attrs:{tabindex:e.lastPageSelected()?-1:0},domProps:{innerHTML:e._s(e.nextText)},on:{click:function(t){e.nextPage()},keyup:function(t){return"button"in t||!e._k(t.keyCode,"enter",13)?void e.nextPage():null}}})]),e._v(" "),e.firstLastButton?n("li",{class:[e.pageClass,e.lastPageSelected()?e.disabledClass:""]},[n("a",{class:e.pageLinkClass,attrs:{tabindex:e.lastPageSelected()?-1:0},domProps:{innerHTML:e._s(e.lastButtonText)},on:{click:function(t){e.selectLastPage()},keyup:function(t){return"button"in t||!e._k(t.keyCode,"enter",13)?void e.selectLastPage():null}}})]):e._e()],2)},staticRenderFns:[]}}])});
-
-/***/ }),
-/* 37 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "toCalendarDate", function() { return toCalendarDate; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getStoredSendTime", function() { return getStoredSendTime; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getScheduleFields", function() { return getScheduleFields; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getScheduledTimestamp", function() { return getScheduledTimestamp; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "calendarDate", function() { return calendarDate; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "formatDate", function() { return formatDate; });
-/* eslint-disable no-extend-native */
-
-// Adds support for Date.prototype.setTimezoneOffset
-// https://stackoverflow.com/questions/22724898/settimezoneoffset-globally-for-whole-script/40518781
-Date.prototype.timezoneOffset = new Date().getTimezoneOffset();
-Date.setTimezoneOffset = function (timezoneOffset) {
-  this.prototype.timezoneOffset = timezoneOffset;
-  return this;
-};
-Date.getTimezoneOffset = function () {
-  return this.prototype.timezoneOffset;
-};
-Date.prototype.setTimezoneOffset = function (timezoneOffset) {
-  this.timezoneOffset = timezoneOffset;
-  return this;
-};
-Date.prototype.getTimezoneOffset = function () {
-  return this.timezoneOffset;
-};
-Date.prototype.toString = function () {
-  var offsetDate;
-  var offsetTime;
-  offsetTime = this.timezoneOffset * 60 * 1000;
-  offsetDate = new Date(this.getTime() - offsetTime);
-  return offsetDate.toUTCString();
-};
-['Milliseconds', 'Seconds', 'Minutes', 'Hours', 'Date', 'Month', 'FullYear', 'Year', 'Day'].forEach(function () {
-  return function (key) {
-    Date.prototype['get' + key] = function () {
-      var offsetDate;
-      var offsetTime;
-      offsetTime = this.timezoneOffset * 60 * 1000;
-      offsetDate = new Date(this.getTime() - offsetTime);
-      return offsetDate['getUTC' + key]();
-    };
-    Date.prototype['set' + key] = function (value) {
-      var offsetDate;
-      var offsetTime;
-      var time;
-      offsetTime = this.timezoneOffset * 60 * 1000;
-      offsetDate = new Date(this.getTime() - offsetTime);
-      offsetDate['setUTC' + key](value);
-      time = offsetDate.getTime() + offsetTime;
-      this.setTime(time);
-      return time;
-    };
-    return this;
-  };
-}(undefined));
-
-/**
- * Builds a Date whose getFullYear/getMonth/getDate read the given calendar day at 00:00.
- * Uses setters only so the result is correct under the Date.prototype patch above,
- * which reads with the offset captured at page load rather than the target date's offset.
- * @param {Number} year - Full year, e.g. 2027
- * @param {Number} month - Zero-based month
- * @param {Number} day - Day of the month
- * @returns {Date} Date for the calendar day
- */
-function toCalendarDate(year, month, day) {
-  var date = new Date();
-
-  // Move to the 1st first so the month change can't overflow (e.g. Jan 31 to Feb)
-  date.setDate(1);
-  date.setFullYear(year);
-  date.setMonth(month);
-  date.setDate(day);
-  date.setHours(0);
-  date.setMinutes(0);
-  date.setSeconds(0);
-  date.setMilliseconds(0);
-  return date;
-}
-
-/**
- * Finds the send time stored on a notification.
- * @param {Object} notification - Notification as returned by the API
- * @returns {Number|null} UNIX timestamp in seconds, or null if there isn't a usable one
- */
-function getStoredSendTime(notification) {
-  // Always a number, because the API reads a string as a date.
-  // Missing and empty values become NaN or 0.
-  var scheduledAt = moment.unix(_.get(notification, 'data._metadata.scheduledAt')).unix();
-  if (scheduledAt > 0) {
-    return scheduledAt;
-  }
-
-  // orderAt is the creation time of a draft and the sent time of a published notification
-  if (_.get(notification, 'status') !== 'scheduled') {
-    return null;
-  }
-  var orderAt = moment(_.get(notification, 'orderAt'), moment.ISO_8601);
-
-  // The API sends notifications with a past send time immediately
-  return orderAt.isAfter(moment()) ? orderAt.unix() : null;
-}
-
-/**
- * Reads a send time into the values shown on the schedule step.
- * @param {Number|null} sendTime - UNIX timestamp in seconds, or null to use the default
- * @param {String} timezone - Timezone the notification is scheduled in
- * @returns {Object} Calendar date, hour and minute in the given timezone
- */
-function getScheduleFields(sendTime, timezone) {
-  // Same default as a new notification. The current time would be in the past
-  // by the time the user saves, and the API sends those immediately.
-  var date = sendTime === null ? moment.utc().add(2, 'hours') : moment.unix(sendTime);
-  date.tz(timezone);
-  return {
-    date: toCalendarDate(date.year(), date.month(), date.date()),
-    hour: date.get('hour'),
-    minute: date.get('minute')
-  };
-}
-function isSameDay(a, b) {
-  return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
-}
-
-/**
- * Converts the values picked on the schedule step back to a send time.
- * @param {Object} fields - Calendar date, hour and minute
- * @param {String} timezone - Timezone the values are in
- * @param {Object|null} loaded - Stored send time the form opened with, and the fields and timezone read from it
- * @returns {Number} UNIX timestamp in seconds
- */
-function getScheduledTimestamp(fields, timezone, loaded) {
-  // The fields can't hold seconds, or tell apart an hour that repeats when the clocks go back,
-  // so a send time that wasn't changed is returned as it was stored
-  if (loaded && loaded.timezone === timezone && loaded.fields.hour === fields.hour && loaded.fields.minute === fields.minute && isSameDay(loaded.fields.date, fields.date)) {
-    return loaded.sendTime;
-  }
-  return moment.tz([fields.date.getFullYear(), fields.date.getMonth(), fields.date.getDate(), fields.hour, fields.minute], timezone).utc().unix();
-}
-function calendarDate(value) {
-  return moment(value).calendar(null, {
-    sameDay: '[Today at] h:mm A',
-    nextDay: '[Tomorrow at ] h:mm A',
-    nextWeek: 'dddd [at] h:mm A',
-    lastDay: '[Yesterday at] h:mm A',
-    lastWeek: '[Last] dddd [at] h:mm A',
-    sameElse: 'MMMM Do YYYY'
-  });
-}
-function formatDate(value, timezone) {
-  // @param value (Moment | Date | Number | String) Number would be a UNIX timestamp in seconds
-  var date;
-  if (value instanceof moment) {
-    date = value;
-  } else if (value instanceof Date) {
-    date = moment(value);
-  } else if (typeof value === 'number' || parseFloat(value).toString() === value) {
-    date = moment.utc(moment.unix(value));
-  } else {
-    date = moment(value);
-  }
-  if (!date.isValid()) {
-    // Invalid date. Using current time as fallback.
-    date = moment.utc();
-  }
-  if (timezone) {
-    try {
-      date.tz(timezone);
-    } catch (e) {
-      date.tz('UTC');
-    }
-  }
-  return date.format('MMM D YYYY, h:mm A');
-}
 
 /***/ }),
 /* 38 */
@@ -2310,7 +2332,6 @@ function getOffset(timezone, date) {
   if (!(date instanceof Date)) {
     date = new Date();
   }
-  date.setHours(12);
   if (!zone) {
     // Timezone name invalid
     // Default to UTC time
@@ -2340,7 +2361,7 @@ function getOffsetObject(timezone, date) {
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _NotificationForm_vue_vue_type_template_id_fbe03602__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(40);
 /* harmony import */ var _NotificationForm_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(42);
-/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(18);
+/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(19);
 
 
 
@@ -3197,11 +3218,11 @@ __webpack_require__.r(__webpack_exports__);
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _store__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(16);
-/* harmony import */ var _libs_bus__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(25);
+/* harmony import */ var _libs_bus__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(26);
 /* harmony import */ var _libs_scope__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(44);
-/* harmony import */ var _libs_date__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(37);
+/* harmony import */ var _libs_date__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(18);
 /* harmony import */ var _libs_timezones__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(38);
-/* harmony import */ var _Tooltip__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(26);
+/* harmony import */ var _Tooltip__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(27);
 /* harmony import */ var _FilterValue__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(45);
 /* harmony import */ var _Timepicker__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(55);
 /* harmony import */ var _TokenField__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(50);
@@ -4137,7 +4158,7 @@ function getFilterVerbose(filter) {
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _FilterValue_vue_vue_type_template_id_50266a59__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(46);
 /* harmony import */ var _FilterValue_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(48);
-/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(18);
+/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(19);
 
 
 
@@ -4264,7 +4285,7 @@ __webpack_require__.r(__webpack_exports__);
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _TokenField_vue_vue_type_template_id_285f3c31__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(51);
 /* harmony import */ var _TokenField_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(53);
-/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(18);
+/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(19);
 
 
 
@@ -4415,7 +4436,7 @@ __webpack_require__.r(__webpack_exports__);
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Timepicker_vue_vue_type_template_id_dcdfbb6a__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(56);
 /* harmony import */ var _Timepicker_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(58);
-/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(18);
+/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(19);
 
 
 
@@ -4693,6 +4714,9 @@ __webpack_require__.r(__webpack_exports__);
   computed: {
     adjustedTimezones: function adjustedTimezones() {
       var _this = this;
+      // Changes the form's own date on purpose. The datepicker builds its days at this hour, and at
+      // midnight it shows the wrong days for months on the other side of a clock change.
+      this.date.setHours(12);
       return _.orderBy(_.map(this.timezones, function (timezone) {
         var offset = Object(_libs_timezones__WEBPACK_IMPORTED_MODULE_0__["getOffsetObject"])(timezone.value, _this.date);
         return _.extend(_.clone(timezone), {
@@ -7182,8 +7206,8 @@ __vue_render__$4._withStripped = true;
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _libs_date__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(37);
-/* harmony import */ var _libs_string__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(24);
+/* harmony import */ var _libs_date__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(18);
+/* harmony import */ var _libs_string__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(25);
 
 
 Vue.filter('calendarDate', _libs_date__WEBPACK_IMPORTED_MODULE_0__["calendarDate"]);

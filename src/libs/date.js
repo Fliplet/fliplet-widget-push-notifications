@@ -90,19 +90,11 @@ export function toCalendarDate(year, month, day) {
 }
 
 /**
- * Finds the send time stored on a notification.
+ * Finds the future orderAt of a scheduled notification.
  * @param {Object} notification - Notification as returned by the API
- * @returns {Number|null} UNIX timestamp in seconds, or null if there isn't a usable one
+ * @returns {Number|null} UNIX timestamp in seconds, or null if it isn't scheduled for the future
  */
-export function getStoredSendTime(notification) {
-  // Always a number, because the API reads a string as a date.
-  // Missing and empty values become NaN or 0.
-  const scheduledAt = moment.unix(_.get(notification, 'data._metadata.scheduledAt')).unix();
-
-  if (scheduledAt > 0) {
-    return scheduledAt;
-  }
-
+export function getScheduledOrderAt(notification) {
   // orderAt is the creation time of a draft and the sent time of a published notification
   if (_.get(notification, 'status') !== 'scheduled') {
     return null;
@@ -112,6 +104,26 @@ export function getStoredSendTime(notification) {
 
   // The API sends notifications with a past send time immediately
   return orderAt.isAfter(moment()) ? orderAt.unix() : null;
+}
+
+/**
+ * Finds the send time stored on a notification.
+ * @param {Object} notification - Notification as returned by the API
+ * @returns {Number|null} UNIX timestamp in seconds, or null if there isn't a usable one
+ */
+export function getStoredSendTime(notification) {
+  const orderAt = getScheduledOrderAt(notification);
+
+  // Rescheduling through the API changes orderAt but not the metadata
+  if (orderAt !== null) {
+    return orderAt;
+  }
+
+  // Always a number, because the API reads a string as a date.
+  // Missing and empty values become NaN or 0.
+  const scheduledAt = moment.unix(_.get(notification, 'data._metadata.scheduledAt')).unix();
+
+  return scheduledAt > 0 ? scheduledAt : null;
 }
 
 /**

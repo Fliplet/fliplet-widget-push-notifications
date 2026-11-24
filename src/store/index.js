@@ -1,4 +1,5 @@
 import Cookies from 'js-cookie';
+import { getScheduledOrderAt } from '../libs/date';
 
 const COOKIE = {
   showTimezone: '_show_timezone'
@@ -54,7 +55,15 @@ export function setView(view) {
 }
 
 export function setNotification(notification) {
-  state.notification = _.defaultsDeep({}, notification, getDefaultNotification());
+  const stored = _.defaultsDeep({}, notification);
+  const schedule = _.get(stored, 'data._metadata.schedule');
+
+  // Notifications scheduled through the API may not have a schedule, and the defaults would set it to 'now'
+  if (['now', 'scheduled'].indexOf(schedule) === -1 && getScheduledOrderAt(stored) !== null) {
+    _.set(stored, 'data._metadata.schedule', 'scheduled');
+  }
+
+  state.notification = _.defaultsDeep(stored, getDefaultNotification());
 }
 
 export function getNotification() {

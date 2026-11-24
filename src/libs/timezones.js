@@ -367,8 +367,6 @@ export function getOffset(timezone, date) {
     date = new Date();
   }
 
-  date.setHours(12);
-
   if (!zone) {
     // Timezone name invalid
     // Default to UTC time
