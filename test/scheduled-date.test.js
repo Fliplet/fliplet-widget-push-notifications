@@ -1,6 +1,6 @@
 /**
- * Guards the date the schedule step loads when a scheduled notification is
- * copied or edited (src/components/NotificationForm.vue). See PS-2188.
+ * Guards the send time the schedule step loads and saves when a scheduled notification
+ * is copied or edited (src/components/NotificationForm.vue). See PS-2188.
  *
  * Runs the form's own mounted() and scheduledAt, not a copy of them, so undoing
  * the fix in the component or in src/libs/date.js fails here.
@@ -72,6 +72,9 @@ function loadForm(dateLib) {
   };
 
   global._ = {
+    debounce: function(fn) {
+      return fn;
+    },
     get: function(object, keys, fallback) {
       const value = keys.split('.').reduce(function(current, key) {
         return current === undefined || current === null ? undefined : current[key];
@@ -89,7 +92,9 @@ function loadForm(dateLib) {
     Notifications: { init: function() {} },
     Apps: { get: function() {
       return new Promise(function() {});
-    } }
+    } },
+    Env: { get: function() {} },
+    Widget: { getData: function() {} }
   };
 
   vm.runInThisContext(
@@ -101,15 +106,26 @@ function loadForm(dateLib) {
 }
 
 // Opens a notification in the form, as copy and edit do, and returns the form state.
-function openInForm(form, metadata) {
+function openInForm(form, item) {
   const noop = function() {};
-  const state = {
+  const notification = { data: { _metadata: item.metadata } };
+
+  ['status', 'orderAt'].forEach(function(key) {
+    if (key in item) {
+      notification[key] = item[key];
+    }
+  });
+
+  const state = Object.assign(form.data.call({ getMatches: noop }), {
     schedule: 'scheduled',
-    notification: { data: { _metadata: metadata } },
+    notification: notification,
     getAsset: noop,
     getMatches: noop,
     initializeProviders: noop
-  };
+  });
+
+  // Vue doesn't track properties that data() doesn't declare, so mounted() can't add any
+  Object.seal(state);
 
   form.mounted.call(state);
 
@@ -133,32 +149,82 @@ function runChild() {
     ].join('-');
   };
 
+  const save = function(state) {
+    return form.computed.scheduledAt.call(state);
+  };
+
+  const openEdited = function() {
+    return openInForm(form, {
+      metadata: { scheduledAt: input.edited.scheduledAt, scheduledAtTimezone: input.edited.timezone }
+    });
+  };
+
+  // A date as the datepicker emits it: a new object, with any time of day
+  const pickDate = function(day, hour, minute) {
+    const date = dateLib.toCalendarDate(day[0], day[1], day[2]);
+
+    date.setHours(hour);
+    date.setMinutes(minute);
+
+    return date;
+  };
+
   const cases = input.cases.map(function(item) {
     const state = openInForm(form, {
-      scheduledAt: item.scheduledAt,
-      scheduledAtTimezone: item.timezone
+      metadata: { scheduledAt: item.scheduledAt, scheduledAtTimezone: item.timezone }
     });
 
-    return {
-      read: read(state.scheduledAtDate),
-      scheduledAt: form.computed.scheduledAt.call(state)
-    };
+    return { read: read(state.scheduledAtDate), scheduledAt: save(state) };
   });
 
-  // Scheduled, but with no usable send time stored. Errors are reported per value so
-  // that a crash here doesn't hide the date results.
-  const missing = input.missing.map(function(item) {
-    const metadata = Object.assign({ scheduledAtTimezone: 'Asia/Tokyo' }, item);
+  // Errors are reported per notification so that a crash here doesn't hide the date results
+  const saved = input.saved.map(function(item) {
     const before = moment().unix();
 
     try {
-      const scheduledAt = form.computed.scheduledAt.call(openInForm(form, metadata));
-
-      return { scheduledAt: scheduledAt, before: before, after: moment().unix() };
+      return { scheduledAt: save(openInForm(form, item)), before: before, after: moment().unix() };
     } catch (error) {
       return { error: error.message };
     }
   });
+
+  // Saved after changing the given fields, and again after changing them back
+  const edits = input.edits.map(function(item) {
+    const state = openEdited();
+    const loaded = Object.assign({}, state);
+
+    Object.assign(state, item.fields);
+
+    if (item.day) {
+      state.scheduledAtDate = pickDate(item.day, 0, 0);
+    }
+
+    const changed = save(state);
+
+    Object.keys(item.fields || {}).forEach(function(key) {
+      state[key] = loaded[key];
+    });
+
+    if (item.day) {
+      state.scheduledAtDate = pickDate(input.edited.day, 0, 0);
+    }
+
+    return { changed: changed, changedBack: save(state) };
+  });
+
+  const repicked = input.repicked.map(function(time) {
+    const state = openEdited();
+
+    state.scheduledAtDate = pickDate(input.edited.day, time[0], time[1]);
+
+    return save(state);
+  });
+
+  // The timepicker sets the hour on the form's own date object (src/libs/timezones.js)
+  const mutated = openEdited();
+
+  mutated.scheduledAtDate.setHours(12);
+  repicked.push(save(mutated));
 
   // Pretend "now" is Jan 31 so a naive setMonth(1) would overflow into March.
   const NativeDate = Date;
@@ -181,7 +247,13 @@ function runChild() {
 
   global.Date = NativeDate;
 
-  process.stdout.write(JSON.stringify({ cases: cases, overflow: overflow, missing: missing }));
+  process.stdout.write(JSON.stringify({
+    cases: cases,
+    saved: saved,
+    edits: edits,
+    repicked: repicked,
+    overflow: overflow
+  }));
 }
 
 if (process.argv.includes(CHILD_FLAG)) {
@@ -214,8 +286,80 @@ function defineTests() {
   // [year, zero-based month, day] built while "now" is Jan 31
   const OVERFLOW = [[2027, 1, 28], [2028, 1, 29], [2027, 3, 30]];
 
-  // Stored metadata with no usable send time
-  const MISSING = [{}, { scheduledAt: null }, { scheduledAt: 0 }, { scheduledAt: '' }, { scheduledAt: 'invalid' }];
+  // Values of data._metadata.scheduledAt that aren't a usable send time
+  const UNUSABLE = [undefined, null, 0, '', 'invalid', '0', '-1800000000', -1800000000, []];
+
+  const now = moment();
+  const FUTURE = now.clone().add(30, 'days').seconds(37).milliseconds(0);
+  const YESTERDAY = now.clone().subtract(1, 'day').milliseconds(0);
+
+  // Notifications without a usable scheduledAt. Each is saved with every UNUSABLE value.
+  const FALLBACKS = [
+    { name: 'scheduled, future orderAt', status: 'scheduled', orderAt: FUTURE.toISOString(), expected: FUTURE.unix() },
+    { name: 'scheduled, past orderAt', status: 'scheduled', orderAt: YESTERDAY.toISOString() },
+    { name: 'scheduled, no orderAt', status: 'scheduled' },
+    { name: 'scheduled, null orderAt', status: 'scheduled', orderAt: null },
+    { name: 'scheduled, invalid orderAt', status: 'scheduled', orderAt: 'invalid' },
+    { name: 'draft, past orderAt', status: 'draft', orderAt: YESTERDAY.toISOString() },
+    { name: 'draft, future orderAt', status: 'draft', orderAt: FUTURE.toISOString() },
+    { name: 'draft, no orderAt', status: 'draft' },
+    { name: 'published, past orderAt', status: 'published', orderAt: YESTERDAY.toISOString() },
+    { name: 'published, future orderAt', status: 'published', orderAt: FUTURE.toISOString() },
+    { name: 'no status, no orderAt' },
+    { name: 'no status, future orderAt', orderAt: FUTURE.toISOString() }
+  ];
+
+  // Usable scheduledAt values. The saved value must be a whole number, because the API
+  // parses a string orderAt as a date. orderAt must not be used for these.
+  const STORED = moment.tz('2027-07-15 23:30:37', 'YYYY-MM-DD HH:mm:ss', 'America/Chicago').unix();
+  const PAST = moment.tz('2026-01-15 09:30', 'YYYY-MM-DD HH:mm', 'America/Chicago').unix();
+
+  const USABLE = [
+    { name: 'a time with seconds', scheduledAt: STORED, expected: STORED },
+    { name: 'a numeric string', scheduledAt: String(STORED), expected: STORED },
+    { name: 'a fraction of a second', scheduledAt: STORED + 0.5, expected: STORED },
+    { name: 'a time in the past', scheduledAt: PAST, expected: PAST }
+  ];
+
+  const usable = USABLE.map(function(item) {
+    return Object.assign({
+      status: 'scheduled',
+      orderAt: FUTURE.toISOString(),
+      metadata: { scheduledAt: item.scheduledAt, scheduledAtTimezone: 'America/Chicago' }
+    }, item);
+  });
+
+  const fallbacks = [];
+
+  FALLBACKS.forEach(function(item) {
+    UNUSABLE.forEach(function(scheduledAt) {
+      fallbacks.push(Object.assign({}, item, {
+        name: 'scheduledAt ' + JSON.stringify(scheduledAt) + ', ' + item.name,
+        metadata: { scheduledAt: scheduledAt, scheduledAtTimezone: 'Asia/Tokyo' }
+      }));
+    });
+  });
+
+  // Edits to a notification stored for 15 July 2027 23:30:37 in Chicago
+  const EDITED = { scheduledAt: STORED, timezone: 'America/Chicago', day: [2027, 6, 15] };
+
+  const EDITS = [
+    { name: 'hour', fields: { scheduledAtHour: 22 }, expected: ['2027-07-15 22:30', 'America/Chicago'] },
+    { name: 'minute', fields: { scheduledAtMinute: 31 }, expected: ['2027-07-15 23:31', 'America/Chicago'] },
+    { name: 'timezone', fields: { scheduledAtTimezone: 'Asia/Tokyo' }, expected: ['2027-07-15 23:30', 'Asia/Tokyo'] },
+    { name: 'day', day: [2027, 6, 16], expected: ['2027-07-16 23:30', 'America/Chicago'] },
+    { name: 'month', day: [2027, 7, 15], expected: ['2027-08-15 23:30', 'America/Chicago'] },
+    { name: 'year', day: [2028, 6, 15], expected: ['2028-07-15 23:30', 'America/Chicago'] }
+  ];
+
+  // [hour, minute] of a new date object for the same day
+  const REPICKED = [[0, 0], [15, 45], [23, 59]];
+
+  // 01:30 happens twice on these days. Both times must be kept.
+  const REPEATED_HOURS = [
+    { timezone: 'Europe/London', target: '2027-10-31 01:30', utc: ['2027-10-31T00:30:00Z', '2027-10-31T01:30:00Z'] },
+    { timezone: 'America/Chicago', target: '2027-11-07 01:30', utc: ['2027-11-07T06:30:00Z', '2027-11-07T07:30:00Z'] }
+  ];
 
   const cases = [];
 
@@ -232,7 +376,28 @@ function defineTests() {
     });
   });
 
+  REPEATED_HOURS.forEach(function(item) {
+    item.utc.forEach(function(utc) {
+      const stored = moment.tz(utc, item.timezone);
+
+      assert.strictEqual(stored.format('YYYY-MM-DD HH:mm'), item.target);
+
+      cases.push({
+        timezone: item.timezone,
+        target: utc,
+        scheduledAt: stored.unix(),
+        day: stored.format('YYYY-MM-DD')
+      });
+    });
+  });
+
+  const results = {};
+
   function runInTimezone(timezone) {
+    if (results[timezone]) {
+      return results[timezone];
+    }
+
     const env = Object.assign({}, process.env, { TZ: timezone });
 
     // Keep the child out of the test runner's reporting protocol
@@ -240,11 +405,20 @@ function defineTests() {
 
     const output = childProcess.execFileSync(process.execPath, [__filename, CHILD_FLAG], {
       env: env,
-      input: JSON.stringify({ cases: cases, overflow: OVERFLOW, missing: MISSING }),
+      input: JSON.stringify({
+        cases: cases,
+        saved: fallbacks.concat(usable),
+        edited: EDITED,
+        edits: EDITS,
+        repicked: REPICKED,
+        overflow: OVERFLOW
+      }),
       encoding: 'utf8'
     });
 
-    return JSON.parse(output);
+    results[timezone] = JSON.parse(output);
+
+    return results[timezone];
   }
 
   VIEWER_TIMEZONES.forEach(function(viewerTimezone) {
@@ -263,21 +437,67 @@ function defineTests() {
       t.diagnostic('checked ' + cases.length + ' stored dates');
     });
 
+    test('a missing send time keeps the orderAt of a scheduled notification, viewer in ' + viewerTimezone, function() {
+      const result = runInTimezone(viewerTimezone);
+
+      fallbacks.forEach(function(item, index) {
+        const actual = result.saved[index];
+
+        if (!item.expected) {
+          return;
+        }
+
+        assert.strictEqual(actual.error, undefined, 'form opens for ' + item.name);
+        assert.strictEqual(actual.scheduledAt, item.expected, 'send time is orderAt for ' + item.name);
+      });
+    });
+
     test('a missing send time defaults to two hours ahead for a viewer in ' + viewerTimezone, function() {
       const result = runInTimezone(viewerTimezone);
 
-      MISSING.forEach(function(metadata, index) {
-        const actual = result.missing[index];
-        const label = JSON.stringify(metadata);
+      fallbacks.forEach(function(item, index) {
+        const actual = result.saved[index];
 
-        assert.strictEqual(actual.error, undefined, 'form opens for ' + label);
+        if (item.expected) {
+          return;
+        }
+
+        assert.strictEqual(actual.error, undefined, 'form opens for ' + item.name);
 
         // Seconds are dropped because the form only holds hours and minutes
         assert.ok(actual.scheduledAt > actual.before + 2 * 3600 - 60,
-          'send time is not earlier than two hours ahead for ' + label);
+          'send time is not earlier than two hours ahead for ' + item.name);
         assert.ok(actual.scheduledAt <= actual.after + 2 * 3600,
-          'send time is not later than two hours ahead for ' + label);
+          'send time is not later than two hours ahead for ' + item.name);
       });
+    });
+
+    test('a usable send time is saved as the same whole number, viewer in ' + viewerTimezone, function() {
+      const result = runInTimezone(viewerTimezone);
+
+      usable.forEach(function(item, index) {
+        const actual = result.saved[fallbacks.length + index];
+
+        assert.strictEqual(actual.error, undefined, 'form opens for ' + item.name);
+        assert.strictEqual(actual.scheduledAt, item.expected, 'send time is kept for ' + item.name);
+      });
+    });
+
+    test('changing a field recalculates the send time, viewer in ' + viewerTimezone, function() {
+      const result = runInTimezone(viewerTimezone);
+
+      EDITS.forEach(function(item, index) {
+        const expected = moment.tz(item.expected[0], 'YYYY-MM-DD HH:mm', item.expected[1]).unix();
+
+        assert.strictEqual(result.edits[index].changed, expected, 'changing only the ' + item.name);
+        assert.strictEqual(result.edits[index].changedBack, STORED, 'changing the ' + item.name + ' back');
+      });
+    });
+
+    test('picking the same day again keeps the send time, viewer in ' + viewerTimezone, function() {
+      const result = runInTimezone(viewerTimezone);
+
+      assert.deepStrictEqual(result.repicked, [STORED, STORED, STORED, STORED]);
     });
 
     test('scheduled date does not overflow the month when today is the 31st, viewer in ' + viewerTimezone, function() {

@@ -253,7 +253,7 @@ import { getAssetRoot, getNotification, getNotificationLinkAction,
   getShowTimezone, getDefaultNotification, getAppPages } from '../store';
 import bus from '../libs/bus';
 import { filterTypes, getFilterScope, getFilterVerbose } from '../libs/scope';
-import { formatDate, getScheduleFields, getScheduledTimestamp } from '../libs/date';
+import { formatDate, getStoredSendTime, getScheduleFields, getScheduledTimestamp } from '../libs/date';
 import {
   validate as validateTimezone,
   getOffsetString as getTimezoneOffsetString
@@ -302,6 +302,7 @@ export default {
       scheduledAtHour: defaultScheduledAt.get('hour'),
       scheduledAtMinute: defaultScheduledAt.get('minute'),
       scheduledAtTimezone: validateTimezone(moment.tz.guess()),
+      loadedSchedule: null,
       disabledDates: {
         to: moment().subtract(1, 'days').toDate()
       },
@@ -359,11 +360,16 @@ export default {
     if (this.schedule === 'scheduled') {
       this.scheduledAtTimezone = validateTimezone(_.get(this.notification, 'data._metadata.scheduledAtTimezone'));
 
-      const fields = getScheduleFields(_.get(this.notification, 'data._metadata.scheduledAt'), this.scheduledAtTimezone);
+      const sendTime = getStoredSendTime(this.notification);
+      const fields = getScheduleFields(sendTime, this.scheduledAtTimezone);
 
       this.scheduledAtDate = fields.date;
       this.scheduledAtHour = fields.hour;
       this.scheduledAtMinute = fields.minute;
+
+      if (sendTime !== null) {
+        this.loadedSchedule = { sendTime, timezone: this.scheduledAtTimezone, fields };
+      }
     }
 
     Fliplet.Apps.get().then((apps) => {
@@ -463,7 +469,7 @@ export default {
         date: this.scheduledAtDate,
         hour: this.scheduledAtHour,
         minute: this.scheduledAtMinute
-      }, this.scheduledAtTimezone);
+      }, this.scheduledAtTimezone, this.loadedSchedule);
     },
     orderAt() {
       if (this.schedule === 'scheduled') {

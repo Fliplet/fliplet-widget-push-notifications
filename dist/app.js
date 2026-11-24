@@ -1849,6 +1849,7 @@ __webpack_require__.r(__webpack_exports__);
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "toCalendarDate", function() { return toCalendarDate; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getStoredSendTime", function() { return getStoredSendTime; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getScheduleFields", function() { return getScheduleFields; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getScheduledTimestamp", function() { return getScheduledTimestamp; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "calendarDate", function() { return calendarDate; });
@@ -1928,20 +1929,38 @@ function toCalendarDate(year, month, day) {
 }
 
 /**
- * Reads a stored send time into the values shown on the schedule step.
- * @param {Number} scheduledAt - UNIX timestamp in seconds
+ * Finds the send time stored on a notification.
+ * @param {Object} notification - Notification as returned by the API
+ * @returns {Number|null} UNIX timestamp in seconds, or null if there isn't a usable one
+ */
+function getStoredSendTime(notification) {
+  // Always a number, because the API reads a string as a date.
+  // Missing and empty values become NaN or 0.
+  var scheduledAt = moment.unix(_.get(notification, 'data._metadata.scheduledAt')).unix();
+  if (scheduledAt > 0) {
+    return scheduledAt;
+  }
+
+  // orderAt is the creation time of a draft and the sent time of a published notification
+  if (_.get(notification, 'status') !== 'scheduled') {
+    return null;
+  }
+  var orderAt = moment(_.get(notification, 'orderAt'), moment.ISO_8601);
+
+  // The API sends notifications with a past send time immediately
+  return orderAt.isAfter(moment()) ? orderAt.unix() : null;
+}
+
+/**
+ * Reads a send time into the values shown on the schedule step.
+ * @param {Number|null} sendTime - UNIX timestamp in seconds, or null to use the default
  * @param {String} timezone - Timezone the notification is scheduled in
  * @returns {Object} Calendar date, hour and minute in the given timezone
  */
-function getScheduleFields(scheduledAt, timezone) {
-  var date = moment.utc(moment.unix(scheduledAt));
-
-  // null, 0 and '' would be read as 1 January 1970
-  if (!scheduledAt || !date.isValid()) {
-    // Same default as a new notification. The current time would be in the past
-    // by the time the user saves, and the API sends those immediately.
-    date = moment.utc().add(2, 'hours');
-  }
+function getScheduleFields(sendTime, timezone) {
+  // Same default as a new notification. The current time would be in the past
+  // by the time the user saves, and the API sends those immediately.
+  var date = sendTime === null ? moment.utc().add(2, 'hours') : moment.unix(sendTime);
   date.tz(timezone);
   return {
     date: toCalendarDate(date.year(), date.month(), date.date()),
@@ -1949,14 +1968,23 @@ function getScheduleFields(scheduledAt, timezone) {
     minute: date.get('minute')
   };
 }
+function isSameDay(a, b) {
+  return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+}
 
 /**
  * Converts the values picked on the schedule step back to a send time.
  * @param {Object} fields - Calendar date, hour and minute
  * @param {String} timezone - Timezone the values are in
+ * @param {Object|null} loaded - Stored send time the form opened with, and the fields and timezone read from it
  * @returns {Number} UNIX timestamp in seconds
  */
-function getScheduledTimestamp(fields, timezone) {
+function getScheduledTimestamp(fields, timezone, loaded) {
+  // The fields can't hold seconds, or tell apart an hour that repeats when the clocks go back,
+  // so a send time that wasn't changed is returned as it was stored
+  if (loaded && loaded.timezone === timezone && loaded.fields.hour === fields.hour && loaded.fields.minute === fields.minute && isSameDay(loaded.fields.date, fields.date)) {
+    return loaded.sendTime;
+  }
   return moment.tz([fields.date.getFullYear(), fields.date.getMonth(), fields.date.getDate(), fields.hour, fields.minute], timezone).utc().unix();
 }
 function calendarDate(value) {
@@ -3228,6 +3256,7 @@ var defaultSendLabel = 'Send notification';
       scheduledAtHour: defaultScheduledAt.get('hour'),
       scheduledAtMinute: defaultScheduledAt.get('minute'),
       scheduledAtTimezone: Object(_libs_timezones__WEBPACK_IMPORTED_MODULE_4__["validate"])(moment.tz.guess()),
+      loadedSchedule: null,
       disabledDates: {
         to: moment().subtract(1, 'days').toDate()
       },
@@ -3279,10 +3308,18 @@ var defaultSendLabel = 'Send notification';
     this.initializeProviders();
     if (this.schedule === 'scheduled') {
       this.scheduledAtTimezone = Object(_libs_timezones__WEBPACK_IMPORTED_MODULE_4__["validate"])(_.get(this.notification, 'data._metadata.scheduledAtTimezone'));
-      var fields = Object(_libs_date__WEBPACK_IMPORTED_MODULE_3__["getScheduleFields"])(_.get(this.notification, 'data._metadata.scheduledAt'), this.scheduledAtTimezone);
+      var sendTime = Object(_libs_date__WEBPACK_IMPORTED_MODULE_3__["getStoredSendTime"])(this.notification);
+      var fields = Object(_libs_date__WEBPACK_IMPORTED_MODULE_3__["getScheduleFields"])(sendTime, this.scheduledAtTimezone);
       this.scheduledAtDate = fields.date;
       this.scheduledAtHour = fields.hour;
       this.scheduledAtMinute = fields.minute;
+      if (sendTime !== null) {
+        this.loadedSchedule = {
+          sendTime: sendTime,
+          timezone: this.scheduledAtTimezone,
+          fields: fields
+        };
+      }
     }
     Fliplet.Apps.get().then(function (apps) {
       var app = _.find(apps, {
@@ -3379,7 +3416,7 @@ var defaultSendLabel = 'Send notification';
         date: this.scheduledAtDate,
         hour: this.scheduledAtHour,
         minute: this.scheduledAtMinute
-      }, this.scheduledAtTimezone);
+      }, this.scheduledAtTimezone, this.loadedSchedule);
     },
     orderAt: function orderAt() {
       if (this.schedule === 'scheduled') {

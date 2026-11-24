@@ -90,20 +90,40 @@ export function toCalendarDate(year, month, day) {
 }
 
 /**
- * Reads a stored send time into the values shown on the schedule step.
- * @param {Number} scheduledAt - UNIX timestamp in seconds
+ * Finds the send time stored on a notification.
+ * @param {Object} notification - Notification as returned by the API
+ * @returns {Number|null} UNIX timestamp in seconds, or null if there isn't a usable one
+ */
+export function getStoredSendTime(notification) {
+  // Always a number, because the API reads a string as a date.
+  // Missing and empty values become NaN or 0.
+  const scheduledAt = moment.unix(_.get(notification, 'data._metadata.scheduledAt')).unix();
+
+  if (scheduledAt > 0) {
+    return scheduledAt;
+  }
+
+  // orderAt is the creation time of a draft and the sent time of a published notification
+  if (_.get(notification, 'status') !== 'scheduled') {
+    return null;
+  }
+
+  const orderAt = moment(_.get(notification, 'orderAt'), moment.ISO_8601);
+
+  // The API sends notifications with a past send time immediately
+  return orderAt.isAfter(moment()) ? orderAt.unix() : null;
+}
+
+/**
+ * Reads a send time into the values shown on the schedule step.
+ * @param {Number|null} sendTime - UNIX timestamp in seconds, or null to use the default
  * @param {String} timezone - Timezone the notification is scheduled in
  * @returns {Object} Calendar date, hour and minute in the given timezone
  */
-export function getScheduleFields(scheduledAt, timezone) {
-  let date = moment.utc(moment.unix(scheduledAt));
-
-  // null, 0 and '' would be read as 1 January 1970
-  if (!scheduledAt || !date.isValid()) {
-    // Same default as a new notification. The current time would be in the past
-    // by the time the user saves, and the API sends those immediately.
-    date = moment.utc().add(2, 'hours');
-  }
+export function getScheduleFields(sendTime, timezone) {
+  // Same default as a new notification. The current time would be in the past
+  // by the time the user saves, and the API sends those immediately.
+  const date = sendTime === null ? moment.utc().add(2, 'hours') : moment.unix(sendTime);
 
   date.tz(timezone);
 
@@ -114,13 +134,30 @@ export function getScheduleFields(scheduledAt, timezone) {
   };
 }
 
+function isSameDay(a, b) {
+  return a.getFullYear() === b.getFullYear()
+    && a.getMonth() === b.getMonth()
+    && a.getDate() === b.getDate();
+}
+
 /**
  * Converts the values picked on the schedule step back to a send time.
  * @param {Object} fields - Calendar date, hour and minute
  * @param {String} timezone - Timezone the values are in
+ * @param {Object|null} loaded - Stored send time the form opened with, and the fields and timezone read from it
  * @returns {Number} UNIX timestamp in seconds
  */
-export function getScheduledTimestamp(fields, timezone) {
+export function getScheduledTimestamp(fields, timezone, loaded) {
+  // The fields can't hold seconds, or tell apart an hour that repeats when the clocks go back,
+  // so a send time that wasn't changed is returned as it was stored
+  if (loaded
+    && loaded.timezone === timezone
+    && loaded.fields.hour === fields.hour
+    && loaded.fields.minute === fields.minute
+    && isSameDay(loaded.fields.date, fields.date)) {
+    return loaded.sendTime;
+  }
+
   return moment.tz([
     fields.date.getFullYear(),
     fields.date.getMonth(),
