@@ -26,34 +26,51 @@ const DATE_LIB = path.join(__dirname, '..', 'src', 'libs', 'date.js');
 const FORM = path.join(__dirname, '..', 'src', 'components', 'NotificationForm.vue');
 const CHILD_FLAG = '--scheduled-date-child';
 
-// Applies src/libs/date.js to this process, as the bundle does in the browser.
+// Applies src/libs/date.js to this process, as the bundle does in the browser, and
+// returns only what it exports.
 function loadDateLib() {
-  const source = fs.readFileSync(DATE_LIB, 'utf8').replace(/^export\s+/gm, '');
+  const source = fs.readFileSync(DATE_LIB, 'utf8');
+  const names = Array.from(source.matchAll(/^export\s+function\s+(\w+)/gm), function(match) {
+    return match[1];
+  });
 
-  vm.runInThisContext(source, { filename: DATE_LIB });
+  return vm.runInThisContext(
+    '(function() {' + source.replace(/^export\s+/gm, '') + '\nreturn { ' + names.join(', ') + ' };\n})()',
+    { filename: DATE_LIB }
+  );
 }
 
-// Evaluates the form's <script> and returns the component options. Imports that
-// src/libs/date.js doesn't provide are stubbed; none of them affect the date.
-function loadForm() {
+// Evaluates the form's <script> and returns the component options. Imports from
+// src/libs/date.js are real and must be exported there. Every other import is stubbed.
+function loadForm(dateLib) {
   const script = fs.readFileSync(FORM, 'utf8').match(/<script>([\s\S]*)<\/script>/)[1];
-  const importPattern = /^import\s+([\s\S]*?)\s+from\s+'[^']+';$/gm;
+  const importPattern = /^import\s+([\s\S]*?)\s+from\s+'([^']+)';$/gm;
 
   for (const match of script.matchAll(importPattern)) {
     match[1].replace(/[{}]/g, '').split(',').forEach(function(specifier) {
-      const name = specifier.trim().split(/\s+as\s+/).pop();
+      const names = specifier.trim().split(/\s+as\s+/);
+      const local = names[names.length - 1];
 
-      if (!(name in global)) {
-        global[name] = function() {
+      if (match[2] !== '../libs/date') {
+        global[local] = function() {
           return {};
         };
+
+        return;
       }
+
+      if (!dateLib[names[0]]) {
+        throw new Error(names[0] + ' is not exported by src/libs/date.js');
+      }
+
+      global[local] = dateLib[names[0]];
     });
   }
 
   global.validateTimezone = function(name) {
     return name;
   };
+
   global._ = {
     get: function(object, keys, fallback) {
       const value = keys.split('.').reduce(function(current, key) {
@@ -67,6 +84,7 @@ function loadForm() {
     },
     isArray: Array.isArray
   };
+
   global.Fliplet = {
     Notifications: { init: function() {} },
     Apps: { get: function() {
@@ -104,10 +122,9 @@ function runChild() {
   const input = JSON.parse(fs.readFileSync(0, 'utf8'));
 
   global.moment = moment;
-  loadDateLib();
 
-  const form = loadForm();
-  const toCalendarDate = global.toCalendarDate;
+  const dateLib = loadDateLib();
+  const form = loadForm(dateLib);
   const read = function(d) {
     return [
       d.getFullYear(),
@@ -128,13 +145,20 @@ function runChild() {
     };
   });
 
-  // Scheduled, but with no send time stored
-  const before = moment().unix();
-  const fallback = {
-    scheduledAt: form.computed.scheduledAt.call(openInForm(form, { scheduledAtTimezone: 'Asia/Tokyo' })),
-    before: before,
-    after: moment().unix()
-  };
+  // Scheduled, but with no usable send time stored. Errors are reported per value so
+  // that a crash here doesn't hide the date results.
+  const missing = input.missing.map(function(item) {
+    const metadata = Object.assign({ scheduledAtTimezone: 'Asia/Tokyo' }, item);
+    const before = moment().unix();
+
+    try {
+      const scheduledAt = form.computed.scheduledAt.call(openInForm(form, metadata));
+
+      return { scheduledAt: scheduledAt, before: before, after: moment().unix() };
+    } catch (error) {
+      return { error: error.message };
+    }
+  });
 
   // Pretend "now" is Jan 31 so a naive setMonth(1) would overflow into March.
   const NativeDate = Date;
@@ -152,12 +176,12 @@ function runChild() {
   global.Date = Jan31Date;
 
   const overflow = input.overflow.map(function(item) {
-    return read(toCalendarDate(item[0], item[1], item[2]));
+    return read(dateLib.toCalendarDate(item[0], item[1], item[2]));
   });
 
   global.Date = NativeDate;
 
-  process.stdout.write(JSON.stringify({ cases: cases, overflow: overflow, fallback: fallback }));
+  process.stdout.write(JSON.stringify({ cases: cases, overflow: overflow, missing: missing }));
 }
 
 if (process.argv.includes(CHILD_FLAG)) {
@@ -190,6 +214,9 @@ function defineTests() {
   // [year, zero-based month, day] built while "now" is Jan 31
   const OVERFLOW = [[2027, 1, 28], [2028, 1, 29], [2027, 3, 30]];
 
+  // Stored metadata with no usable send time
+  const MISSING = [{}, { scheduledAt: null }, { scheduledAt: 0 }, { scheduledAt: '' }, { scheduledAt: 'invalid' }];
+
   const cases = [];
 
   STORED_TIMEZONES.forEach(function(timezone) {
@@ -213,7 +240,7 @@ function defineTests() {
 
     const output = childProcess.execFileSync(process.execPath, [__filename, CHILD_FLAG], {
       env: env,
-      input: JSON.stringify({ cases: cases, overflow: OVERFLOW }),
+      input: JSON.stringify({ cases: cases, overflow: OVERFLOW, missing: MISSING }),
       encoding: 'utf8'
     });
 
@@ -237,13 +264,20 @@ function defineTests() {
     });
 
     test('a missing send time defaults to two hours ahead for a viewer in ' + viewerTimezone, function() {
-      const fallback = runInTimezone(viewerTimezone).fallback;
+      const result = runInTimezone(viewerTimezone);
 
-      // Seconds are dropped because the form only holds hours and minutes
-      assert.ok(fallback.scheduledAt > fallback.before + 2 * 3600 - 60,
-        'send time is not earlier than two hours ahead');
-      assert.ok(fallback.scheduledAt <= fallback.after + 2 * 3600,
-        'send time is not later than two hours ahead');
+      MISSING.forEach(function(metadata, index) {
+        const actual = result.missing[index];
+        const label = JSON.stringify(metadata);
+
+        assert.strictEqual(actual.error, undefined, 'form opens for ' + label);
+
+        // Seconds are dropped because the form only holds hours and minutes
+        assert.ok(actual.scheduledAt > actual.before + 2 * 3600 - 60,
+          'send time is not earlier than two hours ahead for ' + label);
+        assert.ok(actual.scheduledAt <= actual.after + 2 * 3600,
+          'send time is not later than two hours ahead for ' + label);
+      });
     });
 
     test('scheduled date does not overflow the month when today is the 31st, viewer in ' + viewerTimezone, function() {

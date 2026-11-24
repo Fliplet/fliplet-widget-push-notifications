@@ -1935,7 +1935,9 @@ function toCalendarDate(year, month, day) {
  */
 function getScheduleFields(scheduledAt, timezone) {
   var date = moment.utc(moment.unix(scheduledAt));
-  if (!date.isValid()) {
+
+  // null, 0 and '' would be read as 1 January 1970
+  if (!scheduledAt || !date.isValid()) {
     // Same default as a new notification. The current time would be in the past
     // by the time the user saves, and the API sends those immediately.
     date = moment.utc().add(2, 'hours');
