@@ -185,18 +185,11 @@ function loadWidget(moment) {
   const store = loadSource('store/index.js', { 'libs/date': date });
   const modules = { 'libs/date': date, 'libs/timezones': timezones, store: store };
 
-  // Timezones that aren't in the picker are kept, so that they can be tested
-  const formTimezones = Object.assign({}, timezones, {
-    validate: function(name) {
-      return name;
-    }
-  });
-
   return {
     date: date,
     timezones: timezones,
     store: store,
-    form: loadSource('components/NotificationForm.vue', Object.assign({}, modules, { 'libs/timezones': formTimezones })),
+    form: loadSource('components/NotificationForm.vue', modules),
     list: loadSource('components/NotificationList.vue', modules),
     timepicker: loadSource('components/Timepicker.vue', modules)
   };
@@ -212,7 +205,10 @@ function openForm(widget) {
   });
 
   Object.keys(form.computed).forEach(function(name) {
-    Object.defineProperty(state, name, { get: form.computed[name].get || form.computed[name] });
+    Object.defineProperty(state, name, {
+      get: form.computed[name].get || form.computed[name],
+      set: form.computed[name].set
+    });
   });
 
   // Vue doesn't track properties that data() doesn't declare, so mounted() can't add any
@@ -339,23 +335,35 @@ function runChild() {
 
     try {
       const state = openNotification(widget, item.action, item.notification);
-      let sentStatus;
+      const send = function() {
+        let sentStatus;
 
-      widget.form.methods.send.call({
-        schedule: state.schedule,
-        save: function(status) {
-          sentStatus = status;
-        }
-      });
+        widget.form.methods.send.call({
+          schedule: state.schedule,
+          save: function(status) {
+            sentStatus = status;
+          }
+        });
 
-      return {
+        return sentStatus;
+      };
+
+      const result = {
         schedule: state.schedule,
+        timezone: state.scheduledAtTimezone,
         scheduledAt: state.scheduledAt,
         orderAt: state.orderAt,
         titleCharactersRemaining: state.titleCharactersRemaining,
-        sentStatus: sentStatus,
-        mutated: !util.isDeepStrictEqual(before, item.notification)
+        sentStatus: send()
       };
+
+      // Clicking Now in the form
+      state.schedule = 'now';
+
+      return Object.assign(result, {
+        sentStatusAfterNow: send(),
+        mutated: !util.isDeepStrictEqual(before, item.notification)
+      });
     } catch (error) {
       return { error: error.message };
     }
@@ -472,7 +480,8 @@ function defineTests() {
     'Australia/Sydney'
   ];
 
-  const STORED_TIMEZONES = ['America/Chicago', 'Australia/Sydney'];
+  // Stored timezones are values from the picker, because any other is replaced when the form opens
+  const STORED_TIMEZONES = ['US/Central', 'Australia/Canberra'];
 
   // Covers both DST states for the stored and viewer zones, a late-evening time and a year boundary.
   const TARGETS = ['2026-12-10 09:30', '2027-04-10 09:30', '2027-07-15 23:30', '2027-01-01 00:15'];
@@ -505,8 +514,8 @@ function defineTests() {
 
   // Usable scheduledAt values. The saved value must be a whole number, because the API
   // parses a string orderAt as a date. orderAt is in the past, so it must not be used for these.
-  const STORED = moment.tz('2027-07-15 23:30:37', 'YYYY-MM-DD HH:mm:ss', 'America/Chicago').unix();
-  const PAST = moment.tz('2026-01-15 09:30', 'YYYY-MM-DD HH:mm', 'America/Chicago').unix();
+  const STORED = moment.tz('2027-07-15 23:30:37', 'YYYY-MM-DD HH:mm:ss', 'US/Central').unix();
+  const PAST = moment.tz('2026-01-15 09:30', 'YYYY-MM-DD HH:mm', 'US/Central').unix();
 
   const USABLE = [
     { name: 'a time with seconds', scheduledAt: STORED, expected: STORED },
@@ -519,7 +528,7 @@ function defineTests() {
     return Object.assign({
       status: 'scheduled',
       orderAt: YESTERDAY.toISOString(),
-      metadata: { scheduledAt: item.scheduledAt, scheduledAtTimezone: 'America/Chicago' }
+      metadata: { scheduledAt: item.scheduledAt, scheduledAtTimezone: 'US/Central' }
     }, item);
   });
 
@@ -541,7 +550,7 @@ function defineTests() {
       name: item.status + ', scheduledAt ' + item.scheduledAt + ', orderAt ' + item.orderAt.unix(),
       status: item.status,
       orderAt: item.orderAt.toISOString(),
-      metadata: { scheduledAt: item.scheduledAt, scheduledAtTimezone: 'America/Chicago' },
+      metadata: { scheduledAt: item.scheduledAt, scheduledAtTimezone: 'US/Central' },
       expected: item.expected
     };
   });
@@ -550,14 +559,14 @@ function defineTests() {
     return { title: 'Title', message: 'Message', _metadata: metadata };
   };
 
-  // Data without a 'now' or 'scheduled' schedule, e.g. from the JS API
+  // Data without a 'scheduled' schedule, e.g. from the JS API
   const UNFLAGGED = [
     { name: 'no _metadata', data: { title: 'Title', message: 'Message' } },
     { name: '_metadata null', data: withMetadata(null) },
     { name: '_metadata {}', data: withMetadata({}) },
     { name: 'data missing' },
     { name: 'data null', data: null }
-  ].concat([undefined, null, '', 'later', 1, true, {}].map(function(schedule) {
+  ].concat([undefined, null, '', 'later', 1, true, {}, 'now'].map(function(schedule) {
     return { name: 'schedule ' + JSON.stringify(schedule), data: withMetadata({ schedule: schedule }) };
   }));
 
@@ -606,9 +615,7 @@ function defineTests() {
   });
 
   [LATER].concat(NOT_LATER).forEach(function(fields) {
-    ['now', 'scheduled'].forEach(function(schedule) {
-      addOpened('schedule ' + schedule, fields, withMetadata({ schedule: schedule }), schedule);
-    });
+    addOpened('schedule scheduled', fields, withMetadata({ schedule: 'scheduled' }), 'scheduled');
   });
 
   // Instants around clock changes. All of these timezones are in the picker.
@@ -661,15 +668,15 @@ function defineTests() {
   });
 
   // Edits to a notification stored for 15 July 2027 23:30:37 in Chicago
-  const EDITED = { scheduledAt: STORED, timezone: 'America/Chicago', day: [2027, 6, 15] };
+  const EDITED = { scheduledAt: STORED, timezone: 'US/Central', day: [2027, 6, 15] };
 
   const EDITS = [
-    { name: 'hour', fields: { scheduledAtHour: 22 }, expected: ['2027-07-15 22:30', 'America/Chicago'] },
-    { name: 'minute', fields: { scheduledAtMinute: 31 }, expected: ['2027-07-15 23:31', 'America/Chicago'] },
+    { name: 'hour', fields: { scheduledAtHour: 22 }, expected: ['2027-07-15 22:30', 'US/Central'] },
+    { name: 'minute', fields: { scheduledAtMinute: 31 }, expected: ['2027-07-15 23:31', 'US/Central'] },
     { name: 'timezone', fields: { scheduledAtTimezone: 'Asia/Tokyo' }, expected: ['2027-07-15 23:30', 'Asia/Tokyo'] },
-    { name: 'day', day: [2027, 6, 16], expected: ['2027-07-16 23:30', 'America/Chicago'] },
-    { name: 'month', day: [2027, 7, 15], expected: ['2027-08-15 23:30', 'America/Chicago'] },
-    { name: 'year', day: [2028, 6, 15], expected: ['2028-07-15 23:30', 'America/Chicago'] }
+    { name: 'day', day: [2027, 6, 16], expected: ['2027-07-16 23:30', 'US/Central'] },
+    { name: 'month', day: [2027, 7, 15], expected: ['2027-08-15 23:30', 'US/Central'] },
+    { name: 'year', day: [2028, 6, 15], expected: ['2028-07-15 23:30', 'US/Central'] }
   ];
 
   // [hour, minute] of a new date object for the same day
@@ -678,7 +685,7 @@ function defineTests() {
   // 01:30 happens twice on these days. Both times must be kept.
   const REPEATED_HOURS = [
     { timezone: 'Europe/London', target: '2027-10-31 01:30', utc: ['2027-10-31T00:30:00Z', '2027-10-31T01:30:00Z'] },
-    { timezone: 'America/Chicago', target: '2027-11-07 01:30', utc: ['2027-11-07T06:30:00Z', '2027-11-07T07:30:00Z'] }
+    { timezone: 'US/Central', target: '2027-11-07 01:30', utc: ['2027-11-07T06:30:00Z', '2027-11-07T07:30:00Z'] }
   ];
 
   const cases = [];
@@ -818,7 +825,7 @@ function defineTests() {
       });
     });
 
-    test('a scheduled notification without a schedule opens in Later, viewer in ' + viewerTimezone, function() {
+    test('a scheduled notification with a future orderAt opens in Later, viewer in ' + viewerTimezone, function() {
       const result = runInTimezone(viewerTimezone);
 
       opened.forEach(function(item, index) {
@@ -829,7 +836,12 @@ function defineTests() {
         assert.strictEqual(actual.schedule, item.schedule, 'schedule for ' + item.name);
         assert.strictEqual(actual.sentStatus, item.schedule === 'scheduled' ? 'scheduled' : 'published',
           'status on send for ' + item.name);
+        assert.strictEqual(actual.sentStatusAfterNow, 'published', 'status on send after choosing Now for ' + item.name);
         assert.strictEqual(typeof actual.titleCharactersRemaining, 'number', 'title is shown for ' + item.name);
+
+        if (item.schedule === 'scheduled') {
+          assert.strictEqual(actual.timezone, 'Europe/London', 'default timezone for ' + item.name);
+        }
 
         if (item.schedule === 'scheduled' && item.notification.status === 'scheduled'
           && item.notification.orderAt === LATER.orderAt) {
