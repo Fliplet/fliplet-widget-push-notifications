@@ -253,7 +253,7 @@ import { getAssetRoot, getNotification, getNotificationLinkAction,
   getShowTimezone, getDefaultNotification, getAppPages } from '../store';
 import bus from '../libs/bus';
 import { filterTypes, getFilterScope, getFilterVerbose } from '../libs/scope';
-import { formatDate, toCalendarDate } from '../libs/date';
+import { formatDate, getScheduleFields, getScheduledTimestamp } from '../libs/date';
 import {
   validate as validateTimezone,
   getOffsetString as getTimezoneOffsetString
@@ -357,18 +357,13 @@ export default {
     this.initializeProviders();
 
     if (this.schedule === 'scheduled') {
-      let date = moment.utc(moment.unix(_.get(this.notification, 'data._metadata.scheduledAt')));
-
-      if (!date.isValid()) {
-        date = moment.utc();
-      }
-
       this.scheduledAtTimezone = validateTimezone(_.get(this.notification, 'data._metadata.scheduledAtTimezone'));
-      date.tz(this.scheduledAtTimezone);
 
-      this.scheduledAtDate = toCalendarDate(date.year(), date.month(), date.date());
-      this.scheduledAtHour = date.get('hour');
-      this.scheduledAtMinute = date.get('minute');
+      const fields = getScheduleFields(_.get(this.notification, 'data._metadata.scheduledAt'), this.scheduledAtTimezone);
+
+      this.scheduledAtDate = fields.date;
+      this.scheduledAtHour = fields.hour;
+      this.scheduledAtMinute = fields.minute;
     }
 
     Fliplet.Apps.get().then((apps) => {
@@ -464,15 +459,11 @@ export default {
       return this.filterScopes.length ? { $and: this.filterScopes } : {};
     },
     scheduledAt() {
-      const timestamp = moment.tz([
-        this.scheduledAtDate.getFullYear(),
-        this.scheduledAtDate.getMonth(),
-        this.scheduledAtDate.getDate(),
-        this.scheduledAtHour,
-        this.scheduledAtMinute
-      ], this.scheduledAtTimezone);
-
-      return timestamp.utc().unix();
+      return getScheduledTimestamp({
+        date: this.scheduledAtDate,
+        hour: this.scheduledAtHour,
+        minute: this.scheduledAtMinute
+      }, this.scheduledAtTimezone);
     },
     orderAt() {
       if (this.schedule === 'scheduled') {

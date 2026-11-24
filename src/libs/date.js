@@ -89,6 +89,46 @@ export function toCalendarDate(year, month, day) {
   return date;
 }
 
+/**
+ * Reads a stored send time into the values shown on the schedule step.
+ * @param {Number} scheduledAt - UNIX timestamp in seconds
+ * @param {String} timezone - Timezone the notification is scheduled in
+ * @returns {Object} Calendar date, hour and minute in the given timezone
+ */
+export function getScheduleFields(scheduledAt, timezone) {
+  let date = moment.utc(moment.unix(scheduledAt));
+
+  if (!date.isValid()) {
+    // Same default as a new notification. The current time would be in the past
+    // by the time the user saves, and the API sends those immediately.
+    date = moment.utc().add(2, 'hours');
+  }
+
+  date.tz(timezone);
+
+  return {
+    date: toCalendarDate(date.year(), date.month(), date.date()),
+    hour: date.get('hour'),
+    minute: date.get('minute')
+  };
+}
+
+/**
+ * Converts the values picked on the schedule step back to a send time.
+ * @param {Object} fields - Calendar date, hour and minute
+ * @param {String} timezone - Timezone the values are in
+ * @returns {Number} UNIX timestamp in seconds
+ */
+export function getScheduledTimestamp(fields, timezone) {
+  return moment.tz([
+    fields.date.getFullYear(),
+    fields.date.getMonth(),
+    fields.date.getDate(),
+    fields.hour,
+    fields.minute
+  ], timezone).utc().unix();
+}
+
 export function calendarDate(value) {
   return moment(value).calendar(null, {
     sameDay: '[Today at] h:mm A',

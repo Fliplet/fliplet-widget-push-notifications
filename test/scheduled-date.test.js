@@ -1,9 +1,12 @@
 /**
  * Guards the date the schedule step loads when a scheduled notification is
- * copied or edited (src/components/NotificationForm.vue mount). See PS-2188.
+ * copied or edited (src/components/NotificationForm.vue). See PS-2188.
+ *
+ * Runs the form's own mounted() and scheduledAt, not a copy of them, so undoing
+ * the fix in the component or in src/libs/date.js fails here.
  *
  * The bundle patches Date.prototype get and set methods (src/libs/date.js) to read
- * with the viewer's offset captured at page load. The mount block must build the
+ * with the viewer's offset captured at page load. The form must build the
  * datepicker date so that those patched getters return the stored calendar day.
  * Otherwise, saving an edit moves the notification to a different day.
  *
@@ -20,6 +23,7 @@ const childProcess = require('child_process');
 
 const VENDOR = path.join(__dirname, '..', 'vendor', 'moment-timezone-with-data-10-year-range.min.js');
 const DATE_LIB = path.join(__dirname, '..', 'src', 'libs', 'date.js');
+const FORM = path.join(__dirname, '..', 'src', 'components', 'NotificationForm.vue');
 const CHILD_FLAG = '--scheduled-date-child';
 
 // Applies src/libs/date.js to this process, as the bundle does in the browser.
@@ -29,7 +33,72 @@ function loadDateLib() {
   vm.runInThisContext(source, { filename: DATE_LIB });
 }
 
-// Child mode: runs the mount block and the scheduledAt computed under the patch.
+// Evaluates the form's <script> and returns the component options. Imports that
+// src/libs/date.js doesn't provide are stubbed; none of them affect the date.
+function loadForm() {
+  const script = fs.readFileSync(FORM, 'utf8').match(/<script>([\s\S]*)<\/script>/)[1];
+  const importPattern = /^import\s+([\s\S]*?)\s+from\s+'[^']+';$/gm;
+
+  for (const match of script.matchAll(importPattern)) {
+    match[1].replace(/[{}]/g, '').split(',').forEach(function(specifier) {
+      const name = specifier.trim().split(/\s+as\s+/).pop();
+
+      if (!(name in global)) {
+        global[name] = function() {
+          return {};
+        };
+      }
+    });
+  }
+
+  global.validateTimezone = function(name) {
+    return name;
+  };
+  global._ = {
+    get: function(object, keys, fallback) {
+      const value = keys.split('.').reduce(function(current, key) {
+        return current === undefined || current === null ? undefined : current[key];
+      }, object);
+
+      return value === undefined ? fallback : value;
+    },
+    defaultsDeep: function(object) {
+      return object;
+    },
+    isArray: Array.isArray
+  };
+  global.Fliplet = {
+    Notifications: { init: function() {} },
+    Apps: { get: function() {
+      return new Promise(function() {});
+    } }
+  };
+
+  vm.runInThisContext(
+    script.replace(importPattern, '').replace('export default {', 'var NotificationForm = {'),
+    { filename: FORM }
+  );
+
+  return global.NotificationForm;
+}
+
+// Opens a notification in the form, as copy and edit do, and returns the form state.
+function openInForm(form, metadata) {
+  const noop = function() {};
+  const state = {
+    schedule: 'scheduled',
+    notification: { data: { _metadata: metadata } },
+    getAsset: noop,
+    getMatches: noop,
+    initializeProviders: noop
+  };
+
+  form.mounted.call(state);
+
+  return state;
+}
+
+// Child mode: opens each notification in the form under the patch.
 function runChild() {
   const moment = require(VENDOR);
   const input = JSON.parse(fs.readFileSync(0, 'utf8'));
@@ -37,6 +106,7 @@ function runChild() {
   global.moment = moment;
   loadDateLib();
 
+  const form = loadForm();
   const toCalendarDate = global.toCalendarDate;
   const read = function(d) {
     return [
@@ -47,26 +117,24 @@ function runChild() {
   };
 
   const cases = input.cases.map(function(item) {
-    // NotificationForm.vue mount
-    const date = moment.utc(moment.unix(item.scheduledAt));
+    const state = openInForm(form, {
+      scheduledAt: item.scheduledAt,
+      scheduledAtTimezone: item.timezone
+    });
 
-    date.tz(item.timezone);
-
-    const scheduledAtDate = toCalendarDate(date.year(), date.month(), date.date());
-    const hour = date.get('hour');
-    const minute = date.get('minute');
-
-    // NotificationForm.vue scheduledAt computed
-    const scheduledAt = moment.tz([
-      scheduledAtDate.getFullYear(),
-      scheduledAtDate.getMonth(),
-      scheduledAtDate.getDate(),
-      hour,
-      minute
-    ], item.timezone).utc().unix();
-
-    return { read: read(scheduledAtDate), scheduledAt: scheduledAt };
+    return {
+      read: read(state.scheduledAtDate),
+      scheduledAt: form.computed.scheduledAt.call(state)
+    };
   });
+
+  // Scheduled, but with no send time stored
+  const before = moment().unix();
+  const fallback = {
+    scheduledAt: form.computed.scheduledAt.call(openInForm(form, { scheduledAtTimezone: 'Asia/Tokyo' })),
+    before: before,
+    after: moment().unix()
+  };
 
   // Pretend "now" is Jan 31 so a naive setMonth(1) would overflow into March.
   const NativeDate = Date;
@@ -89,7 +157,7 @@ function runChild() {
 
   global.Date = NativeDate;
 
-  process.stdout.write(JSON.stringify({ cases: cases, overflow: overflow }));
+  process.stdout.write(JSON.stringify({ cases: cases, overflow: overflow, fallback: fallback }));
 }
 
 if (process.argv.includes(CHILD_FLAG)) {
@@ -166,6 +234,16 @@ function defineTests() {
       });
 
       t.diagnostic('checked ' + cases.length + ' stored dates');
+    });
+
+    test('a missing send time defaults to two hours ahead for a viewer in ' + viewerTimezone, function() {
+      const fallback = runInTimezone(viewerTimezone).fallback;
+
+      // Seconds are dropped because the form only holds hours and minutes
+      assert.ok(fallback.scheduledAt > fallback.before + 2 * 3600 - 60,
+        'send time is not earlier than two hours ahead');
+      assert.ok(fallback.scheduledAt <= fallback.after + 2 * 3600,
+        'send time is not later than two hours ahead');
     });
 
     test('scheduled date does not overflow the month when today is the 31st, viewer in ' + viewerTimezone, function() {
