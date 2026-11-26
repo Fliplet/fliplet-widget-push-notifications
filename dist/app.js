@@ -1093,10 +1093,12 @@ function setView(view) {
 }
 function setNotification(notification) {
   var stored = _.defaultsDeep({}, notification);
+  var schedule = _.get(stored, 'data._metadata.schedule');
 
-  // Must open in Later whatever schedule is stored, so that saving an edit doesn't send it now.
-  // Notifications scheduled through the API may not have a schedule.
-  if (Object(_libs_date__WEBPACK_IMPORTED_MODULE_1__["getScheduledOrderAt"])(stored) !== null) {
+  // Notifications scheduled through the API may not have a schedule, and the defaults would set it to 'now'.
+  // A stored 'now' stays Now: a Later notification switched to Now keeps its future orderAt and
+  // status 'scheduled' while its send is throttled, and saving it in Later would reschedule it.
+  if (schedule !== 'now' && Object(_libs_date__WEBPACK_IMPORTED_MODULE_1__["getScheduledOrderAt"])(stored) !== null) {
     _.set(stored, 'data._metadata.schedule', 'scheduled');
   }
   state.notification = _.defaultsDeep(stored, getDefaultNotification());

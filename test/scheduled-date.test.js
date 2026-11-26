@@ -110,7 +110,53 @@ function createLodash() {
       return Object.assign({}, object);
     },
     extend: Object.assign,
+    // As in lodash, a missing object becomes a new one
+    assign: function(object, ...sources) {
+      return Object.assign(Object(object), ...sources);
+    },
     defaultsDeep: defaultsDeep,
+    // As in lodash, undefined values don't replace existing ones, and objects and arrays are merged deeply
+    merge: function merge(target, ...sources) {
+      sources.filter(isObject).forEach(function(source) {
+        Object.keys(source).forEach(function(key) {
+          const value = source[key];
+
+          if (value === undefined && key in target) {
+            return;
+          }
+
+          if (!isObject(value)) {
+            target[key] = value;
+          } else {
+            target[key] = merge(isObject(target[key]) ? target[key] : (Array.isArray(value) ? [] : {}), value);
+          }
+        });
+      });
+
+      return target;
+    },
+    remove: function(list, fn) {
+      const removed = list.filter(fn);
+
+      removed.forEach(function(item) {
+        list.splice(list.indexOf(item), 1);
+      });
+
+      return removed;
+    },
+    isEmpty: function(value) {
+      if (value === null || value === undefined) {
+        return true;
+      }
+
+      return typeof value === 'object' && !Array.isArray(value) ? !Object.keys(value).length : !value.length;
+    },
+    includes: function(list, value) {
+      return list.indexOf(value) > -1;
+    },
+    compact: function(list) {
+      return list.filter(Boolean);
+    },
     isArray: Array.isArray
   };
 }
@@ -443,19 +489,87 @@ function runChild() {
 
   global.Date = NativeDate;
 
-  process.stdout.write(JSON.stringify({
-    cases: cases,
-    saved: saved,
-    edits: edits,
-    repicked: repicked,
-    overflow: overflow,
-    opened: opened,
-    created: created,
-    offsets: offsets,
-    otherOffsets: otherOffsets,
-    listDates: listDates,
-    timepicker: timepicker
-  }));
+  // Opened from the list, the message edited and sent with the form's own send() and save().
+  // Returns what the form sends to the API. Errors are reported per notification.
+  const sendEdited = function(item) {
+    const before = v8.deserialize(v8.serialize(item.notification));
+
+    return new Promise(function(resolve) {
+      let timer;
+      const done = function(result) {
+        clearTimeout(timer);
+        resolve(Object.assign(result, { mutated: !util.isDeepStrictEqual(before, item.notification) }));
+      };
+
+      timer = setTimeout(function() {
+        done({ error: 'the notification was not saved' });
+      }, 2000);
+
+      global.Fliplet.Modal = { alert: function(options) {
+        done({ error: options.message });
+      } };
+      global.Fliplet.parseError = function(error) {
+        return error && error.message;
+      };
+
+      try {
+        const state = openNotification(widget, item.action, item.notification);
+        const capture = function(method) {
+          return function(id, payload) {
+            payload = method === 'insert' ? id : payload;
+
+            done({
+              schedule: state.schedule,
+              method: method,
+              status: payload.status,
+              hasOrderAt: 'orderAt' in payload,
+              orderAt: payload.orderAt,
+              message: payload.data.message,
+              sentSchedule: payload.data._metadata.schedule
+            });
+
+            // Not answering keeps the success alert out of the test
+            return new Promise(noop);
+          };
+        };
+        const form = Object.assign(Object.create(state), widget.form.methods, {
+          initializeProviders: noop,
+          getMatches: noop,
+          instance: { insert: capture('insert'), update: capture('update') }
+        });
+
+        // On the review step, where the Send button is
+        form.step = form.steps.length - 1;
+        form.notification.data.message = 'Edited message';
+        form.send();
+      } catch (error) {
+        done({ error: error.message });
+      }
+    });
+  };
+
+  input.sent.reduce(function(chain, item) {
+    return chain.then(function(results) {
+      return sendEdited(item).then(function(result) {
+        return results.concat([result]);
+      });
+    });
+  }, Promise.resolve([])).then(function(sent) {
+    process.stdout.write(JSON.stringify({
+      cases: cases,
+      saved: saved,
+      edits: edits,
+      repicked: repicked,
+      overflow: overflow,
+      opened: opened,
+      sent: sent,
+      created: created,
+      offsets: offsets,
+      otherOffsets: otherOffsets,
+      listDates: listDates,
+      timepicker: timepicker
+    }));
+  });
 }
 
 if (process.argv.includes(CHILD_FLAG)) {
@@ -559,14 +673,14 @@ function defineTests() {
     return { title: 'Title', message: 'Message', _metadata: metadata };
   };
 
-  // Data without a 'scheduled' schedule, e.g. from the JS API
+  // Data without a 'now' or 'scheduled' schedule, e.g. from the JS API
   const UNFLAGGED = [
     { name: 'no _metadata', data: { title: 'Title', message: 'Message' } },
     { name: '_metadata null', data: withMetadata(null) },
     { name: '_metadata {}', data: withMetadata({}) },
     { name: 'data missing' },
     { name: 'data null', data: null }
-  ].concat([undefined, null, '', 'later', 1, true, {}, 'now'].map(function(schedule) {
+  ].concat([undefined, null, '', 'later', 1, true, {}].map(function(schedule) {
     return { name: 'schedule ' + JSON.stringify(schedule), data: withMetadata({ schedule: schedule }) };
   }));
 
@@ -614,8 +728,50 @@ function defineTests() {
     });
   });
 
+  // A stored 'now' stays Now even with a future orderAt: while a Later notification switched to
+  // Now waits for its throttled send, the API keeps status 'scheduled' and the old orderAt.
   [LATER].concat(NOT_LATER).forEach(function(fields) {
-    addOpened('schedule scheduled', fields, withMetadata({ schedule: 'scheduled' }), 'scheduled');
+    ['now', 'scheduled'].forEach(function(schedule) {
+      addOpened('schedule ' + schedule, fields, withMetadata({ schedule: schedule }), schedule);
+    });
+  });
+
+  // Text-only edits sent from the form. A throttled Later notification switched to Now
+  // (status 'scheduled', future orderAt, schedule 'now') must be sent now without an orderAt,
+  // because the API would reschedule it to orderAt. One without a schedule keeps its orderAt.
+  const sent = [];
+
+  [
+    { schedule: 'now', status: 'published' },
+    { schedule: undefined, status: 'scheduled' }
+  ].forEach(function(item) {
+    [['editNotification', 'update'], ['cloneNotification', 'insert']].forEach(function(action) {
+      sent.push({
+        name: action[0] + ', schedule ' + item.schedule + ', status scheduled, future orderAt',
+        action: action[0],
+        notification: {
+          id: 1,
+          type: 'in-app',
+          scope: {},
+          status: 'scheduled',
+          orderAt: FUTURE.toISOString(),
+          data: withMetadata({ schedule: item.schedule, scheduledAt: FUTURE.unix(), scheduledAtTimezone: 'US/Central' })
+        },
+        expected: {
+          schedule: item.status === 'published' ? 'now' : 'scheduled',
+          method: action[1],
+          status: item.status,
+          hasOrderAt: item.status === 'scheduled',
+          message: 'Edited message',
+          sentSchedule: item.status === 'published' ? 'now' : 'scheduled',
+          mutated: false
+        }
+      });
+
+      if (item.status === 'scheduled') {
+        sent[sent.length - 1].expected.orderAt = FUTURE.unix();
+      }
+    });
   });
 
   // Instants around clock changes. All of these timezones are in the picker.
@@ -740,6 +896,7 @@ function defineTests() {
         repicked: REPICKED,
         overflow: OVERFLOW,
         opened: opened,
+        sent: sent,
         offsets: OFFSETS,
         listRows: listRows,
         labelDays: LABEL_DAYS
@@ -825,7 +982,7 @@ function defineTests() {
       });
     });
 
-    test('a scheduled notification with a future orderAt opens in Later, viewer in ' + viewerTimezone, function() {
+    test('a scheduled notification with a future orderAt opens in Later unless Now is stored, viewer in ' + viewerTimezone, function() {
       const result = runInTimezone(viewerTimezone);
 
       opened.forEach(function(item, index) {
@@ -851,6 +1008,16 @@ function defineTests() {
       });
 
       assert.deepStrictEqual(result.created, { schedule: 'now', isDefault: true });
+    });
+
+    test('a text-only edit of a throttled Now send is sent now without its orderAt, viewer in ' + viewerTimezone, function() {
+      const result = runInTimezone(viewerTimezone);
+
+      assert.strictEqual(result.sent.length, sent.length);
+
+      sent.forEach(function(item, index) {
+        assert.deepStrictEqual(result.sent[index], item.expected, item.name);
+      });
     });
 
     test('timezone offsets are exact around clock changes, viewer in ' + viewerTimezone, function() {
