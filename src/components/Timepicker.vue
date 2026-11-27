@@ -109,6 +109,10 @@ export default {
   },
   computed: {
     adjustedTimezones() {
+      // Changes the form's own date on purpose. The datepicker builds its days at this hour, and at
+      // midnight it shows the wrong days for months on the other side of a clock change.
+      this.date.setHours(12);
+
       return _.orderBy(_.map(this.timezones, (timezone) => {
         const offset = getTimezoneOffsetObject(timezone.value, this.date);
 

@@ -253,7 +253,7 @@ import { getAssetRoot, getNotification, getNotificationLinkAction,
   getShowTimezone, getDefaultNotification, getAppPages } from '../store';
 import bus from '../libs/bus';
 import { filterTypes, getFilterScope, getFilterVerbose } from '../libs/scope';
-import { formatDate } from '../libs/date';
+import { formatDate, getStoredSendTime, getScheduleFields, getScheduledTimestamp } from '../libs/date';
 import {
   validate as validateTimezone,
   getOffsetString as getTimezoneOffsetString
@@ -302,6 +302,7 @@ export default {
       scheduledAtHour: defaultScheduledAt.get('hour'),
       scheduledAtMinute: defaultScheduledAt.get('minute'),
       scheduledAtTimezone: validateTimezone(moment.tz.guess()),
+      loadedSchedule: null,
       disabledDates: {
         to: moment().subtract(1, 'days').toDate()
       },
@@ -357,19 +358,18 @@ export default {
     this.initializeProviders();
 
     if (this.schedule === 'scheduled') {
-      let date = moment.utc(moment.unix(_.get(this.notification, 'data._metadata.scheduledAt')));
-
-      if (!date.isValid()) {
-        date = moment.utc().unix();
-      }
-
       this.scheduledAtTimezone = validateTimezone(_.get(this.notification, 'data._metadata.scheduledAtTimezone'));
-      date.tz(this.scheduledAtTimezone);
 
-      // Use "Z" to indicate UTC timezone in the date string
-      this.scheduledAtDate = new Date(`${date.clone().startOf('day').locale('en-us').format('YYYY-MM-DDT00:00:00')}Z`);
-      this.scheduledAtHour = date.get('hour');
-      this.scheduledAtMinute = date.get('minute');
+      const sendTime = getStoredSendTime(this.notification);
+      const fields = getScheduleFields(sendTime, this.scheduledAtTimezone);
+
+      this.scheduledAtDate = fields.date;
+      this.scheduledAtHour = fields.hour;
+      this.scheduledAtMinute = fields.minute;
+
+      if (sendTime !== null) {
+        this.loadedSchedule = { sendTime, timezone: this.scheduledAtTimezone, fields };
+      }
     }
 
     Fliplet.Apps.get().then((apps) => {
@@ -465,15 +465,11 @@ export default {
       return this.filterScopes.length ? { $and: this.filterScopes } : {};
     },
     scheduledAt() {
-      const timestamp = moment.tz([
-        this.scheduledAtDate.getFullYear(),
-        this.scheduledAtDate.getMonth(),
-        this.scheduledAtDate.getDate(),
-        this.scheduledAtHour,
-        this.scheduledAtMinute
-      ], this.scheduledAtTimezone);
-
-      return timestamp.utc().unix();
+      return getScheduledTimestamp({
+        date: this.scheduledAtDate,
+        hour: this.scheduledAtHour,
+        minute: this.scheduledAtMinute
+      }, this.scheduledAtTimezone, this.loadedSchedule);
     },
     orderAt() {
       if (this.schedule === 'scheduled') {
